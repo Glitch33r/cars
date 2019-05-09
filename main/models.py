@@ -16,7 +16,7 @@ class Profile(models.Model):
     pass
 
 
-class FilterForm(models.Model):
+class Filter(models.Model):
     GEAR_BOX_TYPE = (
         ('ANY', 'Любая КПП'),
         ('AUTO', 'Автоматическая'),
@@ -40,10 +40,13 @@ class FilterForm(models.Model):
         ('YES', 'после ДТП'),
         ('ANY', 'с ДТП и без'),
     )
-
     model = models.ForeignKey('Model', null=True, on_delete=models.SET_NULL)
     mark = models.ForeignKey('Mark', null=True, on_delete=models.SET_NULL)
     location = models.ForeignKey('Location', null=True, on_delete=models.SET_NULL)
+    gearbox = models.CharField(choices=GEAR_BOX_TYPE, max_length=5, default=GEAR_BOX_TYPE[0][0])
+    sell = models.CharField(choices=SELL_TYPE, max_length=8, default=SELL_TYPE[0][0])
+    cleared = models.CharField(choices=CLEARED_TYPE, max_length=7, default=CLEARED_TYPE[0][0])
+    accident = models.CharField(choices=ACCIDENT_TYPE, max_length=3, default=ACCIDENT_TYPE[0][0])
 
     class Meta:
         managed = False

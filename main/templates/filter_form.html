@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <form method="get" action="{% url 'filter-handle' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" name="{{ form.prefix }}" value="Submit">Submit</button>
+    </form>
+{% endblock %}
