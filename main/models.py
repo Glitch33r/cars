@@ -13,7 +13,47 @@ class Profile(models.Model):
     class Meta:
         verbose_name_plural = 'Profiles'
 
-    pass
+
+class Car(models.Model):
+    GEAR_BOX_TYPE = (
+        ('AUTO', 'Автоматическая'),
+        ('MANUAL', 'Механическая'),
+    )
+
+    FUEL_TYPE = (
+        ('PETROL', 'Бензин'),
+        ('DIESEL', 'Дизель'),
+        ('OTHER', 'Другой'),
+    )
+
+    BODY = (
+        ('SEDAN', 'Седан'),
+        ('SUV', 'Внедорожник'),
+        ('MINIVAN', 'Минивэн'),
+        ('HATCHBACK', 'Хэтчбек'),
+        ('UNIVERSAL', 'Универсал'),
+        ('COUPE', 'Купе'),
+        ('CONVERTIBLE', 'Кабриолет'),
+        ('PICKUP', 'Пикап'),
+        ('OTHER', 'Другой'),
+    )
+
+    model = models.ForeignKey('Model', null=True, on_delete=models.SET_NULL)
+    mark = models.ForeignKey('Mark', null=True, on_delete=models.SET_NULL)
+    gearbox = models.CharField(choices=GEAR_BOX_TYPE, max_length=5)
+    location = models.ForeignKey('Location', null=True, on_delete=models.SET_NULL)
+    fuel = models.CharField(choices=GEAR_BOX_TYPE, max_length=5)
+    color = models.CharField(max_length=64)
+    year = models.CharField(max_length=64)
+    mileage = models.CharField(max_length=64)
+    engine = models.CharField(max_length=64)
+    description = models.CharField(max_length=1024)
+    price = models.CharField(max_length=64)
+    phones = models.CharField(max_length=255)
+    body = models.CharField(choices=GEAR_BOX_TYPE, max_length=12)
+
+    class Meta:
+        verbose_name_plural = 'Cars'
 
 
 class Filter(models.Model):
@@ -72,17 +112,3 @@ class Location(models.Model):
 
     def __str__(self):
         return self.region
-
-
-class Fuel(models.Model):
-    name = models.CharField(max_length=128, blank=False)
-
-    def __str__(self):
-        return self.name
-
-
-class Body(models.Model):
-    name = models.CharField(max_length=128, blank=False)
-
-    def __str__(self):
-        return self.name
