@@ -155,3 +155,27 @@ class Filter(models.Model):
 
     class Meta:
         managed = False
+
+
+class Mark(models.Model):
+    name = models.CharField(max_length=128, blank=False)
+    ria_id = models.CharField(max_length=50, blank=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Model(models.Model):
+    name = models.CharField(max_length=128, blank=False)
+    mark = models.ForeignKey(Mark, on_delete=models.CASCADE)
+    ria_id = models.CharField(max_length=50, blank=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Location(models.Model):
+    region = models.CharField(max_length=128, blank=False)
+
+    def __str__(self):
+        return self.region
