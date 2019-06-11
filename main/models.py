@@ -92,16 +92,18 @@ class Filter(models.Model):
         managed = False
 
 
-class Model(models.Model):
+class Mark(models.Model):
     name = models.CharField(max_length=128, blank=False)
+    ria_id = models.CharField(max_length=50, blank=True)
 
     def __str__(self):
         return self.name
 
 
-class Mark(models.Model):
+class Model(models.Model):
     name = models.CharField(max_length=128, blank=False)
-    model = models.ForeignKey(Model, null=True, on_delete=models.SET_NULL)
+    mark = models.ForeignKey(Mark, on_delete=models.CASCADE)
+    ria_id = models.CharField(max_length=50, blank=True)
 
     def __str__(self):
         return self.name
