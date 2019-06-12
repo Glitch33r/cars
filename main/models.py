@@ -108,7 +108,7 @@ class Car(models.Model):
     color = models.ForeignKey(Color, null=True, on_delete=models.SET_NULL)
     year = models.CharField(max_length=64)
     mileage = models.CharField(max_length=64)
-    engine = models.CharField(max_length=64)
+    engine = models.FloatField(null=True)
     description = models.CharField(max_length=1024)
     price = models.CharField(max_length=64)
     phone = models.ForeignKey(SellerPhone, null=True, on_delete=models.SET_NULL)
