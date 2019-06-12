@@ -26,8 +26,8 @@ class Plan(models.Model):
 
 
 class Order(models.Model):
-    user = models.ForeignKey(User,  null=True, on_delete=models.CASCADE)
-    plan = models.ForeignKey(Plan,  null=True, on_delete=models.SET_NULL)
+    user = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
+    plan = models.ForeignKey(Plan, null=True, on_delete=models.SET_NULL)
     date_transaction = models.DateTimeField(default=datetime.now())
     comment = models.TextField(blank=True)
     confirmed = models.BooleanField(default=False)
@@ -107,8 +107,8 @@ class Car(models.Model):
     engine = models.CharField(max_length=64)
     description = models.CharField(max_length=1024)
     price = models.CharField(max_length=64)
-    phone = models.ForeignKey(SellerPhone,  null=True,on_delete=models.SET_NULL)
-    body = models.ForeignKey(Body,  null=True, on_delete=models.SET_NULL)
+    phone = models.ForeignKey(SellerPhone, null=True, on_delete=models.SET_NULL)
+    body = models.ForeignKey(Body, null=True, on_delete=models.SET_NULL)
     image = models.CharField(max_length=256)
     dtp = models.BooleanField(default=False)
     createdAt = models.DateTimeField(default=datetime.now())
@@ -120,7 +120,6 @@ class Car(models.Model):
     ria_link = models.URLField(blank=True)
     ab_link = models.URLField(blank=True)
     rst_link = models.URLField(blank=True)
-
 
     class Meta:
         verbose_name_plural = 'Cars'
