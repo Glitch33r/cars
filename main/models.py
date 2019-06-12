@@ -42,16 +42,20 @@ class Order(models.Model):
         return f'Order id={self.id}, plan={self.plan.name}, user={self.user.first_name}'
 
 
-class Model(models.Model):
+class Mark(models.Model):
     name = models.CharField(max_length=128, blank=False)
+    ria_id = models.IntegerField(null=True)
+    eng = models.CharField(max_length=128, blank=True)
 
     def __str__(self):
         return self.name
 
 
-class Mark(models.Model):
+class Model(models.Model):
     name = models.CharField(max_length=128, blank=False)
-    model = models.ForeignKey(Model, null=True, on_delete=models.SET_NULL)
+    mark = models.ForeignKey(Mark, on_delete=models.CASCADE)
+    ria_id = models.IntegerField(null=True)
+    eng = models.CharField(max_length=128, blank=True)
 
     def __str__(self):
         return self.name
