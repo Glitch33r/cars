@@ -26,8 +26,8 @@ class Plan(models.Model):
 
 
 class Order(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    plan = models.ForeignKey(Plan, on_delete=models.SET_NULL)
+    user = models.ForeignKey(User,  null=True, on_delete=models.CASCADE)
+    plan = models.ForeignKey(Plan,  null=True, on_delete=models.SET_NULL)
     date_transaction = models.DateTimeField(default=datetime.now())
     comment = models.TextField(blank=True)
     confirmed = models.BooleanField(default=False)
@@ -98,17 +98,17 @@ class SellerPhone(models.Model):
 
 class Car(models.Model):
     model = models.ForeignKey(Model, null=True, on_delete=models.SET_NULL)
-    gearbox = models.ForeignKey(Gearbox, on_delete=models.SET_NULL)
+    gearbox = models.ForeignKey(Gearbox, null=True, on_delete=models.SET_NULL)
     location = models.ForeignKey(Location, null=True, on_delete=models.SET_NULL)
-    fuel = models.ForeignKey(Fuel, on_delete=models.SET_NULL)
-    color = models.ForeignKey(Color, on_delete=models.SET_NULL)
+    fuel = models.ForeignKey(Fuel, null=True, on_delete=models.SET_NULL)
+    color = models.ForeignKey(Color, null=True, on_delete=models.SET_NULL)
     year = models.CharField(max_length=64)
     mileage = models.CharField(max_length=64)
     engine = models.CharField(max_length=64)
     description = models.CharField(max_length=1024)
     price = models.CharField(max_length=64)
-    phone = models.ForeignKey(SellerPhone, on_delete=models.SET_NULL)
-    body = models.ForeignKey(Body, on_delete=models.SET_NULL)
+    phone = models.ForeignKey(SellerPhone,  null=True,on_delete=models.SET_NULL)
+    body = models.ForeignKey(Body,  null=True, on_delete=models.SET_NULL)
     image = models.CharField(max_length=256)
     dtp = models.BooleanField(default=False)
     createdAt = models.DateTimeField(default=datetime.now())
@@ -116,6 +116,11 @@ class Car(models.Model):
     last_site_updatedAt = models.DateTimeField(blank=True)
     sold = models.BooleanField(default=False)
     cleared = models.BooleanField(default=True)
+    olx_link = models.URLField(blank=True)
+    ria_link = models.URLField(blank=True)
+    ab_link = models.URLField(blank=True)
+    rst_link = models.URLField(blank=True)
+
 
     class Meta:
         verbose_name_plural = 'Cars'
@@ -155,27 +160,3 @@ class Filter(models.Model):
 
     class Meta:
         managed = False
-
-
-class Mark(models.Model):
-    name = models.CharField(max_length=128, blank=False)
-    ria_id = models.CharField(max_length=50, blank=True)
-
-    def __str__(self):
-        return self.name
-
-
-class Model(models.Model):
-    name = models.CharField(max_length=128, blank=False)
-    mark = models.ForeignKey(Mark, on_delete=models.CASCADE)
-    ria_id = models.CharField(max_length=50, blank=True)
-
-    def __str__(self):
-        return self.name
-
-
-class Location(models.Model):
-    region = models.CharField(max_length=128, blank=False)
-
-    def __str__(self):
-        return self.region
