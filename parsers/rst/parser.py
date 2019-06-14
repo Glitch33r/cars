@@ -1,6 +1,7 @@
 import requests
 import json
 import string
+from time import sleep
 
 from bs4 import BeautifulSoup
 
@@ -23,7 +24,7 @@ OD = DigitsMixin()
 class Rst:
     url = 'http://rst.ua/oldcars/?task=newresults&make%5B%5D=0&year%5B%5D=0&year%5B%5D=0&price%5B%5D=0&price%5B%5D=0\
     &engine%5B%5D=0&engine%5B%5D=0&gear=0&fuel=0&drive=0&condition=0&from=sform&start={}'
-    pages = 10
+    pages = 1
     all_data = []
 
     def __init__(self):
@@ -39,25 +40,30 @@ class Rst:
     def get_ads_on_page(self, html):
         soup = BeautifulSoup(html, 'lxml')
 
-        # TODO : возможно можно одниой строкой их найти, не нашел как
-        ads_1 = soup.find('div', class_='rst-page-wrap').find_all('div', class_='rst-ocb-i rst-ocb-i-premium rst-uix-radius')
-        ads_2 = soup.find('div', class_='rst-page-wrap').find_all('div', class_='rst-ocb-i rst-ocb-i-premium rst-uix-radius rst-ocb-i-crash')
-        ads_3 = soup.find('div', class_='rst-page-wrap').find_all('div', class_='rst-ocb-i rst-ocb-i-premium rst-uix-radius rst-ocb-i-blue')
-
         ad_url_list = []
 
-        for ad in ads_1:
-            href = 'http://rst.ua' + ad.find('a', class_='rst-ocb-i-a')['href']
-            ad_url_list.append(href)
+        # TODO : возможно можно одниой строкой их найти, не нашел как
+        try:
+            ads_1 = soup.find('div', class_='rst-page-wrap').find_all('div', class_='rst-ocb-i rst-ocb-i-premium rst-uix-radius')
+            for ad in ads_1:
+                href = 'http://rst.ua' + ad.find('a', class_='rst-ocb-i-a')['href']
+                ad_url_list.append(href)
+        except: pass
 
-        for ad in ads_2:
-            href = 'http://rst.ua' + ad.find('a', class_='rst-ocb-i-a')['href']
-            ad_url_list.append(href)
+        try:
+            ads_2 = soup.find('div', class_='rst-page-wrap').find_all('div', class_='rst-ocb-i rst-ocb-i-premium rst-uix-radius rst-ocb-i-crash')
+            for ad in ads_2:
+                href = 'http://rst.ua' + ad.find('a', class_='rst-ocb-i-a')['href']
+                ad_url_list.append(href)
+        except: pass
 
-        for ad in ads_3:
-            href = 'http://rst.ua' + ad.find('a', class_='rst-ocb-i-a')['href']
-            ad_url_list.append(href)
-        
+        try:
+            ads_3 = soup.find('div', class_='rst-page-wrap').find_all('div', class_='rst-ocb-i rst-ocb-i-premium rst-uix-radius rst-ocb-i-blue')
+            for ad in ads_3:
+                href = 'http://rst.ua' + ad.find('a', class_='rst-ocb-i-a')['href']
+                ad_url_list.append(href)
+        except: pass
+
         return ad_url_list
 
     # получает список урлов объявлений со всех страниц
@@ -67,6 +73,7 @@ class Rst:
         for page in range(1, self.pages+1):
             print('get {} page'.format(page))
             url_list += self.get_ads_on_page(self.get_page(self.url.format(page)))
+            sleep(5)
         return url_list
 
     # получает данные объявления
@@ -221,16 +228,16 @@ class Rst:
             data = self.get_ad_data(url)
 
             try:
-                model = Model.objects.get(name=data['model'])
+                mark = Mark.objects.get(name=data['mark'])
             except:
-                Model.objects.create(name=data['model'])
-                model = Model.objects.get(name=data['model'])
+                Mark.objects.create(name=data['mark'])
+                mark = Mark.objects.get(name=data['mark'])
 
             try:
-                mark = Mark.objects.get(name=data['mark'])
+                model = Model.objects.get(name=data['model'])
             except:
-                Mark.objects.create(name=data['mark'], model=model)
-                mark = Mark.objects.get(name=data['mark'])
+                Model.objects.create(name=data['model'], mark=mark)
+                model = Model.objects.get(name=data['model'])
 
             try:
                 gearbox = Gearbox.objects.get(name=data['gearbox'])
@@ -293,5 +300,6 @@ class Rst:
 
             print('{} left'.format(count))
             count -= 1
+            sleep(5)
         print('FINISHED')
         return self.all_data
