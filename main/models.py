@@ -42,16 +42,16 @@ class Order(models.Model):
         return f'Order id={self.id}, plan={self.plan.name}, user={self.user.first_name}'
 
 
-class Model(models.Model):
+class Mark(models.Model):
     name = models.CharField(max_length=128, blank=False)
 
     def __str__(self):
         return self.name
 
 
-class Mark(models.Model):
+class Model(models.Model):
     name = models.CharField(max_length=128, blank=False)
-    model = models.ForeignKey(Model, null=True, on_delete=models.SET_NULL)
+    mark = models.ForeignKey(Mark, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.name
@@ -95,6 +95,9 @@ class Fuel(models.Model):
 class SellerPhone(models.Model):
     phone = models.CharField(max_length=64)
 
+    def __str__(self):
+        return self.phone
+
 
 class Car(models.Model):
     model = models.ForeignKey(Model, null=True, on_delete=models.SET_NULL)
@@ -123,6 +126,9 @@ class Car(models.Model):
 
     class Meta:
         verbose_name_plural = 'Cars'
+
+    def __str__(self):
+        return '{} {} - {}'.format(self.model.mark.name, self.model.name, self.phone.phone)
 
 
 class Filter(models.Model):
