@@ -97,7 +97,7 @@ class Fuel(models.Model):
 
 
 class SellerPhone(models.Model):
-    phone = models.CharField(max_length=64)
+    phone = models.CharField(max_length=64, unique=True)
 
 
 class Car(models.Model):
@@ -106,11 +106,11 @@ class Car(models.Model):
     location = models.ForeignKey(Location, null=True, on_delete=models.SET_NULL)
     fuel = models.ForeignKey(Fuel, null=True, on_delete=models.SET_NULL)
     color = models.ForeignKey(Color, null=True, on_delete=models.SET_NULL)
-    year = models.CharField(max_length=64)
-    mileage = models.CharField(max_length=64)
-    engine = models.CharField(max_length=64)
-    description = models.CharField(max_length=1024)
-    price = models.CharField(max_length=64)
+    year = models.IntegerField(null=True)
+    mileage = models.IntegerField(null=True)
+    engine = models.FloatField(null=True)
+    description = models.CharField(max_length=1024, null=True)
+    price = models.IntegerField(null=True)
     phone = models.ForeignKey(SellerPhone, null=True, on_delete=models.SET_NULL)
     body = models.ForeignKey(Body, null=True, on_delete=models.SET_NULL)
     image = models.CharField(max_length=256)

@@ -31,13 +31,18 @@ def seed_fuel():
 
 
 def seed_body():
+    for var in json.loads(requests.get(
+            way.format('https://developers.ria.com/auto/categories/1/bodystyles?api_key=', AutoRiaAPI.key)).content):
+        var['name'] = var['name'].lower().replace(' ', '')
+        Body(id=var['value'], name=var['name'].lower()).save()
     seed('https://developers.ria.com/auto/categories/1/bodystyles?api_key=', Body)
 
 
 if __name__ == '__main__':
-# seed_location()
-# seed_color()
-    seed_fuel()
-    seed_color()
-    seed_gearbox()
+    pass
+    # seed_location()
+    # seed_color()
+    # seed_fuel()
+    # seed_color()
+    # seed_gearbox()
     seed_body()
