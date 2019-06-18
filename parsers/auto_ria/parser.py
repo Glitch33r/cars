@@ -2,25 +2,43 @@ import json
 
 import requests
 
-from main.models import Model, Car
+from main.models import Model, Car, SellerPhone
 from parsers.choises import color, location, fuel, body, gearbox
 
 
-class AutoRiaInnerParse:
-    list_posts_way = 'http://auto.ria.com/blocks_search_ajax/search/?countpage=100&category_id=1&page={}'
-    post_way = 'https://auto.ria.com/demo/bu/searchPage/v2/view/auto/{}/?lang_id=2'
+class WordsFormater:
+
+    def engine_parse(self, word: str):
+        return float(word[word.find(', ') + 1:word.find('л.')])
+
+    def fuel_parse(self, word: str):
+        return word[:word.find(',')].lower()
 
     def formating(self, word: str):
         return word.lower().replace(' ', '')
 
-    def engine_parse(self, word: str):
-        return float(word[word.find(', ') + 1:word.find('л.')])
-        # return
-        # print(engine)
-        # float(engine)
+    def format_phone(self, word: str):
+        integers = '0123456789'
+        response = word
+        for liter in word:
+            if liter not in integers:
+                response = response.replace(liter, '')
+        if response[:3] == '380':
+            return response[2:]
+        return response
 
-    def fuel_parse(self, word: str):
-        return word[:word.find(',')].lower()
+
+class AutoRiaInnerParse(WordsFormater):
+    list_posts_way = 'http://auto.ria.com/blocks_search_ajax/search/?countpage=100&category_id=1&page={}'
+    post_way = 'https://auto.ria.com/demo/bu/searchPage/v2/view/auto/{}/?lang_id=2'
+
+    def set_saller(self, phone):
+        saller = SellerPhone.objects.filter(phone=self.format_phone(phone)).first()
+        if saller:
+            return saller
+        saller = SellerPhone(phone=self.format_phone(phone))
+        saller.save()
+        return saller
 
     def __init__(self):
         first_data = json.loads(requests.get(self.list_posts_way.format(0)).content)
@@ -33,9 +51,18 @@ class AutoRiaInnerParse:
                       location_id=location[self.formating(data['stateData']['regionName'])],
                       fuel=fuel[self.fuel_parse(data['autoData']['fuelName'])],
                       engine=self.engine_parse(data['autoData']['fuelName']),
-                      color=color[self.formating(data[''])]
+                      color=color[self.formating(data[''])],
+                      year=data['autoData']['year'],
+                      mileage=data['autoData']['raceInt'],
+                      price=data['USD'],
+                      phone=self.set_saller(data['userPhoneData']['phone']),
+                      body_id=data['autoData']['bodyId'],
+                      image=data['photoData']['seoLinkF'],
+                      dtp=None,
+
                       )
-        for i in range(1, first_data // 100)
+        for i in range(1, first_data // 100):
+            pass
 
     # {'EUR': 11247,
     #  'UAH': 336296,
