@@ -53,7 +53,7 @@ class Mark(models.Model):
 
 class Model(models.Model):
     name = models.CharField(max_length=128, blank=False)
-    mark = models.ForeignKey(Mark, on_delete=models.CASCADE)
+    mark = models.ForeignKey(Mark, null=True, on_delete=models.CASCADE)
     ria_id = models.IntegerField(null=True)
     eng = models.CharField(max_length=128, blank=True)
 
@@ -62,10 +62,10 @@ class Model(models.Model):
 
 
 class Location(models.Model):
-    region = models.CharField(max_length=128, blank=False)
+    name = models.CharField(max_length=128, blank=False)
 
     def __str__(self):
-        return self.region
+        return self.name
 
 
 class Color(models.Model):
