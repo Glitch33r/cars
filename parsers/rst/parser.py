@@ -67,16 +67,6 @@ class Rst:
 
         return ad_url_list
 
-    # получает список урлов объявлений со всех страниц
-    def get_url_list(self):
-        print('Start geting all ads')
-        url_list = []
-        for page in range(1, self.pages+1):
-            print('get {} page'.format(page))
-            url_list += self.get_ads_on_page(self.url.format(page))
-            sleep(random.randint(5, 10))
-        return url_list
-
     # получает данные объявления
     def get_ad_data(self, url):
         soup = self.get_page(url)
@@ -88,11 +78,11 @@ class Rst:
         for td in tds:
             if td.text == 'Цена':
                 try:
-                    price = td.find_next_sibling('td').find('span').find('strong').text.translate(OD)
-                    price_dol = td.find_next_sibling('td').find('span').find('span').text.translate(OD)
+                    price_hrn = td.find_next_sibling('td').find('span').find('strong').text.translate(OD)
+                    price = td.find_next_sibling('td').find('span').find('span').text.translate(OD)
                 except:
-                    price = 'torg'
-                    price_dol = 'torg'
+                    price_hrn = 0
+                    price = 0
 
             elif td.text == 'Год выпуска':
                 year = td.find_next_sibling('td').find('a').text.translate(OD)
@@ -105,7 +95,7 @@ class Rst:
                 except: fuel = ''
 
             elif td.text == 'КПП':
-                gearbox = td.find_next_sibling('td').find('strong').text
+                gearbox = td.find_next_sibling('td').find('strong').text.split()[0]
                 try:
                     drive = td.find_next_sibling('td').find('span').text.replace('(','').split()[0]
                 except: drive = ''
@@ -129,11 +119,11 @@ class Rst:
         for span in spans:
             if span.text == 'Цена':
                 try:
-                    price = span.find_next_sibling('span').find('span').find('strong').text.translate(OD)
-                    price_dol = span.find_next_sibling('span').find('span').find('span').text.translate(OD)
+                    price_hrn = span.find_next_sibling('span').find('span').find('strong').text.translate(OD)
+                    price = span.find_next_sibling('span').find('span').find('span').text.translate(OD)
                 except:
-                    price = 'torg'
-                    price_dol = 'torg'
+                    price_hrn = 0
+                    price = 0
 
             elif span.text == 'Год выпуска':
                 year = span.find_next_sibling('span').find('a').text.translate(OD)
@@ -146,7 +136,7 @@ class Rst:
                 except: fuel = ''
 
             elif span.text == 'КПП':
-                gearbox = span.find_next_sibling('span').find('strong').text
+                gearbox = span.find_next_sibling('span').find('strong').text.split()[0]
                 try:
                     drive = span.find_next_sibling('span').find('span').text.replace('(','').split()[0]
                 except: drive = ''
@@ -198,7 +188,7 @@ class Rst:
             'engine': engine,
             'description': description,
             'price': price,
-            'price_dol': price_dol,
+            'price_hrn': price_hrn,
             'drive': drive,
             'dtp': dtp,
             'created': created,
@@ -224,9 +214,11 @@ class Rst:
 
         for page in range(1, self.pages+1):
             print('get {} page'.format(page))
+            sleep(random.randint(3, 5))
             for url in self.get_ads_on_page(self.url.format(page)):
 
                 print('Start parsing {}'.format(url))
+                sleep(random.randint(5, 10))
 
                 data = self.get_ad_data(url)
 
@@ -279,7 +271,27 @@ class Rst:
                     body = Body.objects.get(name=data['body'])
 
                 try:
-                    Car.objects.get(rst_link=data['rst_link'])
+                    try:
+                        car = Car.objects.get(rst_link=data['rst_link'])
+                        car.price = data['price']
+                        car.save()
+                        print('Price updated')
+                    except:
+                        car = Car.objects.get(model=model,
+                                        gearbox=gearbox,
+                                        location=location,
+                                        fuel=fuel,
+                                        color=color,
+                                        year=data['year'],
+                                        mileage=data['mileage'],
+                                        engine=data['engine'],
+                                        body=body,
+                                        dtp=data['dtp']
+                                        )
+                        car.price = data['price']
+                        car.rst_link = data['rst_link']
+                        car.save()
+                        print('Updated')
                 except:
                     car = Car.objects.create(model=model,
                                         gearbox=gearbox,
@@ -301,6 +313,4 @@ class Rst:
                     car.save()
                     print('Object created, id = {}'.format(car.id))
 
-                sleep(random.randint(5, 10))
-            print('FINISHED')
-        return
+        return print('FINISHED')
