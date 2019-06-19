@@ -1,4 +1,5 @@
 import requests
+from django.http import JsonResponse
 from lxml import html
 from time import sleep
 from threading import Thread
@@ -35,3 +36,4 @@ def run(request):
     thr_1.join()
     # thr_2.join()
     # thr_3.join()
+    return JsonResponse(dict(status='success'))

@@ -1,6 +1,6 @@
 ########################################################### mark
 
-INSERT INTO `main_mark` (`id`, `name`, `ria_id`, `eng`) VALUES
+INSERT INTO 'main_mark' ('id', 'name', 'ria_id', 'eng') VALUES
 (1, 'Acura', 98, 'acura'),
 (2, 'Adler', 2396, 'adler'),
 (3, 'Aixam', 2, 'aixam'),
@@ -259,8 +259,8 @@ INSERT INTO `main_mark` (`id`, `name`, `ria_id`, `eng`) VALUES
 (256, 'Циклон', 4021, 'ciklon'),
 (257, 'Эстония', 2307, 'estoniya'),
 (258, 'ChangFeng', NULL, 'changfeng');
-
-############################################################################### models
+--
+-- ############################################################################### models
 
 INSERT INTO 'main_model' ('id', 'mark_id', 'name', 'ria_id', 'eng') VALUES
 (1, 1, 'CL', 953, 'cl'),

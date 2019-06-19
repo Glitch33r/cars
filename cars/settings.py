@@ -109,7 +109,7 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = True
-USE_TZ = True
+USE_TZ = False
 DATETIME_FORMAT = '%m.%d.%Y %H:%M'
 
 # Static files (CSS, JavaScript, Images)

@@ -28,7 +28,7 @@ class Plan(models.Model):
 class Order(models.Model):
     user = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
     plan = models.ForeignKey(Plan, null=True, on_delete=models.SET_NULL)
-    date_transaction = models.DateTimeField(default=datetime.now())
+    date_transaction = models.DateTimeField(auto_now_add=True)
     comment = models.TextField(blank=True)
     confirmed = models.BooleanField(default=False)
     date_start = models.DateTimeField()
@@ -115,7 +115,7 @@ class Car(models.Model):
     body = models.ForeignKey(Body, null=True, on_delete=models.SET_NULL)
     image = models.CharField(max_length=256)
     dtp = models.BooleanField(default=False)
-    createdAt = models.DateTimeField(default=datetime.now())
+    createdAt = models.DateTimeField()
     updatedAt = models.DateTimeField(blank=True)
     last_site_updatedAt = models.DateTimeField(blank=True)
     sold = models.BooleanField(default=False)
@@ -127,6 +127,9 @@ class Car(models.Model):
 
     class Meta:
         verbose_name_plural = 'Cars'
+
+    def __str__(self):
+        return f'<Cars: model={self.model}, year={self.year}'
 
 
 class Filter(models.Model):
