@@ -4,4 +4,6 @@ from django.views.generic import View
 from .parser import Rst
 
 class RstView(View):
-    Rst(1)
+
+    def get(self, request):
+        Rst(1)

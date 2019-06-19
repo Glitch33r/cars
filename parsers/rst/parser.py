@@ -249,10 +249,10 @@ class Rst:
                     gearbox = Gearbox.objects.get(name=data['gearbox'])
 
                 try:
-                    location = Location.objects.get(region=data['location'])
+                    location = Location.objects.get(name=data['location'])
                 except:
-                    Location.objects.create(region=data['location'])
-                    location = Location.objects.get(region=data['location'])
+                    Location.objects.create(name=data['location'])
+                    location = Location.objects.get(name=data['location'])
 
                 try:
                     fuel = Fuel.objects.get(name=data['fuel'])
