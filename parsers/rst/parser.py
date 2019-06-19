@@ -103,7 +103,7 @@ class Rst:
             elif td.text == 'Тип кузова':
                 body = td.find_next_sibling('td').find('strong').text
                 try:
-                    color = td.find_next_sibling('td').find('span').text.replace(')','').split()[-1]
+                    color = td.find_next_sibling('td').find('span').text.replace(')','').split()[-1].lower()
                 except: color = ''
 
             elif td.text == 'Область':
@@ -114,7 +114,7 @@ class Rst:
 
             elif td.text == 'Дата добавления':
                 created = td.find_next_sibling('td').find('span').text
-                createAt = tz.localize(datetime.strptime(created, '%d.%m.%Y'))
+                last_site_updatedAt = tz.localize(datetime.strptime(created, '%d.%m.%Y'))
 
         for span in spans:
             if span.text == 'Цена':
@@ -144,7 +144,7 @@ class Rst:
             elif span.text == 'Тип кузова':
                 body = span.find_next_sibling('span').find('strong').text
                 try:
-                    color = span.find_next_sibling('span').find('span').text.replace(')','').split()[-1]
+                    color = span.find_next_sibling('span').find('span').text.replace(')','').split()[-1].lower()
                 except: color = ''
 
             elif span.text == 'Область':
@@ -155,7 +155,7 @@ class Rst:
 
             elif span.text == 'Дата добавления':
                 created = span.find_next_sibling('span').find('span').text
-                createAt = tz.localize(datetime.strptime(created, '%d.%m.%Y'))
+                last_site_updatedAt = tz.localize(datetime.strptime(created, '%d.%m.%Y'))
 
         mark_model = soup.find('div', class_='rst-uix-page-tree rst-uix-radius').find('a').find_next_sibling('a').find_next_sibling('a').find_next_sibling('a').text
 
@@ -192,7 +192,7 @@ class Rst:
             'drive': drive,
             'dtp': dtp,
             'created': created,
-            'createAt': createAt,
+            'last_site_updatedAt': last_site_updatedAt,
             'image': image,
             'images': images,
             'rst_link': url,
@@ -204,7 +204,7 @@ class Rst:
             'fuel': fuel,
             'color': color,
             'body': body,
-            'phone': 'phone',
+            'phone': None,
             'name': name,
         }
         return data
@@ -259,12 +259,6 @@ class Rst:
                     color = Color.objects.get(name=data['color'])
 
                 try:
-                    seller_phone = SellerPhone.objects.get(phone=data['phone'])
-                except:
-                    SellerPhone.objects.create(phone=data['phone'])
-                    seller_phone = SellerPhone.objects.get(phone=data['phone'])
-
-                try:
                     body = Body.objects.get(name=data['body'])
                 except:
                     Body.objects.create(name=data['body'])
@@ -274,6 +268,7 @@ class Rst:
                     try:
                         car = Car.objects.get(rst_link=data['rst_link'])
                         car.price = data['price']
+                        car.updatedAt = tz.localize(datetime.now())
                         car.save()
                         print('Price updated')
                     except:
@@ -290,6 +285,7 @@ class Rst:
                                         )
                         car.price = data['price']
                         car.rst_link = data['rst_link']
+                        car.updatedAt = tz.localize(datetime.now())
                         car.save()
                         print('Updated')
                 except:
@@ -303,14 +299,15 @@ class Rst:
                                         engine=data['engine'],
                                         description=data['description'],
                                         price=data['price'],
-                                        phone=seller_phone,
+                                        phone=data['phone'],
                                         body=body,
                                         image=data['image'],
                                         dtp=data['dtp'],
-                                        createdAt=data['createAt'],
+                                        createdAt=tz.localize(datetime.now()),
+                                        last_site_updatedAt=data['last_site_updatedAt'],
                                         rst_link=data['rst_link']
                                         )
                     car.save()
-                    print('Object created, id = {}'.format(car.id))
+                    print('Object created')
 
         return print('FINISHED')

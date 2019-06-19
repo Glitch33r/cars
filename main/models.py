@@ -130,9 +130,12 @@ class Car(models.Model):
 
     class Meta:
         verbose_name_plural = 'Cars'
+        ordering = ['-updatedAt']
 
     def __str__(self):
-        return '{} {} - {}'.format(self.model.mark.name, self.model.name, self.phone.phone)
+        if self.updatedAt:
+            return '{} {} - last update {}'.format(self.model.mark.name, self.model.name, self.updatedAt.strftime("%H:%M %d.%m.%Y"))
+        return '{} {}'.format(self.model.mark.name, self.model.name)
 
 
 class Filter(models.Model):
