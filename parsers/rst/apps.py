@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 
-class OlxConfig(AppConfig):
-    name = 'olx'
+class RstConfig(AppConfig):
+    name = 'rst'

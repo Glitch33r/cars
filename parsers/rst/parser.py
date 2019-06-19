@@ -1,4 +1,5 @@
 import requests
+import random
 import json
 import string
 from time import sleep
@@ -24,21 +25,21 @@ OD = DigitsMixin()
 class Rst:
     url = 'http://rst.ua/oldcars/?task=newresults&make%5B%5D=0&year%5B%5D=0&year%5B%5D=0&price%5B%5D=0&price%5B%5D=0\
     &engine%5B%5D=0&engine%5B%5D=0&gear=0&fuel=0&drive=0&condition=0&from=sform&start={}'
-    pages = 1
-    all_data = []
 
-    def __init__(self):
+    def __init__(self, pages):
+        self.pages = pages
         self.data_record()
 
     # получает содерждимое страницы
     def get_page(self, url):
         headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
         r = requests.get(url, headers=headers)
-        return r.text
+        soup = BeautifulSoup(r.text, 'lxml')
+        return soup
 
     # получает список урлов объявлений на одной страничке
-    def get_ads_on_page(self, html):
-        soup = BeautifulSoup(html, 'lxml')
+    def get_ads_on_page(self, url):
+        soup = self.get_page(url)
 
         ad_url_list = []
 
@@ -72,13 +73,13 @@ class Rst:
         url_list = []
         for page in range(1, self.pages+1):
             print('get {} page'.format(page))
-            url_list += self.get_ads_on_page(self.get_page(self.url.format(page)))
-            sleep(5)
+            url_list += self.get_ads_on_page(self.url.format(page))
+            sleep(random.randint(5, 10))
         return url_list
 
     # получает данные объявления
     def get_ad_data(self, url):
-        soup = BeautifulSoup(self.get_page(url), 'lxml')
+        soup = self.get_page(url)
 
         # страницы объявлений есть друх типов: с tr-td и с li-span
         tds = soup.find('div', class_='rst-page-oldcars-item-option-block rst-uix-clear').find_all('td')
@@ -220,86 +221,86 @@ class Rst:
 
     # запись в базу
     def data_record(self):
-        url_list = self.get_url_list()
-        count = len(url_list) - 1
-        for url in url_list:
-            print('Start parsing {}'.format(url))
-            # self.all_data.append(self.get_ad_data(url))
-            data = self.get_ad_data(url)
 
-            try:
-                mark = Mark.objects.get(name=data['mark'])
-            except:
-                Mark.objects.create(name=data['mark'])
-                mark = Mark.objects.get(name=data['mark'])
+        for page in range(1, self.pages+1):
+            print('get {} page'.format(page))
+            for url in self.get_ads_on_page(self.url.format(page)):
 
-            try:
-                model = Model.objects.get(name=data['model'])
-            except:
-                Model.objects.create(name=data['model'], mark=mark)
-                model = Model.objects.get(name=data['model'])
+                print('Start parsing {}'.format(url))
 
-            try:
-                gearbox = Gearbox.objects.get(name=data['gearbox'])
-            except:
-                Gearbox.objects.create(name=data['gearbox'])
-                gearbox = Gearbox.objects.get(name=data['gearbox'])
+                data = self.get_ad_data(url)
 
-            try:
-                location = Location.objects.get(region=data['location'])
-            except:
-                Location.objects.create(region=data['location'])
-                location = Location.objects.get(region=data['location'])
+                try:
+                    mark = Mark.objects.get(name=data['mark'])
+                except:
+                    Mark.objects.create(name=data['mark'])
+                    mark = Mark.objects.get(name=data['mark'])
 
-            try:
-                fuel = Fuel.objects.get(name=data['fuel'])
-            except:
-                Fuel.objects.create(name=data['fuel'])
-                fuel = Fuel.objects.get(name=data['fuel'])
+                try:
+                    model = Model.objects.get(name=data['model'])
+                except:
+                    Model.objects.create(name=data['model'], mark=mark)
+                    model = Model.objects.get(name=data['model'])
 
-            try:
-                color = Color.objects.get(name=data['color'])
-            except:
-                Color.objects.create(name=data['color'])
-                color = Color.objects.get(name=data['color'])
+                try:
+                    gearbox = Gearbox.objects.get(name=data['gearbox'])
+                except:
+                    Gearbox.objects.create(name=data['gearbox'])
+                    gearbox = Gearbox.objects.get(name=data['gearbox'])
 
-            try:
-                seller_phone = SellerPhone.objects.get(phone=data['phone'])
-            except:
-                SellerPhone.objects.create(phone=data['phone'])
-                seller_phone = SellerPhone.objects.get(phone=data['phone'])
+                try:
+                    location = Location.objects.get(region=data['location'])
+                except:
+                    Location.objects.create(region=data['location'])
+                    location = Location.objects.get(region=data['location'])
 
-            try:
-                body = Body.objects.get(name=data['body'])
-            except:
-                Body.objects.create(name=data['body'])
-                body = Body.objects.get(name=data['body'])
+                try:
+                    fuel = Fuel.objects.get(name=data['fuel'])
+                except:
+                    Fuel.objects.create(name=data['fuel'])
+                    fuel = Fuel.objects.get(name=data['fuel'])
 
-            try:
-                Car.objects.get(rst_link=data['rst_link'])
-            except:
-                car = Car.objects.create(model=model,
-                                    gearbox=gearbox,
-                                    location=location,
-                                    fuel=fuel,
-                                    color=color,
-                                    year=data['year'],
-                                    mileage=data['mileage'],
-                                    engine=data['engine'],
-                                    description=data['description'],
-                                    price=data['price'],
-                                    phone=seller_phone,
-                                    body=body,
-                                    image=data['image'],
-                                    dtp=data['dtp'],
-                                    createdAt=data['createAt'],
-                                    rst_link=data['rst_link']
-                                    )
-                car.save()
-                print('Object created, id = {}'.format(car.id))
+                try:
+                    color = Color.objects.get(name=data['color'])
+                except:
+                    Color.objects.create(name=data['color'])
+                    color = Color.objects.get(name=data['color'])
 
-            print('{} left'.format(count))
-            count -= 1
-            sleep(5)
-        print('FINISHED')
-        return self.all_data
+                try:
+                    seller_phone = SellerPhone.objects.get(phone=data['phone'])
+                except:
+                    SellerPhone.objects.create(phone=data['phone'])
+                    seller_phone = SellerPhone.objects.get(phone=data['phone'])
+
+                try:
+                    body = Body.objects.get(name=data['body'])
+                except:
+                    Body.objects.create(name=data['body'])
+                    body = Body.objects.get(name=data['body'])
+
+                try:
+                    Car.objects.get(rst_link=data['rst_link'])
+                except:
+                    car = Car.objects.create(model=model,
+                                        gearbox=gearbox,
+                                        location=location,
+                                        fuel=fuel,
+                                        color=color,
+                                        year=data['year'],
+                                        mileage=data['mileage'],
+                                        engine=data['engine'],
+                                        description=data['description'],
+                                        price=data['price'],
+                                        phone=seller_phone,
+                                        body=body,
+                                        image=data['image'],
+                                        dtp=data['dtp'],
+                                        createdAt=data['createAt'],
+                                        rst_link=data['rst_link']
+                                        )
+                    car.save()
+                    print('Object created, id = {}'.format(car.id))
+
+                sleep(random.randint(5, 10))
+            print('FINISHED')
+        return
