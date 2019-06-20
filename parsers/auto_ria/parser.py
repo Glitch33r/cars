@@ -12,7 +12,10 @@ from parsers.choises import color, location, fuel, body, gearbox
 class WordsFormater:
 
     def engine_parse(self, word: str):
-        if word == 'Не указан':
+        print(f'word:"{word}"')
+        if word == 'Не указано':
+            return None
+        elif word.find(', ') == -1:
             return None
         return float(word[word.find(', ') + 1:word.find('л.')])
 
@@ -62,14 +65,22 @@ class AutoRiaInnerParse(WordsFormater):
         saller.save()
         return saller
 
+    def find_model(self, data: dict):
+        model = Model.objects.filter(
+            ria_id=data['modelId'], mark__ria_id=data['markId']).first()
+        if not model:
+            model_key_word = data['markNameEng']
+            key_word = model_key_word[:model_key_word.rfind('-')]
+
     def __init__(self):
         print('Hi, I\'m started')
         first_data = json.loads(requests.get(self.list_posts_way.format(0)).content)
+        unknown_model = []
         for ids in first_data['result']['search_result']['ids']:
-            unknown_model = []
             data = json.loads(requests.get(self.post_way.format(ids)).content)
             model = Model.objects.filter(
-                ria_id=data['modelId']).first()
+                ria_id=data['modelId'], mark__ria_id=data['markId']).first()
+
             car = Car(model=model,
                       gearbox_id=gearbox.get(self.formating(data['autoData']['gearboxName'])),
                       location_id=location.get(self.formating(data['stateData']['regionName'])),
@@ -91,13 +102,12 @@ class AutoRiaInnerParse(WordsFormater):
                       last_site_updatedAt=self.format_date(data['updateDate'])
                       )
             if car.model is None and data['modelNameEng'] not in unknown_model:
-                unknown_model.append(data['modelNameEng'])
+                unknown_model.append(
+                    {'name': data['modelNameEng'], 'mark': data['markNameEng'], 'id': data['autoData']['autoId']})
                 print(data['modelNameEng'])
-            # if car.model is None:
-                # Model.objects.filter(id=)
-                # print(data['modelNameEng'])
-            # print(car)
             car.save()
+        # unknown_model = unknown_model)
+        print(unknown_model)
         for i in range(1, first_data // 100):
             start_data = json.loads(requests.get(self.list_posts_way.format(i)).content)
             for ids in start_data['result']['search_result']['ids']:
