@@ -3,13 +3,15 @@ from time import sleep
 from selenium.webdriver import Firefox
 from selenium.webdriver.firefox.options import Options
 from main.models import Model, Car, Location, Fuel, Gearbox, Body, Color, SellerPhone
+from fake_useragent import UserAgent
+ua = UserAgent()
+# ua.update()
 
 
 class OLX:
     driver = None
 
     def __init__(self, url):
-        print('Browser opens')
         self.model_db = Model.objects
         self.loc_db = Location.objects
         self.fuel_db = Fuel.objects
@@ -18,26 +20,32 @@ class OLX:
         self.color_db = Color.objects
         self.seller_db = SellerPhone.objects
         self.url = url
+        self.user_agent = ua.random
         options = Options()
-        options.headless = True
+        # options.headless = True
+        options.add_argument("--incognito")
+        options.add_argument(f'user-agent={self.user_agent}')
+        print(self.user_agent)
         self.driver = Firefox(executable_path='C:/Users/Dmitry/PycharmProjects/cars/webdriver/geckodriver.exe',
                               options=options)
-        self.driver.get(self.url)
+        self.driver.get(url)
         self.driver.implicitly_wait(10)
 
     # logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
     # logging.getLogger("requests").setLevel(logging.WARNING)
 
     def _get_user_phone(self):
-        try:
-            button_spoiler = self.driver.find_element_by_xpath('//div[contains(@class, "contact-button")]/span')
-            button_spoiler.click()
-            sleep(1.5)
-            telephone_number = self.driver.find_element_by_xpath('//div[contains(@class, "contact-button")]/strong')
-            result = telephone_number.text.replace(' ', '')
-            return self.phone_format(result)
-        except:
-            return ''
+        res = []
+        button_spoiler = self.driver.find_element_by_xpath('//ul[@id="contact_methods"]/li[2]/div')
+        button_spoiler.click()
+        sleep(2)
+        phone = self.driver.find_element_by_xpath('//ul[@id="contact_methods_below"]/li/div[2]/strong').text
+        print('phone', phone)
+
+        for p in button_spoiler.text.split("\n"):
+            res.append(self.phone_format(p.replace(" ", "").replace("-", "").replace("(", "").replace(")", "")))
+
+        return res
 
     def _get_price(self):
         price = self.driver.find_element_by_xpath('//div[contains(@class, "price-label")]/strong')
@@ -57,20 +65,25 @@ class OLX:
                 prop_name = p.find_element_by_css_selector('th').text
                 if prop_name == 'Цвет':
                     color = p.find_element_by_css_selector('td.value').text.lowercase()
-                    print(color)
-                    if not self.color_db.filter(name__contains=color).first():
-                        car['color'] = Color(name=color.lowercase()).save()
-                    else:
-                        car['color'] = self.color_db.filter(name__contains=color.lowercase()).first()
+                    print(prop_name, color)
+
+                    car['color'] = color
+                    # print(color)
+                    # if not self.color_db.filter(name__contains=color).first():
+                    #     car['color'] = Color(name=color.lowercase()).save()
+                    # else:
+                    #     car['color'] = self.color_db.filter(name__contains=color.lowercase()).first()
                 elif prop_name == 'Год выпуска':
                     car['year'] = int(p.find_element_by_css_selector('td.value').text)
                 elif prop_name == 'Тип кузова':
                     body = p.find_element_by_css_selector('td.value').text.lowercase().replace(' ', '')
-                    if not self.body_db.filter(name__contains=body).first():
-                        car['body'] = Body(name=body).save()
-                    else:
-                        car['body'] = self.body_db.filter(name__contains=body).first()
-                    # car['body'] = body
+                    print(prop_name, body)
+
+                    # if not self.body_db.filter(name__contains=body).first():
+                    #     car['body'] = Body(name=body).save()
+                    # else:
+                    #     car['body'] = self.body_db.filter(name__contains=body).first()
+                    car['body'] = body
                 elif prop_name == 'Модель':
                     brand_model_url = p.find_element_by_css_selector('td.value strong a').get_attribute(
                         "href").split('/')
@@ -82,26 +95,32 @@ class OLX:
                     car['mileage'] = int(
                         p.find_element_by_css_selector('td.value').text.replace('км', '').replace(' ', ''))
                 elif prop_name == 'Коробка передач':
-                    gearbox = p.find_element_by_css_selector('td.value').text.lowercase().replace(' ', '')
-                    if not self.gearbox_db.filter(name__contains=gearbox).first():
-                        car['gearbox'] = Gearbox(name=gearbox).save()
-                    else:
-                        car['gearbox'] = self.body_db.filter(name__contains=gearbox).first()
+                    gearbox = p.find_element_by_css_selector('td.value').text
+                    print(prop_name, gearbox)
+
+                    car['gearbox'] = gearbox.lowercase().replace(' ', '')
+                    # if not self.gearbox_db.filter(name__contains=gearbox).first():
+                    #     car['gearbox'] = Gearbox(name=gearbox).save()
+                    # else:
+                    #     car['gearbox'] = self.body_db.filter(name__contains=gearbox).first()
                 elif prop_name == 'Объем двигателя':
                     car['engine'] = int(
                         p.find_element_by_css_selector('td.value').text.replace('см³', '').replace(' ', '')) / 1000
                 elif prop_name == 'Вид топлива':
                     fuel = p.find_element_by_css_selector('td.value').text.lowercase()
-                    # car['fuel'] = self.fuel_db.filter(name__contains=fuel.lowercase()).first()
-                    if not self.fuel_db.filter(name__contains=fuel).first():
-                        car['fuel'] = Fuel(name=fuel).save()
-                    else:
-                        car['fuel'] = self.body_db.filter(name__contains=fuel).first()
+                    print(prop_name, fuel)
+
+                    car['fuel'] = fuel
+                    # if not self.fuel_db.filter(name__contains=fuel).first():
+                    #     car['fuel'] = Fuel(name=fuel).save()
+                    # else:
+                    #     car['fuel'] = self.body_db.filter(name__contains=fuel).first()
                 elif prop_name == 'Растаможена':
                     clear = p.find_element_by_css_selector('td.value').text
                     car['cleared'] = 0 if clear == 'Нет' else 1
             except:
                 pass
+
             car['url'] = self.url
 
         return car
@@ -112,6 +131,7 @@ class OLX:
             return name.text.capitalize()
         except:
             name = ''
+
         return name
 
     @staticmethod
@@ -143,4 +163,4 @@ class OLX:
 
     def __del__(self):
         print('Browser will be closed')
-        self.driver.close()
+        self.driver.quit()
