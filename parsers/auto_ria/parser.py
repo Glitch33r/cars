@@ -47,7 +47,7 @@ class WordsFormater:
 
 
 class AutoRiaInnerParse(WordsFormater):
-    list_posts_way = 'http://auto.ria.com/blocks_search_ajax/search/?countpage={}&category_id=1&page={}'
+    list_posts_way = 'http://auto.ria.com/blocks_search_ajax/search/?countpage={}&category_id=1&page={}&saledParam=2'
     post_way = 'https://auto.ria.com/demo/bu/searchPage/v2/view/auto/{}/?lang_id=2'
 
     def set_saller(self, phone):
@@ -122,6 +122,11 @@ class AutoRiaUpdateParse(WordsFormater):
                 updated = updated.timestamp()
                 if updated > start.timestamp() and updated < datetime.datetime.now().timestamp():
                     print('good')
+                    if data['autoData']['isSold']:
+                        try:
+                            Car.objects.filter(ria_link='https://auto.ria.com' + data[['linkToView']]).delete()
+                        except:
+                            pass
                 else:
                     print('bad')
 
