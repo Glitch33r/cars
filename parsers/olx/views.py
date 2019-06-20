@@ -19,21 +19,31 @@ def run(request):
             page = requests.get(url_, headers={'User-Agent': user_agent})
             web_page = html.fromstring(page.content)
             posts_list = web_page.xpath('//a[contains(@class, "marginright5 link linkWithHash detailsLink")]/@href')
-            sleep(1)
+            # sleep(1)
             for idx, post_url in enumerate(posts_list):
-                print(f'link #{idx}')
+                print(f'link #{idx}, {post_url}')
+                sleep(15)
+                print('sleep 15')
                 olx = OLX(post_url)
                 olx.start()
                 del olx
 
-    thr_1 = Thread(target=process, args=(list_pages[0:50],))
-    # thr_2 = Thread(target=process, args=(list_pages[151:350], ))
+    import time
+    start = time.time()
+    print('time', start)
+
+    thr_1 = Thread(target=process, args=(list_pages[0:20],))
+    thr_2 = Thread(target=process, args=(list_pages[21:45], ))
     # thr_3 = Thread(target=process, args=(list_pages[351:500], ))
     thr_1.start()
-    # thr_2.start()
+    thr_2.start()
     # thr_3.start()
 
     thr_1.join()
-    # thr_2.join()
+
+    end = time.time()
+
+    thr_2.join()
     # thr_3.join()
+    print('end', end - start)
     return JsonResponse(dict(status='success'))
