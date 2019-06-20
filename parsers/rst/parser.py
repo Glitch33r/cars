@@ -89,9 +89,9 @@ class Rst:
                 mileage = td.find_next_sibling('td').find('span').text.translate(OD)
             
             elif td.text == 'Двигатель':
-                engine = td.find_next_sibling('td').find('strong').text
+                engine = float(td.find_next_sibling('td').find('strong').text[:3]) if td.find_next_sibling('td').find('strong').text else ''
                 try:
-                    fuel = td.find_next_sibling('td').find('span').text.replace('(','').replace(')','')
+                    fuel = td.find_next_sibling('td').find('span').text.replace('(','').replace(')','').lower()
                 except: fuel = ''
 
             elif td.text == 'КПП':
@@ -101,7 +101,7 @@ class Rst:
                 except: drive = ''
 
             elif td.text == 'Тип кузова':
-                body = td.find_next_sibling('td').find('strong').text
+                body = td.find_next_sibling('td').find('strong').text.split()[0]
                 try:
                     color = td.find_next_sibling('td').find('span').text.replace(')','').split()[-1].lower()
                 except: color = ''
@@ -130,9 +130,9 @@ class Rst:
                 mileage = span.find_next_sibling('span').find('span').text.translate(OD)
             
             elif span.text == 'Двигатель':
-                engine = span.find_next_sibling('span').find('strong').text
+                engine = float(span.find_next_sibling('span').find('strong').text[:3]) if span.find_next_sibling('span').find('strong').text else ''
                 try:
-                    fuel = span.find_next_sibling('span').find('span').text.replace('(','').replace(')','')
+                    fuel = span.find_next_sibling('span').find('span').text.replace('(','').replace(')','').lower()
                 except: fuel = ''
 
             elif span.text == 'КПП':
@@ -142,7 +142,7 @@ class Rst:
                 except: drive = ''
 
             elif span.text == 'Тип кузова':
-                body = span.find_next_sibling('span').find('strong').text
+                body = span.find_next_sibling('span').find('strong').text.split()[0]
                 try:
                     color = span.find_next_sibling('span').find('span').text.replace(')','').split()[-1].lower()
                 except: color = ''
@@ -159,8 +159,8 @@ class Rst:
 
         mark_model = soup.find('div', class_='rst-uix-page-tree rst-uix-radius').find('a').find_next_sibling('a').find_next_sibling('a').find_next_sibling('a').text
 
-        mark = mark_model.split()[0]
-        model = mark_model.split()[1]
+        mark = mark_model.split()[0].lower()
+        model = mark_model.split()[1].lower()
 
         try:
             description = soup.find('div', class_='rst-page-oldcars-item-option-block-container rst-page-oldcars-item-option-block-container-desc rst-uix-block-more').text.strip()
@@ -198,13 +198,12 @@ class Rst:
             'rst_link': url,
             'mark': mark,
             'model': model,
-            'gearbox': gearbox,
+            'gearbox': gearbox.split()[0],
             'location': location,
             'location_city': location_city,
             'fuel': fuel,
             'color': color,
             'body': body,
-            'phone': None,
             'name': name,
         }
         return data
@@ -269,6 +268,7 @@ class Rst:
                         car = Car.objects.get(rst_link=data['rst_link'])
                         car.price = data['price']
                         car.updatedAt = tz.localize(datetime.now())
+                        car.last_site_updatedAt = data['last_site_updatedAt']
                         car.save()
                         print('Price updated')
                     except:
@@ -286,6 +286,7 @@ class Rst:
                         car.price = data['price']
                         car.rst_link = data['rst_link']
                         car.updatedAt = tz.localize(datetime.now())
+                        car.last_site_updatedAt = data['last_site_updatedAt']
                         car.save()
                         print('Updated')
                 except:
@@ -299,7 +300,7 @@ class Rst:
                                         engine=data['engine'],
                                         description=data['description'],
                                         price=data['price'],
-                                        phone=data['phone'],
+                                        phone=None,
                                         body=body,
                                         image=data['image'],
                                         dtp=data['dtp'],

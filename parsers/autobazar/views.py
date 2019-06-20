@@ -1,3 +1,11 @@
-from django.shortcuts import render
+from django.views.generic import View
+from django.http import HttpResponse
 
-# Create your views here.
+from .parser import Ab
+
+class AbView(View):
+
+    def get(self, request):
+        ab = Ab()
+        ab.data_record()
+        return HttpResponse('DONE')

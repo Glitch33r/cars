@@ -130,7 +130,7 @@ class Car(models.Model):
 
     class Meta:
         verbose_name_plural = 'Cars'
-        ordering = ['-updatedAt']
+        ordering = ['-createdAt']
 
     def __str__(self):
         if self.updatedAt:
