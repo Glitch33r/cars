@@ -2,7 +2,7 @@ import json
 
 import requests
 
-from main.models import Location, Color, Gearbox, Fuel, Body
+from main.models import Location, Color, Gearbox, Fuel, Body, Mark, Model
 from .auto_ria_api import AutoRiaAPI
 
 way = '{}{}'
@@ -36,6 +36,22 @@ def seed_body():
         var['name'] = var['name'].lower().replace(' ', '')
         Body(id=var['value'], name=var['name'].lower()).save()
     seed('https://developers.ria.com/auto/categories/1/bodystyles?api_key=', Body)
+
+
+def seed_mark():
+    from .models_merk_tuple import marks
+    python_marks = []
+    for mark in marks:
+        python_marks.append(Mark(id=mark[0], name=mark[1], ria_id=mark[2], eng=mark[3]))
+    Mark.objects.bulk_create(python_marks)
+
+
+def seed_model():
+    from .models_merk_tuple import models
+    python_models = []
+    for model in models:
+        python_models.append(Model(id=model[0], mark_id=model[1], name=model[2], ria_id=model[3], eng=model[4]))
+    Model.objects.bulk_create(python_models)
 
 
 if __name__ == '__main__':
