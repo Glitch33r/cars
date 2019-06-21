@@ -65,16 +65,8 @@ class AutoRiaInnerParse(WordsFormater):
             return None
         return model
 
-    def __init__(self):
-        print('Hi, I\'m started')
-        first_data = json.loads(requests.get(self.list_posts_way.format(10, 0)).content)
-
-        for i in range(0, first_data['result']['search_result']['count'] // 100):
-            print('####', i)
-            start_data = json.loads(requests.get(self.list_posts_way.format(100, i)).content)
-            for ids in start_data['result']['search_result']['ids']:
-                data = json.loads(requests.get(self.post_way.format(ids)).content)
-                car = Car(model=self.find_model(data),
+    def set_car(self, data: dict):
+        car = Car(model=self.find_model(data),
                           gearbox_id=gearbox.get(self.formating(data['autoData']['gearboxName'])),
                           location_id=location.get(self.formating(data['stateData']['regionName'])),
                           fuel_id=fuel.get(self.fuel_parse(data['autoData']['fuelName'])),
@@ -94,6 +86,20 @@ class AutoRiaInnerParse(WordsFormater):
                           updatedAt=datetime.datetime.now(),
                           last_site_updatedAt=self.format_date(data['updateDate'])
                           )
+        return car
+
+    def __init__(self):
+        print('Hi, I\'m started')
+        first_data = json.loads(requests.get(self.list_posts_way.format(10, 0)).content)
+
+        for i in range(800, first_data['result']['search_result']['count'] // 100):
+            print('####', i)
+            if i > 900:
+                return
+            start_data = json.loads(requests.get(self.list_posts_way.format(100, i)).content)
+            for ids in start_data['result']['search_result']['ids']:
+                data = json.loads(requests.get(self.post_way.format(ids)).content)
+                car = self.set_car(data)
                 if car.model:
                     car.save()
                 else:
@@ -101,8 +107,7 @@ class AutoRiaInnerParse(WordsFormater):
                     pass
 
 
-class AutoRiaUpdateParse(WordsFormater):
-
+class AutoRiaUpdateParse(AutoRiaInnerParse):
     list_posts_way = 'http://auto.ria.com/blocks_search_ajax/search/?countpage={}&category_id=1&page={}'
     post_way = 'https://auto.ria.com/demo/bu/searchPage/v2/view/auto/{}/?lang_id=2'
 
@@ -113,22 +118,33 @@ class AutoRiaUpdateParse(WordsFormater):
             print('####', i)
             start_data = json.loads(requests.get(self.list_posts_way.format(100, i)).content)
             for ids in start_data['result']['search_result']['ids']:
+                if count > 900:
+                    return
                 count += 1
                 print(count)
                 data = json.loads(requests.get(self.post_way.format(ids)).content)
                 updated = datetime.datetime.strptime(data['updateDate'], '%Y-%m-%d %H:%M:%S')
-                start = datetime.datetime.now() - datetime.timedelta(hours=4)
+                start = datetime.datetime.now() - datetime.timedelta(hours=1)
                 print(start, updated, datetime.datetime.now())
                 updated = updated.timestamp()
                 if updated > start.timestamp() and updated < datetime.datetime.now().timestamp():
                     print('good')
+                    car = Car.objects.filter(ria_link='https://auto.ria.com' + data['linkToView']).first()
                     if data['autoData']['isSold']:
-                        try:
-                            Car.objects.filter(ria_link='https://auto.ria.com' + data[['linkToView']]).delete()
-                        except:
-                            pass
+                        r = (car.delete(), None,)[bool(car)]
+                    else:
+                        model = self.find_model(data)
+                        if model:
+                            if car:
+                                print(f'updates price {data["USD"]}')
+                                car.price = data['USD']
+                                car.save()
+                            else:
+                                car = self.set_car(data)
+                                car.save()
                 else:
-                    print('bad')
+                    pass
+                    # print('bad')
 
 # pass
 
@@ -314,131 +330,3 @@ class AutoRiaUpdateParse(WordsFormater):
 #  'userId': 1301047,
 #  'userPhoneData': {'phone': '(099) 382 10 51', 'phoneId': '1053017'},
 #  'withInfoBar': False}
-
-
-r = {'EUR': 13262,
-     'UAH': 393211,
-     'USD': 14900,
-     'addDate': '2019-06-18 18:55:03',
-     'auctionPossible': False,
-     'autoData': {'active': True,
-                  'autoId': 24428875,
-                  'bodyId': 3,
-                  'categoryId': 1,
-                  'categoryNameEng': 'legkovie',
-                  'custom': 0,
-                  'description': '-Автомобіль  свіжопригнаний без пробігу по '
-                                 'Україні!\n'
-                                 '-Розмитнений 100%!\n'
-                                 '-Без жодного підкрасу 100%!\n'
-                                 '-Комплектація авто: \n'
-                                 '-BI-XENON\n'
-                                 '-LED\n'
-                                 '-Клімт котроль двох зонний\n'
-                                 '-Повний борт компютер\n'
-                                 '-ABS/ESP/BA/ESP\n'
-                                 '-Безключовий доступ\n'
-                                 '-Система старт-стоп\n'
-                                 '-AUTO HOLD\n'
-                                 '-Круїз контроль\n'
-                                 '-Преміум саунд-систем\n'
-                                 '-Дачики руху\n'
-                                 '-Дачик світла\n'
-                                 '-Дачик дощу\n'
-                                 '-Парктронік перід\n'
-                                 '-Камера заднього огляду\n'
-                                 '-Мультисерворуль\n'
-                                 '-IZOFIX\n'
-                                 '-AUX\n'
-                                 '-Bluetooth \n'
-                                 '-USB \n'
-                                 '-МР3 \n'
-                                 '-GPS-навігація\n'
-                                 '-10 подушок  безпеки \n'
-                                 '-Підлокотник\n'
-                                 '-Повний електропакет \n'
-                                 '-ц/з+сигналізація+імобілайзер \n'
-                                 '-Дотяжка вікон з пульту \n'
-                                 '-2 DIN сенсорна магнітола \n'
-                                 '-2 ключі \n'
-                                 '-Сервісна книжка\n'
-                                 '\n'
-                                 '\n'
-                                 '\n'
-                                 '\n'
-                                 '\n'
-                                 '\n',
-                  'fromArchive': False,
-                  'fuelName': 'Дизель, 2 л.',
-                  'fuelNameEng': 'dizel',
-                  'gearboxName': 'Ручная / Механика',
-                  'isSold': False,
-                  'mainCurrency': 'USD',
-                  'onModeration': False,
-                  'race': '131 тыс. км',
-                  'raceInt': 131,
-                  'statusId': 0,
-                  'subCategoryNameEng': 'sedan',
-                  'version': 'HIGHLINE  ',
-                  'withVideo': False,
-                  'year': 2012},
-     'badges': [],
-     'canSetSpecificPhoneToAdvert': False,
-     'checkedVin': {'isShow': False, 'vin': ''},
-     'chipsCount': 0,
-     'cityLocative': 'Луцке',
-     'dealer': {'id': 0,
-                'link': '',
-                'logo': '',
-                'name': '',
-                'packageId': 0,
-                'type': '',
-                'typeId': 0},
-     'dontComment': 0,
-     'exchangePossible': False,
-     'exchangeType': 'Любой',
-     'exchangeTypeId': 0,
-     'expireDate': '2019-09-18 18:55:03',
-     'hasWebP': 2,
-     'infoBarText': '',
-     'isAutoAddedByPartner': False,
-     'isLeasing': 0,
-     'levelData': {'expireDate': '2019-06-19 18:55:04',
-                   'hotType': '',
-                   'label': 0,
-                   'level': 123},
-     'linkToView': '/auto_volkswagen_passat_b7_24428875.html',
-     'locationCityName': 'Луцк',
-     'markId': 84,
-     'markName': 'Volkswagen',
-     'markNameEng': 'volkswagen',
-     'modelId': 38063,
-     'modelName': 'Passat B7',
-     'modelNameEng': 'passat-b7',
-     'moderatedAbroad': False,
-     'oldTop': {'expireDate': '', 'isActive': False},
-     'optionStyles': [],
-     'partnerId': 0,
-     'photoData': {'count': 57,
-                   'seoLinkB': 'https://cdn0.riastatic.com/photosnew/auto/photo/volkswagen_passat-b7__280034090b.jpg',
-                   'seoLinkF': 'https://cdn0.riastatic.com/photosnew/auto/photo/volkswagen_passat-b7__280034090f.jpg',
-                   'seoLinkM': 'https://cdn0.riastatic.com/photosnew/auto/photo/volkswagen_passat-b7__280034090m.jpg',
-                   'seoLinkSX': 'https://cdn0.riastatic.com/photosnew/auto/photo/volkswagen_passat-b7__280034090sx.jpg'},
-     'realtyExchange': False,
-     'secureKey': '13e5c5fe9d4563a17e395c1f7ff76d39',
-     'sendComments': 0,
-     'soldDate': '',
-     'stateData': {'cityId': 18,
-                   'linkToCatalog': '/city/luczk/',
-                   'name': 'Луцк',
-                   'regionName': 'Волынская',
-                   'regionNameEng': 'luczk',
-                   'stateId': 18,
-                   'title': 'Поиск объявлений по городу Луцк'},
-     'title': 'Volkswagen Passat B7 HIGHLINE  ',
-     'updateDate': '2019-06-18 18:55:03',
-     'userBlocked': [],
-     'userHideADSStatus': False,
-     'userId': 2023900,
-     'userPhoneData': {'phone': '(098) 960 05 00', 'phoneId': '675017793'},
-     'withInfoBar': False}
