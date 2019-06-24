@@ -75,39 +75,46 @@ class Rst:
         tds = soup.find('div', class_='rst-page-oldcars-item-option-block rst-uix-clear').find_all('td')
         spans = soup.find('div', class_='rst-page-oldcars-item-option-block rst-uix-clear').find_all('span')
 
-        for td in tds:
-            if td.text == 'Цена':
-                try:
-                    price_hrn = td.find_next_sibling('td').find('span').find('strong').text.translate(OD)
-                    price = td.find_next_sibling('td').find('span').find('span').text.translate(OD)
-                except:
-                    price_hrn = 0
-                    price = 0
+        price_soup = soup.find('td', text='Цена') if soup.find('td', text='Цена') else soup.find('span', text='Цена')
+        price = price_soup.find_next_sibling().find('span').find('span').text.translate(OD)
 
-            elif td.text == 'Год выпуска':
-                year = td.find_next_sibling('td').find('a').text.translate(OD)
-                mileage = td.find_next_sibling('td').find('span').text.translate(OD)
+        year_mil_soup = soup.find('td', text='Год выпуска') if soup.find('td', text='Год выпуска') else soup.find('span', text='Год выпуска')
+        year = year_mil_soup.find_next_sibling().find('a').text.translate(OD)
+        mileage = year_mil_soup.find_next_sibling().find('span').text.translate(OD)
+
+        for td in tds:
+            # if td.text == 'Цена':
+            #     try:
+            #         price_hrn = td.find_next_sibling('td').find('span').find('strong').text.translate(OD)
+            #         price = td.find_next_sibling('td').find('span').find('span').text.translate(OD)
+            #     except:
+            #         price_hrn = 0
+            #         price = 0
+
+            # if td.text == 'Год выпуска':
+            #     year = td.find_next_sibling('td').find('a').text.translate(OD)
+            #     mileage = td.find_next_sibling('td').find('span').text.translate(OD)
             
-            elif td.text == 'Двигатель':
+            if td.text == 'Двигатель':
                 engine = float(td.find_next_sibling('td').find('strong').text[:3]) if td.find_next_sibling('td').find('strong').text else ''
                 try:
                     fuel = td.find_next_sibling('td').find('span').text.replace('(','').replace(')','').lower()
-                except: fuel = ''
+                except: fuel = None
 
             elif td.text == 'КПП':
-                gearbox = td.find_next_sibling('td').find('strong').text.split()[0]
+                gearbox = td.find_next_sibling('td').find('strong').text.split()[0].lower()
                 try:
                     drive = td.find_next_sibling('td').find('span').text.replace('(','').split()[0]
                 except: drive = ''
 
             elif td.text == 'Тип кузова':
-                body = td.find_next_sibling('td').find('strong').text.split()[0]
+                body = td.find_next_sibling('td').find('strong').text.split()[0].lower()
                 try:
                     color = td.find_next_sibling('td').find('span').text.replace(')','').split()[-1].lower()
-                except: color = ''
+                except: color = None
 
             elif td.text == 'Область':
-                location = td.find_next_sibling('td').find('a').text
+                location = td.find_next_sibling('td').find('a').text.lower()
                 try:
                     location_city = td.find_next_sibling('td').find('span').find('a').text.replace(')','').split()[-1]
                 except: location_city = ''
@@ -117,38 +124,38 @@ class Rst:
                 last_site_updatedAt = tz.localize(datetime.strptime(created, '%d.%m.%Y'))
 
         for span in spans:
-            if span.text == 'Цена':
-                try:
-                    price_hrn = span.find_next_sibling('span').find('span').find('strong').text.translate(OD)
-                    price = span.find_next_sibling('span').find('span').find('span').text.translate(OD)
-                except:
-                    price_hrn = 0
-                    price = 0
+            # if span.text == 'Цена':
+            #     try:
+            #         price_hrn = span.find_next_sibling('span').find('span').find('strong').text.translate(OD)
+            #         price = span.find_next_sibling('span').find('span').find('span').text.translate(OD)
+            #     except:
+            #         price_hrn = 0
+            #         price = 0
 
-            elif span.text == 'Год выпуска':
-                year = span.find_next_sibling('span').find('a').text.translate(OD)
-                mileage = span.find_next_sibling('span').find('span').text.translate(OD)
+            # if span.text == 'Год выпуска':
+            #     year = span.find_next_sibling('span').find('a').text.translate(OD)
+            #     mileage = span.find_next_sibling('span').find('span').text.translate(OD)
             
-            elif span.text == 'Двигатель':
+            if span.text == 'Двигатель':
                 engine = float(span.find_next_sibling('span').find('strong').text[:3]) if span.find_next_sibling('span').find('strong').text else ''
                 try:
                     fuel = span.find_next_sibling('span').find('span').text.replace('(','').replace(')','').lower()
-                except: fuel = ''
+                except: fuel = None
 
             elif span.text == 'КПП':
-                gearbox = span.find_next_sibling('span').find('strong').text.split()[0]
+                gearbox = span.find_next_sibling('span').find('strong').text.split()[0].lower()
                 try:
                     drive = span.find_next_sibling('span').find('span').text.replace('(','').split()[0]
                 except: drive = ''
 
             elif span.text == 'Тип кузова':
-                body = span.find_next_sibling('span').find('strong').text.split()[0]
+                body = span.find_next_sibling('span').find('strong').text.split()[0].lower()
                 try:
                     color = span.find_next_sibling('span').find('span').text.replace(')','').split()[-1].lower()
-                except: color = ''
+                except: color = None
 
             elif span.text == 'Область':
-                location = span.find_next_sibling('span').find('a').text
+                location = span.find_next_sibling('span').find('a').text.lower()
                 try:
                     location_city = span.find_next_sibling('span').find('span').find('a').text.replace(')','').split()[-1]
                 except: location_city = ''
@@ -188,7 +195,7 @@ class Rst:
             'engine': engine,
             'description': description,
             'price': price,
-            'price_hrn': price_hrn,
+            # 'price_hrn': price_hrn,
             'drive': drive,
             'dtp': dtp,
             'created': created,
@@ -221,93 +228,84 @@ class Rst:
 
                 data = self.get_ad_data(url)
 
-                try:
-                    mark = Mark.objects.get(name=data['mark'])
-                except:
-                    Mark.objects.create(name=data['mark'])
-                    mark = Mark.objects.get(name=data['mark'])
+                mark = Mark.objects.filter(name=data['mark']).first()
+                if not mark:
+                    mark = Mark(name=data['mark']).save()
 
-                try:
-                    model = Model.objects.get(name=data['model'])
-                except:
-                    Model.objects.create(name=data['model'], mark=mark)
-                    model = Model.objects.get(name=data['model'])
+                model = Model.objects.filter(name=data['model']).first()
+                if not model:
+                    model = Model(name=data['model'], mark=mark).save()
 
-                try:
-                    gearbox = Gearbox.objects.get(name=data['gearbox'])
-                except:
-                    Gearbox.objects.create(name=data['gearbox'])
-                    gearbox = Gearbox.objects.get(name=data['gearbox'])
+                gearbox = Gearbox.objects.filter(name=data['gearbox']).first()
+                if not gearbox:
+                    gearbox = Gearbox(name=data['gearbox']).save()
 
-                try:
-                    location = Location.objects.get(name=data['location'])
-                except:
-                    Location.objects.create(name=data['location'])
-                    location = Location.objects.get(name=data['location'])
+                location = Location.objects.filter(name=data['location']).first()
+                if not location:
+                    location = Location(name=data['location']).save()
 
-                try:
-                    fuel = Fuel.objects.get(name=data['fuel'])
-                except:
-                    Fuel.objects.create(name=data['fuel'])
-                    fuel = Fuel.objects.get(name=data['fuel'])
+                fuel = Fuel.objects.filter(name=data['fuel']).first()
+                if not fuel:
+                    fuel = Fuel(name=data['fuel']).save()
 
-                try:
-                    color = Color.objects.get(name=data['color'])
-                except:
-                    Color.objects.create(name=data['color'])
-                    color = Color.objects.get(name=data['color'])
+                if data['color'] is None:
+                    color = None
+                else:
+                    color = Color.objects.filter(name=data['color']).first()
+                    if not color:
+                        color = Color(name=data['color']).save()
 
-                try:
-                    body = Body.objects.get(name=data['body'])
-                except:
-                    Body.objects.create(name=data['body'])
-                    body = Body.objects.get(name=data['body'])
+                body = Body.objects.filter(name=data['body']).first()
+                if not body:
+                    body = Body(name=data['body']).save()
 
-                try:
-                    try:
-                        car = Car.objects.get(rst_link=data['rst_link'])
-                        car.price = data['price']
-                        car.updatedAt = tz.localize(datetime.now())
-                        car.last_site_updatedAt = data['last_site_updatedAt']
-                        car.save()
-                        print('Price updated')
-                    except:
-                        car = Car.objects.get(model=model,
-                                        gearbox=gearbox,
-                                        location=location,
-                                        fuel=fuel,
-                                        color=color,
-                                        year=data['year'],
-                                        mileage=data['mileage'],
-                                        engine=data['engine'],
-                                        body=body,
-                                        dtp=data['dtp']
-                                        )
+                car = Car.objects.filter(rst_link=data['rst_link']).first()
+                if car:
+                    car.price = data['price']
+                    car.updatedAt = tz.localize(datetime.now())
+                    car.last_site_updatedAt = data['last_site_updatedAt']
+                    car.save()
+                    print('Price updated')
+                else:
+                    car = Car.objects.filter(model=model,
+                                    gearbox=gearbox,
+                                    location=location,
+                                    fuel=fuel,
+                                    color=color,
+                                    year=data['year'],
+                                    mileage=data['mileage'],
+                                    engine=data['engine'],
+                                    body=body,
+                                    dtp=data['dtp']
+                                    ).first()
+                    if car:
                         car.price = data['price']
                         car.rst_link = data['rst_link']
                         car.updatedAt = tz.localize(datetime.now())
                         car.last_site_updatedAt = data['last_site_updatedAt']
                         car.save()
                         print('Updated')
-                except:
-                    car = Car.objects.create(model=model,
-                                        gearbox=gearbox,
-                                        location=location,
-                                        fuel=fuel,
-                                        color=color,
-                                        year=data['year'],
-                                        mileage=data['mileage'],
-                                        engine=data['engine'],
-                                        description=data['description'],
-                                        price=data['price'],
-                                        phone=None,
-                                        body=body,
-                                        image=data['image'],
-                                        dtp=data['dtp'],
-                                        createdAt=tz.localize(datetime.now()),
-                                        last_site_updatedAt=data['last_site_updatedAt'],
-                                        rst_link=data['rst_link']
-                                        )
+
+                if not car:
+                    car = Car(
+                        model=model,
+                        gearbox=gearbox,
+                        location=location,
+                        fuel=fuel,
+                        color=color,
+                        year=data['year'],
+                        mileage=data['mileage'],
+                        engine=data['engine'],
+                        description=data['description'],
+                        price=data['price'],
+                        phone=None,
+                        body=body,
+                        image=data['image'],
+                        dtp=data['dtp'],
+                        createdAt=tz.localize(datetime.now()),
+                        last_site_updatedAt=data['last_site_updatedAt'],
+                        rst_link=data['rst_link']
+                    )
                     car.save()
                     print('Object created')
 

@@ -17,9 +17,13 @@ class CarAdmin(admin.ModelAdmin):
     show_ab_link.short_description = "ab link"
 
 
+@admin.register(Model)
+class ModelAdmin(admin.ModelAdmin):
+    list_display = ('name', 'mark')
+
+
 admin.site.register(Profile)
 admin.site.register(Mark)
-admin.site.register(Model)
 admin.site.register(Gearbox)
 admin.site.register(Location)
 admin.site.register(Fuel)
