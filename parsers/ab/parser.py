@@ -105,7 +105,7 @@ class Ab:
     def data_record(self):
         
         pages = self.get_count_pages()
-        for page in range(1, 5):
+        for page in range(1, pages + 1):
             print('get {} page'.format(page))
             # sleep(random.randint(5, 10))
             for car_id in self.get_ids_by_page(page):
@@ -114,54 +114,53 @@ class Ab:
 
                 mark = Mark.objects.filter(name=data['mark']).first()
                 if not mark:
-                    mark = Mark(name=data['mark']).save()
+                    print('create new mark')
+                    mark = Mark.objects.create(name=data['mark'])
 
                 model = Model.objects.filter(name=data['model'], mark=mark).first()
                 if not model:
-                    model = Model(name=data['model'], mark=mark).save()
+                    print('create new model')
+                    model = Model.objects.create(name=data['model'], mark=mark)
 
                 if data['gearbox'] is None:
                     gearbox = None
                 else:
                     gearbox = Gearbox.objects.filter(name=data['gearbox']).first()
                     if not gearbox:
-                        gearbox = Gearbox(name=data['gearbox']).save()
+                        gearbox = Gearbox.objects.create(name=data['gearbox'])
 
                 location = Location.objects.filter(name=data['location']).first()
                 if not location:
-                    location = Location(name=data['location']).save()
+                    location = Location.objects.create(name=data['location'])
                 if data['fuel'] is None:
                     fuel = None
                 else:
                     fuel = Fuel.objects.filter(name=data['fuel']).first()
                     if not fuel:
-                        fuel = Fuel(name=data['fuel']).save()
+                        fuel = Fuel.objects.create(name=data['fuel'])
 
                 if data['color'] is None:
                     color = None
                 else:
                     color = Color.objects.filter(name=data['color']).first()
                     if not color:
-                        color = Color(name=data['color']).save()
+                        color = Color.objects.create(name=data['color'])
 
                 if data['body'] is None:
                     body = None
                 else:
                     body = Body.objects.filter(name=data['body']).first()
                     if not body:
-                        body = Body(name=data['body']).save()
+                        body = Body.objects.create(name=data['body'])
 
                 seller = SellerPhone.objects.filter(phone=data['phone']).first()
-                print('--- seller ---')
-                print(seller)
-                print('--- seller ---')
                 if not seller:
-                    seller = SellerPhone(phone=data['phone']).save()
+                    seller = SellerPhone.objects.create(phone=data['phone'])
 
                 car = Car.objects.filter(ab_link=data['ab_link']).first()
                 if car:
                     if car.pricehistory_set.filter(price=data['price']):
-                        PriceHistory(car=car, price=data['price']).save()
+                        PriceHistory.objects.create(car=car, price=data['price'])
                     car.updatedAt = tz.localize(datetime.now())
                     car.last_site_updatedAt = data['last_site_updatedAt']
                     car.save()
@@ -207,6 +206,6 @@ class Ab:
                         ab_link=data['ab_link']
                     )
                     car.save()
-                    PriceHistory(car=car, price=data['price']).save()
+                    PriceHistory.objects.create(car=car, price=data['price'])
                     print('Object created')
         return print('FINISHED')
