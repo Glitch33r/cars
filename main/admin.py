@@ -6,7 +6,7 @@ from .models import *
 
 @admin.register(Car)
 class CarAdmin(admin.ModelAdmin):
-    list_display = ('model', 'engine', 'gearbox', 'fuel', 'price', 'mileage', 'show_rst_link', 'show_ab_link', 'createdAt', 'updatedAt', 'last_site_updatedAt')
+    list_display = ('model', 'engine', 'gearbox', 'fuel', 'mileage', 'show_rst_link', 'show_ab_link', 'createdAt', 'updatedAt', 'last_site_updatedAt')
 
     def show_rst_link(self, obj):
         return format_html("<a href='{url}' target='_blank'>{url}</a>", url=obj.rst_link)

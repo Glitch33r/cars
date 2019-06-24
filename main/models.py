@@ -98,7 +98,7 @@ class Fuel(models.Model):
 
 
 class SellerPhone(models.Model):
-    phone = models.CharField(max_length=1024, unique=True)
+    phone = models.CharField(max_length=512, unique=True)
 
     def __str__(self):
         return self.phone
@@ -113,7 +113,7 @@ class Car(models.Model):
     year = models.IntegerField(null=True)
     mileage = models.IntegerField(null=True)
     engine = models.FloatField(null=True)
-    description = models.CharField(max_length=1024, null=True)
+    description = models.TextField(null=True)
     phone = models.ForeignKey(SellerPhone, null=True, on_delete=models.SET_NULL)
     body = models.ForeignKey(Body, null=True, on_delete=models.SET_NULL)
     image = models.CharField(max_length=256)
@@ -174,9 +174,9 @@ class Filter(models.Model):
         ('YES', 'после ДТП'),
         ('ANY', 'с ДТП и без'),
     )
-    model = models.ForeignKey(Model, null=True, on_delete=models.SET_NULL)
-    mark = models.ForeignKey(Mark, null=True, on_delete=models.SET_NULL)
-    location = models.ForeignKey(Location, null=True, on_delete=models.SET_NULL)
+    # model = models.ForeignKey(Model, null=True, on_delete=models.SET_NULL)
+    # mark = models.ForeignKey(Mark, null=True, on_delete=models.SET_NULL)
+    # location = models.ForeignKey(Location, null=True, on_delete=models.SET_NULL)
     gearbox = models.CharField(choices=GEAR_BOX_TYPE, max_length=5, default=GEAR_BOX_TYPE[0][0])
     sell = models.CharField(choices=SELL_TYPE, max_length=8, default=SELL_TYPE[0][0])
     cleared = models.CharField(choices=CLEARED_TYPE, max_length=7, default=CLEARED_TYPE[0][0])
