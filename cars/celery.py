@@ -25,8 +25,8 @@ app.conf.beat_schedule = {
     # },
     'update_autoRia_every_hour': {
         'task': 'parsers.tasks.upd_ria',
-        'schedule': crontab(minute=1, hour='*/2'),
-        'args': (10,)
+        'schedule': crontab(minute=41, hour='*/2')
+        # 'args': (10,)
     },
 }
 

@@ -82,7 +82,7 @@ WSGI_APPLICATION = 'cars.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'parser',
+        'NAME': 'parser_db',
         'USER': 'pars_admin',
         'PASSWORD': 'qwerty',
         'HOST': '127.0.0.1',

@@ -3,6 +3,7 @@ from datetime import datetime
 from django.contrib.auth.models import User
 from django.utils import timezone
 
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     phone = models.CharField(max_length=13, blank=False)
@@ -100,14 +101,6 @@ class SellerPhone(models.Model):
     phone = models.CharField(max_length=1024, unique=True)
 
 
-class PriceHistory(models.Model):
-    price = models.IntegerField()
-    date_set = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name_plural = 'price_history'
-
-
 class Car(models.Model):
     model = models.ForeignKey(Model, null=True, on_delete=models.SET_NULL)
     gearbox = models.ForeignKey(Gearbox, null=True, on_delete=models.SET_NULL)
@@ -118,7 +111,6 @@ class Car(models.Model):
     mileage = models.IntegerField(null=True)
     engine = models.FloatField(null=True)
     description = models.CharField(max_length=1024, null=True)
-    price = models.ForeignKey(PriceHistory, on_delete=models.CASCADE)
     phone = models.ForeignKey(SellerPhone, null=True, on_delete=models.SET_NULL)
     body = models.ForeignKey(Body, null=True, on_delete=models.SET_NULL)
     image = models.CharField(max_length=256)
@@ -140,6 +132,16 @@ class Car(models.Model):
         return f'<Cars: model={self.model}, year={self.year}'
 
 
+class PriceHistory(models.Model):
+    car = models.ForeignKey(Car, on_delete=models.CASCADE)
+    price = models.IntegerField()
+    date_set = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name_plural = 'price_history'
+
+    def __str__(self):
+        return f'<PriceHistory: price={self.price}, date_set={self.date_set}>'
 
 
 class Filter(models.Model):

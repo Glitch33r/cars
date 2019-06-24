@@ -1,11 +1,11 @@
 import datetime
 import json
 import time
-
+import threading
 from django.utils import timezone
 import requests
 
-from main.models import Model, Car, SellerPhone
+from main.models import Model, Car, SellerPhone, PriceHistory
 from parsers.choises import location, fuel, gearbox
 
 
@@ -50,6 +50,20 @@ class AutoRiaInnerParse(WordsFormater):
     list_posts_way = 'http://auto.ria.com/blocks_search_ajax/search/?countpage={}&category_id=1&page={}&saledParam=2'
     post_way = 'https://auto.ria.com/demo/bu/searchPage/v2/view/auto/{}/?lang_id=2'
 
+    def __init__(self):
+        print('Hi, I\'m started')
+        self.first_data = json.loads(requests.get(self.list_posts_way.format(10, 0)).content)
+        print(self.first_data['result']['search_result']['count'] // 100)
+        t1 = threading.Thread(target=self.runner, args=(0, 500))
+        t2 = threading.Thread(target=self.runner, args=(501, 1000))
+        t3 = threading.Thread(target=self.runner, args=(1001, 1500))
+        t1.start()
+        t2.start()
+        t3.start()
+        t1.join()
+        t2.join()
+        t3.join()
+
     def set_saller(self, phone):
         saller = SellerPhone.objects.filter(phone=self.format_phone(phone)).first()
         if saller:
@@ -65,38 +79,37 @@ class AutoRiaInnerParse(WordsFormater):
             return None
         return model
 
+    def set_price(self, price_int: int, car):
+        print(price_int)
+        price = PriceHistory(price=price_int, date_set=timezone.now(), car=car)
+        price.save()
+        print(price)
+
     def set_car(self, data: dict):
         car = Car(model=self.find_model(data),
-                          gearbox_id=gearbox.get(self.formating(data['autoData']['gearboxName'])),
-                          location_id=location.get(self.formating(data['stateData']['regionName'])),
-                          fuel_id=fuel.get(self.fuel_parse(data['autoData']['fuelName'])),
-                          engine=self.engine_parse(data['autoData']['fuelName']),
-                          color=None,
-                          year=data['autoData']['year'],
-                          mileage=data['autoData']['raceInt'],
-                          price=data['USD'],
-                          phone=self.set_saller(data['userPhoneData']['phone']),
-                          body_id=data['autoData'].get('bodyId'),
-                          image=data['photoData']['seoLinkF'],
-                          dtp=self.check_dtp(data['infoBarText']),
-                          sold=data['autoData']['isSold'],
-                          cleared=not bool(data['autoData']['custom']),
-                          ria_link='https://auto.ria.com' + data['linkToView'],
-                          createdAt=self.format_date(data['addDate']),
-                          updatedAt=timezone.now(),
-                          last_site_updatedAt=self.format_date(data['updateDate'])
-                          )
+                  gearbox_id=gearbox.get(self.formating(data['autoData']['gearboxName'])),
+                  location_id=location.get(self.formating(data['stateData']['regionName'])),
+                  fuel_id=fuel.get(self.fuel_parse(data['autoData']['fuelName'])),
+                  engine=self.engine_parse(data['autoData']['fuelName']),
+                  color=None,
+                  year=data['autoData']['year'],
+                  mileage=data['autoData']['raceInt'],
+                  # price=self.set_price(data['USD']),
+                  phone=self.set_saller(data['userPhoneData']['phone']),
+                  body_id=data['autoData'].get('bodyId'),
+                  image=data['photoData']['seoLinkF'],
+                  dtp=self.check_dtp(data['infoBarText']),
+                  sold=data['autoData']['isSold'],
+                  cleared=not bool(data['autoData']['custom']),
+                  ria_link='https://auto.ria.com' + data['linkToView'],
+                  createdAt=self.format_date(data['addDate']),
+                  updatedAt=timezone.now(),
+                  last_site_updatedAt=self.format_date(data['updateDate'])
+                  )
         return car
 
-    def runner(self):
-
-
-
-    def __init__(self):
-        print('Hi, I\'m started')
-        self.first_data = json.loads(requests.get(self.list_posts_way.format(10, 0)).content)
-        print(self.first_data['result']['search_result']['count'] // 100)
-        for i in range(0, self.first_data['result']['search_result']['count'] // 100):
+    def runner(self, start, finish):
+        for i in range(start, finish):
             print('####', i)
             if i > 900:
                 return
@@ -109,24 +122,9 @@ class AutoRiaInnerParse(WordsFormater):
                     data = json.loads(requests.get(self.post_way.format(ids)).content)
                 car = self.set_car(data)
                 if car.model:
+                    print('car save()')
                     car.save()
-                else:
-                    print(f'car not save Mark:{data["markNameEng"]}, model:{data["modelNameEng"]}, link: https://auto.ria.com{data["linkToView"]}')
-                    pass
-        for i in range(self.first_data['result']['search_result']['count'] // 100 // 2, self.first_data['result']['search_result']['count'] // 100):
-            print('####', i)
-            if i > 900:
-                return
-            start_data = json.loads(requests.get(self.list_posts_way.format(100, i)).content)
-            for ids in start_data['result']['search_result']['ids']:
-                try:
-                    data = json.loads(requests.get(self.post_way.format(ids)).content)
-                except json.decoder.JSONDecodeError:
-                    time.sleep(1)
-                    data = json.loads(requests.get(self.post_way.format(ids)).content)
-                car = self.set_car(data)
-                if car.model:
-                    car.save()
+                    self.set_price(data['USD'], car)
                 else:
                     print(f'car not save Mark:{data["markNameEng"]}, model:{data["modelNameEng"]}, link: https://auto.ria.com{data["linkToView"]}')
                     pass
@@ -137,26 +135,51 @@ class AutoRiaUpdateParse(AutoRiaInnerParse):
     post_way = 'https://auto.ria.com/demo/bu/searchPage/v2/view/auto/{}/?lang_id=2'
 
     def __init__(self):
-        count = 0
+        # count = 0
         first_data = json.loads(requests.get(self.list_posts_way.format(10, 0)).content)
-        for i in range(0, first_data['result']['search_result']['count'] // 100):
+        print(first_data['result']['search_result']['count'] // 100)
+        t1 = threading.Thread(target=self.runner, args=(0, 500))
+        t2 = threading.Thread(target=self.runner, args=(501, 1000))
+        t3 = threading.Thread(target=self.runner, args=(1001, 1500))
+        t4 = threading.Thread(target=self.runner, args=(1501, first_data['result']['search_result']['count'] // 100))
+        t1.start()
+        t2.start()
+        t3.start()
+        t4.start()
+        t1.join()
+        t2.join()
+        t3.join()
+        t4.join()
+
+
+    def time_stack(self, updated: str):
+        updated = datetime.datetime.strptime(updated, '%Y-%m-%d %H:%M:%S')
+        start = datetime.datetime.now() - datetime.timedelta(hours=2)
+        print(start, updated, datetime.datetime.now())
+        updated = updated.timestamp()
+        if updated > start.timestamp() and updated < datetime.datetime.now().timestamp():
+            return True
+        return False
+
+    def Noner(self):
+        pass
+
+    def runner(self, start, finish):
+        count = 0
+        for i in range(start, finish):
             print('####', i)
             start_data = json.loads(requests.get(self.list_posts_way.format(100, i)).content)
             for ids in start_data['result']['search_result']['ids']:
-                if count > 900:
+                if count > 10900:
                     return
                 count += 1
                 print(count)
                 data = json.loads(requests.get(self.post_way.format(ids)).content)
-                updated = datetime.datetime.strptime(data['updateDate'], '%Y-%m-%d %H:%M:%S')
-                start = datetime.datetime.now() - datetime.timedelta(hours=1)
-                print(start, updated, datetime.datetime.now())
-                updated = updated.timestamp()
-                if updated > start.timestamp() and updated < datetime.datetime.now().timestamp():
+                if self.time_stack(data['updateDate']):
                     print('good')
                     car = Car.objects.filter(ria_link='https://auto.ria.com' + data['linkToView']).first()
                     if data['autoData']['isSold']:
-                        r = (car.delete(), None,)[bool(car)]
+                        (car.delete, self.Noner,)[bool(car)]()
                         print(f'delete car {data["linkToView"]}')
                     else:
                         print('go to <else:> where car is not sold')
@@ -165,19 +188,25 @@ class AutoRiaUpdateParse(AutoRiaInnerParse):
                             print('model find')
                             if car:
                                 print(f'updates price {data["USD"]}')
-                                car.price = data['USD']
-                                car.updatedAt = timezone.now()
-                                car.save()
+                                self.set_price(price_int=data['USD'], car=car)
                             else:
                                 print('create car')
                                 car = self.set_car(data)
                                 car.save()
+                                self.set_price(price_int=data['USD'], car=car)
                         else:
                             print('model not find')
                             pass
                 else:
                     pass
+
+
+
+
                     # print('bad')
+
+
+
 
 # pass
 

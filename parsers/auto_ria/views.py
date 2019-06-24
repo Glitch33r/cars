@@ -2,6 +2,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.views import View
 
+from main.models import Car
 from parsers.auto_ria.tasks import mul, upd_ria, inner_ria
 from .parser import AutoRiaInnerParse, AutoRiaUpdateParse
 
@@ -14,8 +15,8 @@ class AutoRia(View):
         # upd_ria.apply_async(countdown=5)
         # r = mul.delay(12, 43)
         # print('hi## hi')
-        AutoRiaInnerParse()
-        # AutoRiaUpdateParse()
+        # AutoRiaInnerParse()
+        AutoRiaUpdateParse()
         # print(r.get())
         # AutoRiaUpdateParse()
         # inner_ria.apply_async(countdown=2)
