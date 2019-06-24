@@ -1,6 +1,7 @@
 from __future__ import absolute_import, unicode_literals
 import os
 from celery import Celery
+from celery.schedules import crontab
 
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'cars.settings')
@@ -17,20 +18,15 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
 
 app.conf.beat_schedule = {
-    'add-every-5-seconds': {
-        'task': 'extuser.tasks.add',
-        'schedule': 5.0,
-        'args': (16, 16)
-    },
-    'add-every-10-seconds': {
-        'task': 'extuser.tasks.mul',
-        'schedule': 10.0,
-        'args': (10, 10)
-    },
-    'add-every-15-seconds': {
-        'task': 'extuser.tasks.xsum',
-        'schedule': 15.0,
-        'args': (10, 20)
+    # 'inner_autoRia_every_day': {
+    #     'task': 'parsers.tasks.upd_ria',
+    #     'schedule': crontab(minute=27),
+    #     'args': (10,)
+    # },
+    'update_autoRia_every_hour': {
+        'task': 'parsers.tasks.upd_ria',
+        'schedule': crontab(minute=1, hour='*/2'),
+        'args': (10,)
     },
 }
 

@@ -1,6 +1,8 @@
 import datetime
 import json
+import time
 
+from django.utils import timezone
 import requests
 
 from main.models import Model, Car, SellerPhone
@@ -10,7 +12,6 @@ from parsers.choises import location, fuel, gearbox
 class WordsFormater:
 
     def engine_parse(self, word: str):
-        # print(f'word:"{word}"')
         if word == 'Не указано':
             return None
         elif word.find(', ') == -1:
@@ -34,7 +35,6 @@ class WordsFormater:
         return response
 
     def check_dtp(self, word: str):
-        # print(word)
         exept = 'После ДТП'
         if exept in word:
             return True
@@ -83,22 +83,47 @@ class AutoRiaInnerParse(WordsFormater):
                           cleared=not bool(data['autoData']['custom']),
                           ria_link='https://auto.ria.com' + data['linkToView'],
                           createdAt=self.format_date(data['addDate']),
-                          updatedAt=datetime.datetime.now(),
+                          updatedAt=timezone.now(),
                           last_site_updatedAt=self.format_date(data['updateDate'])
                           )
         return car
 
+    def runner(self):
+
+
+
     def __init__(self):
         print('Hi, I\'m started')
-        first_data = json.loads(requests.get(self.list_posts_way.format(10, 0)).content)
-
-        for i in range(800, first_data['result']['search_result']['count'] // 100):
+        self.first_data = json.loads(requests.get(self.list_posts_way.format(10, 0)).content)
+        print(self.first_data['result']['search_result']['count'] // 100)
+        for i in range(0, self.first_data['result']['search_result']['count'] // 100):
             print('####', i)
             if i > 900:
                 return
             start_data = json.loads(requests.get(self.list_posts_way.format(100, i)).content)
             for ids in start_data['result']['search_result']['ids']:
-                data = json.loads(requests.get(self.post_way.format(ids)).content)
+                try:
+                    data = json.loads(requests.get(self.post_way.format(ids)).content)
+                except json.decoder.JSONDecodeError:
+                    time.sleep(1)
+                    data = json.loads(requests.get(self.post_way.format(ids)).content)
+                car = self.set_car(data)
+                if car.model:
+                    car.save()
+                else:
+                    print(f'car not save Mark:{data["markNameEng"]}, model:{data["modelNameEng"]}, link: https://auto.ria.com{data["linkToView"]}')
+                    pass
+        for i in range(self.first_data['result']['search_result']['count'] // 100 // 2, self.first_data['result']['search_result']['count'] // 100):
+            print('####', i)
+            if i > 900:
+                return
+            start_data = json.loads(requests.get(self.list_posts_way.format(100, i)).content)
+            for ids in start_data['result']['search_result']['ids']:
+                try:
+                    data = json.loads(requests.get(self.post_way.format(ids)).content)
+                except json.decoder.JSONDecodeError:
+                    time.sleep(1)
+                    data = json.loads(requests.get(self.post_way.format(ids)).content)
                 car = self.set_car(data)
                 if car.model:
                     car.save()
@@ -132,94 +157,30 @@ class AutoRiaUpdateParse(AutoRiaInnerParse):
                     car = Car.objects.filter(ria_link='https://auto.ria.com' + data['linkToView']).first()
                     if data['autoData']['isSold']:
                         r = (car.delete(), None,)[bool(car)]
+                        print(f'delete car {data["linkToView"]}')
                     else:
+                        print('go to <else:> where car is not sold')
                         model = self.find_model(data)
                         if model:
+                            print('model find')
                             if car:
                                 print(f'updates price {data["USD"]}')
                                 car.price = data['USD']
+                                car.updatedAt = timezone.now()
                                 car.save()
                             else:
+                                print('create car')
                                 car = self.set_car(data)
                                 car.save()
+                        else:
+                            print('model not find')
+                            pass
                 else:
                     pass
                     # print('bad')
 
 # pass
 
-
-# for i in range(1, first_data['result']['search_result']['count'] // 100):
-#     print('####', i)
-#     start_data = json.loads(requests.get(self.list_posts_way.format(i)).content)
-#     for ids in start_data['result']['search_result']['ids']:
-#         data = json.loads(requests.get(self.post_way.format(ids)).content)
-#         car = Car(model=self.find_model(data),
-#                   gearbox_id=gearbox.get(self.formating(data['autoData']['gearboxName'])),
-#                   location_id=location.get(self.formating(data['stateData']['regionName'])),
-#                   fuel_id=fuel.get(self.fuel_parse(data['autoData']['fuelName'])),
-#                   engine=self.engine_parse(data['autoData']['fuelName']),
-#                   color=None,
-#                   year=data['autoData']['year'],
-#                   mileage=data['autoData']['raceInt'],
-#                   price=data['USD'],
-#                   phone=self.set_saller(data['userPhoneData']['phone']),
-#                   body_id=data['autoData'].get('bodyId'),
-#                   image=data['photoData']['seoLinkF'],
-#                   dtp=self.check_dtp(data['infoBarText']),
-#                   sold=data['autoData']['isSold'],
-#                   cleared=not bool(data['autoData']['custom']),
-#                   ria_link='https://auto.ria.com' + data['linkToView'],
-#                   createdAt=self.format_date(data['addDate']),
-#                   updatedAt=datetime.datetime.now(),
-#                   last_site_updatedAt=self.format_date(data['updateDate'])
-#                   )
-#         # if car.model is None and data['modelNameEng'] not in unknown_model:
-#         #     unknown_model.append(
-#         #         {'name': data['modelNameEng'], 'mark': data['markNameEng'], 'id': data['autoData']['autoId']})
-#         #     print(data['modelNameEng'])
-#         if car.model:
-#             car.save()
-#         else:
-#             pass
-# print('car not saved', car)
-
-
-# unknown_model = []
-# for ids in first_data['result']['search_result']['ids']:
-#     data = json.loads(requests.get(self.post_way.format(ids)).content)
-#     car = Car(model=self.find_model(data),
-#               gearbox_id=gearbox.get(self.formating(data['autoData']['gearboxName'])),
-#               location_id=location.get(self.formating(data['stateData']['regionName'])),
-#               fuel_id=fuel.get(self.fuel_parse(data['autoData']['fuelName'])),
-#               engine=self.engine_parse(data['autoData']['fuelName']),
-#               color=None,
-#               year=data['autoData']['year'],
-#               mileage=data['autoData']['raceInt'],
-#               price=data['USD'],
-#               phone=self.set_saller(data['userPhoneData']['phone']),
-#               body_id=data['autoData'].get('bodyId'),
-#               image=data['photoData']['seoLinkF'],
-#               dtp=self.check_dtp(data['infoBarText']),
-#               sold=data['autoData']['isSold'],
-#               cleared=self.check_cleared(data['infoBarText']),
-#               ria_link='https://auto.ria.com' + data['linkToView'],
-#               createdAt=self.format_date(data['addDate']),
-#               updatedAt=datetime.datetime.now(),
-#               last_site_updatedAt=self.format_date(data['updateDate'])
-#               )
-#     # if car.model is None and data['modelNameEng'] not in unknown_model:
-#     #     unknown_model.append(
-#     #         {'name': data['modelNameEng'], 'mark': data['markNameEng'], 'id': data['autoData']['autoId']})
-#     #     print(data['modelNameEng'])
-#     if car.model:
-#         car.save()
-#     else:
-#         pass
-# print('car not saved', car)
-
-# unknown_model = unknown_model)
-# print(unknown_model)
 
 # {'EUR': 11247,
 #  'UAH': 336296,

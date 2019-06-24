@@ -7,6 +7,7 @@ from celery import shared_task
 from parsers.auto_ria.parser import AutoRiaUpdateParse, AutoRiaInnerParse
 
 
+
 @shared_task
 def upd_ria():
     AutoRiaUpdateParse()
@@ -17,12 +18,6 @@ def upd_ria():
 def inner_ria():
     AutoRiaInnerParse()
     return None
-
-
-@shared_task
-def mul(x, y):
-    time.sleep(5)
-    return x * y
 
 
 @shared_task
