@@ -1,6 +1,7 @@
 from django.db import models
 from datetime import datetime
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 
 class Profile(models.Model):
@@ -97,7 +98,7 @@ class Fuel(models.Model):
 
 
 class SellerPhone(models.Model):
-    phone = models.CharField(max_length=64, unique=True)
+    phone = models.CharField(max_length=1024, unique=True)
 
     def __str__(self):
         return self.phone
@@ -113,7 +114,6 @@ class Car(models.Model):
     mileage = models.IntegerField(null=True)
     engine = models.FloatField(null=True)
     description = models.CharField(max_length=1024, null=True)
-    price = models.IntegerField(null=True)
     phone = models.ForeignKey(SellerPhone, null=True, on_delete=models.SET_NULL)
     body = models.ForeignKey(Body, null=True, on_delete=models.SET_NULL)
     image = models.CharField(max_length=256)
@@ -139,6 +139,15 @@ class Car(models.Model):
 
     def __str__(self):
         return f'<Cars: model={self.model}, year={self.year}'
+
+
+class PriceHistory(models.Model):
+    car = models.ForeignKey(Car, on_delete=models.CASCADE)
+    price = models.IntegerField()
+    date_set = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name_plural = 'price_history'
 
 
 class Filter(models.Model):
