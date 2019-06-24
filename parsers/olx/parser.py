@@ -1,4 +1,5 @@
 import logging
+import time
 from time import sleep
 from selenium.webdriver import Firefox
 from selenium.webdriver.firefox.options import Options
@@ -6,12 +7,15 @@ from main.models import Model, Car, Location, Fuel, Gearbox, Body, Color, Seller
 from fake_useragent import UserAgent
 ua = UserAgent()
 # ua.update()
+import sys
 
 
 class OLX:
     driver = None
 
     def __init__(self, url):
+        import subprocess
+
         self.model_db = Model.objects
         self.loc_db = Location.objects
         self.fuel_db = Fuel.objects
@@ -26,8 +30,14 @@ class OLX:
         options.add_argument("--incognito")
         options.add_argument(f'user-agent={self.user_agent}')
         print(self.user_agent)
+        ############
+        if subprocess.Popen(["uname"], stdout=subprocess.PIPE).stdout.read().decode('utf-8') == 'Linux\n':
+            self.driver = None
+        else:
+            pass
+            ###############
         self.driver = Firefox(executable_path='C:/Users/Dmitry/PycharmProjects/cars/webdriver/geckodriver.exe',
-                              options=options)
+                            options=options)
         self.driver.get(url)
         self.driver.implicitly_wait(10)
 
@@ -141,6 +151,10 @@ class OLX:
         return phone
 
     def start(self):
+        ###########
+        time.sleep(100)
+        print(self.url)
+        ##############
         data = dict()
         try:
             cookie = self.driver.find_element_by_xpath('//button[contains(@class, "cookie-close abs cookiesBarClose")]')

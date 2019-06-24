@@ -151,7 +151,6 @@ class AutoRiaUpdateParse(AutoRiaInnerParse):
         t3.join()
         t4.join()
 
-
     def time_stack(self, updated: str):
         updated = datetime.datetime.strptime(updated, '%Y-%m-%d %H:%M:%S')
         start = datetime.datetime.now() - datetime.timedelta(hours=2)
@@ -199,13 +198,6 @@ class AutoRiaUpdateParse(AutoRiaInnerParse):
                             pass
                 else:
                     pass
-
-
-
-
-                    # print('bad')
-
-
 
 
 # pass
