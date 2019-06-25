@@ -66,8 +66,10 @@
                         <div class="left_block">
                             <div class="fas fa-caret-down">
                                 <select class="form-control" name="brand" id="filter_brand">
-                                    <option value="b1">марка</option>
-                                    <option value="b2">марка</option>
+                                    <option value="0">Марка</option>
+                                    {% for mark in marks %}
+                                    <option value="{{ mark.id }}">{{ mark.name }}</option>
+                                    {% endfor %}
                                 </select>
                             </div>
                             <div class="fas fa-caret-down">
@@ -78,8 +80,10 @@
                             </div>
                             <div class="fas fa-caret-down">
                                 <select class="form-control" name="gearbox" id="filter_gearbox">
-                                    <option value="g1">КПП</option>
-                                    <option value="g2">КПП</option>
+                                    <option value="0">КПП</option>
+                                    {% for gearbox in gearboxs %}
+                                    <option value="{{ gearbox.id }}">{{ gearbox.name }}</option>
+                                    {% endfor %}
                                 </select>
                             </div>
 
@@ -112,8 +116,10 @@
                         <div class="right_block">
                             <div class="fas fa-caret-down">
                                 <select class="form-control" name="region" id="filter_region">
-                                    <option value="z1">Регион</option>
-                                    <option value="z2">Регион</option>
+                                    <option value="0">Регион</option>
+                                    {% for location in locations %}
+                                    <option value="{{ location.id }}">{{ location.name }}</option>
+                                    {% endfor %}
                                 </select>
                             </div>
                             <div class="fas fa-caret-down unshow">
@@ -279,6 +285,7 @@
                 <h3>Последние поступления</h3>
                 <div>(Постоянно обновляется)</div>
             </div>
+{#            {% for car in cars %}#}
             <div class="car_wrp">
                 <div class="star"></div>
                 <div class="car_photo">

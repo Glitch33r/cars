@@ -5,6 +5,8 @@ from django.views import View
 from main.models import Car
 from parsers.auto_ria.tasks import mul, upd_ria, inner_ria
 from .parser import AutoRiaInnerParse, AutoRiaUpdateParse
+from django.views.generic.list import ListView
+
 
 
 class AutoRia(View):
