@@ -165,27 +165,27 @@ class Ab:
                     car.last_site_updatedAt = data['last_site_updatedAt']
                     car.save()
                     print('Price updated')
-                else:
-                    car = Car.objects.filter(model=model,
-                                    gearbox=gearbox,
-                                    location=location,
-                                    fuel=fuel,
-                                    color=color,
-                                    year=data['year'],
-                                    mileage=data['mileage'],
-                                    engine=data['engine'],
-                                    body=body,
-                                    dtp=data['dtp']
-                                    ).first()
-                    if car:
-                        car.price = data['price']
-                        car.ab_link = data['ab_link']
-                        car.updatedAt = tz.localize(datetime.now())
-                        car.last_site_updatedAt = data['last_site_updatedAt']
-                        car.save()
-                        print('Updated')
+                # else:
+                #     car = Car.objects.filter(model=model,
+                #                     gearbox=gearbox,
+                #                     location=location,
+                #                     fuel=fuel,
+                #                     color=color,
+                #                     year=data['year'],
+                #                     mileage=data['mileage'],
+                #                     engine=data['engine'],
+                #                     body=body,
+                #                     dtp=data['dtp']
+                #                     ).first()
+                #     if car:
+                #         car.price = data['price']
+                #         car.ab_link = data['ab_link']
+                #         car.updatedAt = tz.localize(datetime.now())
+                #         car.last_site_updatedAt = data['last_site_updatedAt']
+                #         car.save()
+                #         print('Updated')
 
-                if not car:
+                else:
                     car = Car(
                         model=model,
                         gearbox=gearbox,
