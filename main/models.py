@@ -101,6 +101,7 @@ class SellerPhone(models.Model):
     phone = models.CharField(max_length=1024, unique=True)
 
 
+
 class Car(models.Model):
     model = models.ForeignKey(Model, null=True, on_delete=models.SET_NULL)
     gearbox = models.ForeignKey(Gearbox, null=True, on_delete=models.SET_NULL)
@@ -110,7 +111,7 @@ class Car(models.Model):
     year = models.IntegerField(null=True)
     mileage = models.IntegerField(null=True)
     engine = models.FloatField(null=True)
-    description = models.CharField(max_length=1024, null=True)
+    description = models.TextField(null=True)
     phone = models.ForeignKey(SellerPhone, null=True, on_delete=models.SET_NULL)
     body = models.ForeignKey(Body, null=True, on_delete=models.SET_NULL)
     image = models.CharField(max_length=256)
@@ -127,9 +128,12 @@ class Car(models.Model):
 
     class Meta:
         verbose_name_plural = 'Cars'
+        ordering = ['-createdAt']
 
     def __str__(self):
-        return f'<Cars: model={self.model}, year={self.year}'
+        if self.updatedAt:
+            return '{} {} - last update {}'.format(self.model.mark.name, self.model.name, self.updatedAt.strftime("%H:%M %d.%m.%Y"))
+        return '{} {}'.format(self.model.mark.name, self.model.name)
 
 
 class PriceHistory(models.Model):
