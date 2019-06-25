@@ -57,12 +57,15 @@ class AutoRiaInnerParse(WordsFormater):
         t1 = threading.Thread(target=self.runner, args=(0, 500))
         t2 = threading.Thread(target=self.runner, args=(501, 1000))
         t3 = threading.Thread(target=self.runner, args=(1001, 1500))
+        t4 = threading.Thread(target=self.runner, args=(1501, self.first_data['result']['search_result']['count'] // 100))
         t1.start()
         t2.start()
         t3.start()
+        t4.start()
         t1.join()
         t2.join()
         t3.join()
+        t4.join()
 
     def set_saller(self, phone):
         saller = SellerPhone.objects.filter(phone=self.format_phone(phone)).first()
