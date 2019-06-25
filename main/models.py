@@ -101,7 +101,6 @@ class SellerPhone(models.Model):
     phone = models.CharField(max_length=1024, unique=True)
 
 
-
 class Car(models.Model):
     model = models.ForeignKey(Model, null=True, on_delete=models.SET_NULL)
     gearbox = models.ForeignKey(Gearbox, null=True, on_delete=models.SET_NULL)
@@ -132,7 +131,8 @@ class Car(models.Model):
 
     def __str__(self):
         if self.updatedAt:
-            return '{} {} - last update {}'.format(self.model.mark.name, self.model.name, self.updatedAt.strftime("%H:%M %d.%m.%Y"))
+            return '{} {} - last update {}'.format(self.model.mark.name, self.model.name,
+                                                   self.updatedAt.strftime("%H:%M %d.%m.%Y"))
         return '{} {}'.format(self.model.mark.name, self.model.name)
 
 
