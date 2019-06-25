@@ -2,9 +2,9 @@ import requests
 import json
 import random
 import string
+import threading
 from time import sleep
 from datetime import datetime
-
 from main.models import *
 
 from django.utils.timezone import get_current_timezone
@@ -23,16 +23,36 @@ OD = DigitsMixin()
 
 class Ab:
 
+    def __init__(self):
+        pages = self.get_count_pages()
+        print(pages)
+        t1 = threading.Thread(target=self.data_record, args=(1, 125))
+        t2 = threading.Thread(target=self.data_record, args=(126, 250))
+        t3 = threading.Thread(target=self.data_record, args=(251, 375))
+        t4 = threading.Thread(target=self.data_record, args=(376, 500))
+        t1.start()
+        t2.start()
+        t3.start()
+        t4.start()
+        t1.join()
+        t2.join()
+        t3.join()
+        t4.join()
+
     def get_count_pages(self):
         url = 'https://ab.ua/api/_posts/?transport=1'
         r = requests.get(url)
         data = json.loads(r.text)
-        return data['count']
+        return round(data['count'] / 20)
 
     def get_ids_by_page(self, page):
         url = 'https://ab.ua/api/_posts/?transport=1&page={0}'
+        print(url.format(page))
         r = requests.get(url.format(page))
-        r_json = json.loads(r.text)
+        try:
+            r_json = json.loads(r.text)
+        except:
+            print(r.text, r.status_code)
         ids = []
         for auto in r_json['results']:
             ids.append(auto['id'])
@@ -66,61 +86,62 @@ class Ab:
                     data['seller_phones'].append(phone)
                 data['phone'] = ','.join(data['seller_phones'])
 
-            for price in json_data['price']:
-                if price['currency'] == 'usd':
-                    data['price'] = int(price['value'])
+                for price in json_data['price']:
+                    if price['currency'] == 'usd':
+                        data['price'] = int(price['value'])
 
-            data['seller_name'] = json_data['contact_name']
-            data['location'] = json_data['location']['title']
+                data['seller_name'] = json_data['contact_name']
+                data['location'] = json_data['location']['title']
 
-            data['mark'] = json_data['make']['title'].lower()
-            data['model'] = json_data['model']['title'].lower()
+                data['mark'] = json_data['make']['title'].lower() if json_data['make']['title'] else None
+                data['model'] = json_data['model']['title'].lower() if json_data['model']['title'] else None
 
-            data['year'] = json_data['year']
-            data['mileage'] = int(json_data['mileage'] * 1000)
+                data['year'] = json_data['year']
+                data['mileage'] = int(json_data['mileage'] * 1000)
 
-            data['engine'] = json_data['characteristics']['capacity']['number'] if 'capacity' in json_data['characteristics'] else None
-            data['gearbox'] = json_data['characteristics']['gearbox']['title'] if 'gearbox' in json_data['characteristics'] else None
-            data['body'] = json_data['characteristics']['category']['title'].lower() if 'category' in json_data['characteristics'] else None
-            data['fuel'] = json_data['characteristics']['engine']['title'][:6].lower() if 'engine' in json_data['characteristics'] else None
+                data['engine'] = json_data['characteristics']['capacity']['number'] if 'capacity' in json_data['characteristics'] else None
+                data['gearbox'] = json_data['characteristics']['gearbox']['title'] if 'gearbox' in json_data['characteristics'] else None
+                data['body'] = json_data['characteristics']['category']['title'].lower() if 'category' in json_data['characteristics'] else None
+                data['fuel'] = json_data['characteristics']['engine']['title'][:6].lower() if 'engine' in json_data['characteristics'] else None
 
-            if data['fuel']:
-                data['fuel'] = data['fuel'] if data['fuel'] != 'электр' else data['fuel'] + 'о'
+                if data['fuel']:
+                    data['fuel'] = data['fuel'] if data['fuel'] != 'электр' else data['fuel'] + 'о'
 
-            data['color'] = json_data['color']['title'] if json_data['color']['title'] is not None else ''
-            data['description'] = json_data['description']
+                data['color'] = json_data['color']['title'] if json_data['color']['title'] is not None else None
+                data['description'] = json_data['description']
 
-            data['images'] = []
-            for img in json_data['photos']:
-                data['images'].append(img['image'])
-                data['image'] = img['image']
+                data['images'] = []
+                for img in json_data['photos']:
+                    data['images'].append(img['image'])
+                    data['image'] = img['image']
 
-            data['last_site_updatedAt'] = tz.localize(datetime.strptime(json_data['date_publicated'][0:19].translate(OD), '%Y%m%d%H%M%S'))
+                data['last_site_updatedAt'] = tz.localize(datetime.strptime(json_data['date_publicated'][0:19].translate(OD), '%Y%m%d%H%M%S'))
 
         else:
             print('{} SOLD'.format(car_id))
 
         return data
 
-    def data_record(self):
+    def data_record(self, start, finish):
         
-        pages = self.get_count_pages()
-        for page in range(1, pages + 1):
+        for page in range(start, finish + 1):
             print('get {} page'.format(page))
-            # sleep(random.randint(5, 10))
             for car_id in self.get_ids_by_page(page):
-                # sleep(random.randint(3, 5))
                 data = self.get_info_by_id(car_id)
 
-                mark = Mark.objects.filter(name=data['mark']).first()
-                if not mark:
-                    print('create new mark')
-                    mark = Mark.objects.create(name=data['mark'])
+                if data['mark'] is None:
+                    mark = None
+                else:
+                    mark = Mark.objects.filter(name=data['mark']).first()
+                    if not mark:
+                        mark = Mark.objects.create(name=data['mark'])
 
-                model = Model.objects.filter(name=data['model'], mark=mark).first()
-                if not model:
-                    print('create new model')
-                    model = Model.objects.create(name=data['model'], mark=mark)
+                if data['model'] is None:
+                    model = None
+                else:
+                    model = Model.objects.filter(name=data['model'], mark=mark).first()
+                    if not model:
+                        model = Model.objects.create(name=data['model'], mark=mark)
 
                 if data['gearbox'] is None:
                     gearbox = None
@@ -157,6 +178,16 @@ class Ab:
                 if not seller:
                     seller = SellerPhone.objects.create(phone=data['phone'])
 
+                car = Car.objects.filter(
+                    model=model,
+                    fuel=fuel,
+                    year=data['year'],
+                    dtp=data['dtp'],
+                    mileage=data['mileage']
+                )
+                if car:
+                    print('CAR IS FINDED')
+
                 car = Car.objects.filter(ab_link=data['ab_link']).first()
                 if car:
                     if car.pricehistory_set.filter(price=data['price']):
@@ -164,13 +195,11 @@ class Ab:
                     car.updatedAt = tz.localize(datetime.now())
                     car.last_site_updatedAt = data['last_site_updatedAt']
                     car.save()
-                    print('Price updated')
+                    print('>>>This link exists, the price is updated')
                 # else:
                 #     car = Car.objects.filter(model=model,
                 #                     gearbox=gearbox,
-                #                     location=location,
                 #                     fuel=fuel,
-                #                     color=color,
                 #                     year=data['year'],
                 #                     mileage=data['mileage'],
                 #                     engine=data['engine'],
