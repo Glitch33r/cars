@@ -18,15 +18,9 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
 
 app.conf.beat_schedule = {
-    # 'inner_autoRia_every_day': {
-    #     'task': 'parsers.tasks.upd_ria',
-    #     'schedule': crontab(minute=27),
-    #     'args': (10,)
-    # },
     'update_autoRia_every_hour': {
         'task': 'parsers.tasks.upd_ria',
         'schedule': crontab(minute=41, hour='*/2')
-        # 'args': (10,)
     },
 }
 

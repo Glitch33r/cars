@@ -8,7 +8,6 @@ from .parser import AutoRiaInnerParse, AutoRiaUpdateParse
 from django.views.generic.list import ListView
 
 
-
 class AutoRia(View):
 
     def get(self, req):

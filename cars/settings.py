@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django_celery_beat',
     'main',
     'parsers',
+    'authorization'
 
 ]
 
@@ -110,6 +111,10 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
+
+LOGIN_URL = '/auth/login'
+LOGIN_REDIRECT_URL = '/home'
+LOGOUT_REDIRECT_URL = LOGIN_URL
 
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Europe/Kiev'
