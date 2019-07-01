@@ -1,0 +1,733 @@
+{% extends 'base.html' %}
+
+{% load staticfiles %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'css/cars_list.css' %}"> 
+{% endblock styles %}
+
+{% block content %}
+    <section id="filter">
+            <div class="container">
+                <form action="">
+                    <div class="filter_wrp">
+                        <div class="wrap">
+                            <div class="left_block">
+                                <div class="fas fa-caret-down">
+                                    <select class="form-control" name="brand" id="filter_brand">
+                                        <option value="b1">марка</option>
+                                        <option value="b2">марка</option>
+                                    </select>
+                                </div>
+                                <div class="fas fa-caret-down">
+                                    <select class="form-control" name="model" id="filter_model">
+                                        <option value="m1">модель</option>
+                                        <option value="m2">модель</option>
+                                    </select>
+                                </div>
+                                <div class="fas fa-caret-down">
+                                    <select class="form-control" name="gearbox" id="filter_gearbox">
+                                        <option value="g1">КПП</option>
+                                        <option value="g2">КПП</option>
+                                    </select>
+                                </div>      
+                            </div>
+                            <div class="centr_block">
+                                <div class="fas fa-caret-down">
+                                    <select class="form-control" name="region" id="filter_region">
+                                        <option value="z1">Регион</option>
+                                        <option value="z2">Регион</option>
+                                    </select>
+                                </div>
+                                <div class="fas fa-caret-down unshow">
+                                    <label for="year">Год</label>
+                                    <div class="year_pick">
+                                        <div class="fas fa-caret-down">
+                                            <select class="yearselect" name="year" id=""></select>
+                                        </div>
+                                        <div class="fas fa-caret-down">
+                                            <select class="yrselectdesc" name="year" id=""></select>
+                                        </div>
+                                        </div>
+                                </div>
+                                <div class="fas fa-caret-down unshow">
+                                        <label for="price">Цена</label>
+                                        <div class="price_pick">
+                                            <div class="fas fa-caret-down">
+                                                <input type="text" pattern="^[ 0-9]+$" name="" id="" placeholder="от">
+                                            </div>
+                                            <div class="fas fa-caret-down">
+                                                <input type="text" pattern="^[ 0-9]+$" name="" id="" placeholder="до">
+                                            </div>
+                                        </div> 
+                                </div>
+
+                            </div>
+                            <div class="right_block">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="dealers" id="dealers">
+                                    <label class="form-check-label" for="dealers">Исключить диллеров</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="blocked" id="blocked">
+                                    <label class="form-check-label" for="blocked">Исключить заблокированных</label>
+                                </div>
+                                <div class="button">
+                                    <button class="Search" type="submit">Найти</button>
+                                </div>
+                                <div class="button">
+                                    <button class="advanced_Search" type="submit">Расширеный поиск</button>
+                                </div>  
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+    
+    </section>
+    <section id="car_list">
+        <div class="container">
+            <div class="list_title">
+                <h3>Последние поступления</h3>
+                <div>(Постоянно обновляется)</div>
+            </div>
+            <div class="car_wrp">
+                <div class="star"></div>
+                <div class="car_photo">
+                    <div class="swiper-container">
+                            <div class="swiper-wrapper">
+                                <div class="swiper-slide"><img class="d-block w-100" src="{% static 'img/Image 13.png' %}" alt="First slide"></div>
+                                <div class="swiper-slide"><img class="d-block w-100" src="{% static 'img/Image 13.png' %}" alt="Second slide"></div>
+                                <div class="swiper-slide"><img class="d-block w-100" src="{% static 'img/Image 13.png' %}" alt="Third slide"></div>
+                                ...
+                            </div>
+                            <div class="swiper-pagination"></div>
+                        
+                            <div class="swiper-button-prev"></div>
+                            <div class="swiper-button-next"></div>
+            
+                    </div>
+                </div>
+                <div class="description_wrp">
+                        <div class="description">
+                            <div class="left_desc">
+                                    <ul class="accordion">
+                                            <li>
+                                            <div class="toggle_wrp">
+                                                <a class="toggle" href="#">Volkswagen Passat<i class="fas fa-caret-down"></i></a>
+                                                <ul class="inner">
+                                                    <li>
+                                                        <a class="acc_link" href="#">
+                                                            <div class="ria" href="#"></div>
+                                                            <div>Перейти на AutoRia</div>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="acc_link" href="#">
+                                                            <div class="rst" href="#"></div>
+                                                            <div>Перейти на RST</div>
+                                                        </a>
+                                                        
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            </li>
+                                        </ul>
+                                        
+                                    <p class="location">
+                                        <i class="i-mark"></i>
+                                        Житомирская обл.
+                                    </p>
+                                    <div class="car_properties">
+                                            <div class="car_item">
+                                                <div> 
+                                                    <i class="i-year"></i>
+                                                    <span>2002</span>
+                                                    
+                                                </div>
+                                            </div>
+                                            <div class="car_item">
+                                                <div> 
+                                                    <i class="i-fuel"></i>
+                                                    <span>Газ / Бензин</span>
+                                                    
+                                                </div>
+                                            </div>
+                                             <div class="car_item">
+                                                <div> 
+                                                    <i class="i-mileage"></i>
+                                                    <span>250 тис. км</span>
+                                                    
+                                                </div>
+                                            </div>
+                                            <div class="car_item">
+                                                <div> 
+                                                    <i class="i-gearbox"></i>
+                                                    <span>Механика</span>
+                                                    
+                                                </div>
+                                            </div>
+                                            <div class="car_item">
+                                                <div> 
+                                                    <i class="i-volume"></i>
+                                                    <span>1.6 v</span>
+                                                    
+                                                </div>
+                                            </div>
+                                            <div class="car_item">
+                                                <div> 
+                                                    <i class="i-type"></i>
+                                                    <span>Седан</span>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                            </div>
+                                <div class="right_desc">
+                                        <div class="cost">
+                                                <div class="cost_val">
+                                                    10 000 000 грн
+                                                    <div></div>
+                                                    <span class="cost_transform">
+                                                        +20 000 грн
+                                                    </span>
+                                                    <div class="chart_wrp">
+                                                        <canvas id="myChart" width="120" height="40"></canvas>
+                                                    </div>
+                                                </div>
+                                                <ul class="accordion">
+                                                        <li>
+                                                            <a class="toggle" href="#"><span>История цен</span><i class="fas fa-caret-down"></i></a>
+                                                            <ul class="inner">
+                                                                <li>10 000 000 грн <span>- 21.09.2019</span>
+                                                                </li>
+                                                                <li>10 000 000 грн <span>- 21.09.2019</span>
+                                                                </li>
+                                                                <li>10 000 000 грн <span>- 21.09.2019</span>
+                                                                </li>
+                                                                <li>10 000 000 грн <span>- 21.09.2019</span>
+                                                                </li>
+                                                            </ul>
+                                                        </li>
+                                                    </ul>
+                                        </div>
+                                </div>
+                            </div>
+                            <div class="about_car">
+                                    Продам свое авто! Приобреталось в салоне в 2010 году. Первый владелец. Очень надежный и динамичный автомобиль который никогда не подводил и последнее время являлся незаменимым рабочим автомобилем. Пару тысяч назад было поставлено новое сцепление с маховиком LUK. За время эксплуатации было сделано очень большое количество улучшений. Сделана полнейшая шумоизоляция, установлен оригинальный RS салон, 17-ые диски RS, ксенон и тд.. Автомобиль технически в хорошем состоянии, но по желанию требует косметики по кузову. Продажа срочная, готов к проверке на любом СТО!
+                            </div>
+
+                     
+                        
+                </div>
+                <div class="info">
+                    <div class="more_links">
+                        <div>Перекупщик</div>
+                        <a href="#">18 объявлений продавца</a>
+                    </div>
+                    <div class="date_info">
+                        <div>Добавлен: <span class="date">09.05.19 13:15</span></div>
+                        <div>Посл. обновление: <span class="date"> 09.05.19</span></div>
+                    </div>
+                    
+                        <div>
+                            Ссылки на автомобиль:
+                        </div>
+                        <div class="img_links">
+                            <a class="ria" href="#"></a>
+                            <a class="rst" href="#"></a>
+                        </div>
+                        <div class="link">
+                            <a href="#"> <i class="fas fa-car-crash"></i> Диагностика</a>
+                            <a href="#">  <i class="fas fa-car"></i></i>Найти похожие</a>
+                        </div>
+                        
+                    
+                </div>
+            </div>
+    </section>
+    <section id="car_list">
+        <div class="container">
+            <div class="list_title">
+                <h3>Последние поступления</h3>
+                <div>(Постоянно обновляется)</div>
+            </div>
+            <div class="car_wrp">
+                <div class="star"></div>
+                <div class="car_photo">
+                    <div class="swiper-container">
+                            <div class="swiper-wrapper">
+                                <div class="swiper-slide"><img class="d-block w-100" src="{% static 'img/Image 13.png' %}" alt="First slide"></div>
+                                <div class="swiper-slide"><img class="d-block w-100" src="{% static 'img/Image 13.png' %}" alt="Second slide"></div>
+                                <div class="swiper-slide"><img class="d-block w-100" src="{% static 'img/Image 13.png' %}" alt="Third slide"></div>
+                                ...
+                            </div>
+                            <div class="swiper-pagination"></div>
+                        
+                            <div class="swiper-button-prev"></div>
+                            <div class="swiper-button-next"></div>
+                        
+                    </div>
+                </div>
+                <div class="description_wrp">
+                        <div class="description">
+                            <div class="left_desc">
+                                    <ul class="accordion">
+                                            <li>
+                                            <div class="toggle_wrp">
+                                                <a class="toggle" href="#">Volkswagen Passat<i class="fas fa-caret-down"></i></a>
+                                                <ul class="inner">
+                                                    <li>
+                                                        <a class="acc_link" href="#">
+                                                            <div class="ria" href="#"></div>
+                                                            <div>Перейти на AutoRia</div>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="acc_link" href="#">
+                                                            <div class="rst" href="#"></div>
+                                                            <div>Перейти на RST</div>
+                                                        </a>
+                                                        
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            </li>
+                                        </ul>
+                                        
+                                    <p class="location">
+                                        <i class="i-mark"></i>
+                                        Житомирская обл.
+                                    </p>
+                                    <div class="car_properties">
+                                            <div class="car_item">
+                                                <div> 
+                                                    <i class="i-year"></i>
+                                                    <span>2002</span>
+                                                    
+                                                </div>
+                                            </div>
+                                            <div class="car_item">
+                                                <div> 
+                                                    <i class="i-fuel"></i>
+                                                    <span>Газ / Бензин</span>
+                                                    
+                                                </div>
+                                            </div>
+                                             <div class="car_item">
+                                                <div> 
+                                                    <i class="i-mileage"></i>
+                                                    <span>250 тис. км</span>
+                                                    
+                                                </div>
+                                            </div>
+                                            <div class="car_item">
+                                                <div> 
+                                                    <i class="i-gearbox"></i>
+                                                    <span>Механика</span>
+                                                    
+                                                </div>
+                                            </div>
+                                            <div class="car_item">
+                                                <div> 
+                                                    <i class="i-volume"></i>
+                                                    <span>1.6 v</span>
+                                                    
+                                                </div>
+                                            </div>
+                                            <div class="car_item">
+                                                <div> 
+                                                    <i class="i-type"></i>
+                                                    <span>Седан</span>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                            </div>
+                                <div class="right_desc">
+                                        <div class="cost">
+                                                <div class="cost_val">
+                                                    10 000 000 грн
+                                                    <div></div>
+                                                    <span class="cost_transform">
+                                                        +20 000 грн
+                                                    </span>
+                                                    <div class="chart_wrp">
+                                                        <canvas id="myChart" width="120" height="40"></canvas>
+                                                    </div>
+                                                </div>
+                                                <ul class="accordion">
+                                                        <li>
+                                                            <a class="toggle" href="#"><span>История цен</span><i class="fas fa-caret-down"></i></a>
+                                                            <ul class="inner">
+                                                                <li>10 000 000 грн <span>- 21.09.2019</span>
+                                                                </li>
+                                                                <li>10 000 000 грн <span>- 21.09.2019</span>
+                                                                </li>
+                                                                <li>10 000 000 грн <span>- 21.09.2019</span>
+                                                                </li>
+                                                                <li>10 000 000 грн <span>- 21.09.2019</span>
+                                                                </li>
+                                                            </ul>
+                                                        </li>
+                                                    </ul>
+                                        </div>
+                                </div>
+                            </div>
+                            <div class="about_car">
+                                    Продам свое авто! Приобреталось в салоне в 2010 году. Первый владелец. Очень надежный и динамичный автомобиль который никогда не подводил и последнее время являлся незаменимым рабочим автомобилем. Пару тысяч назад было поставлено новое сцепление с маховиком LUK. За время эксплуатации было сделано очень большое количество улучшений. Сделана полнейшая шумоизоляция, установлен оригинальный RS салон, 17-ые диски RS, ксенон и тд.. Автомобиль технически в хорошем состоянии, но по желанию требует косметики по кузову. Продажа срочная, готов к проверке на любом СТО!
+                            </div>
+
+                     
+                        
+                </div>
+                <div class="info">
+                    <div class="more_links">
+                        <div>Перекупщик</div>
+                        <a href="#">18 объявлений продавца</a>
+                    </div>
+                    <div class="date_info">
+                        <div>Добавлен: <span class="date">09.05.19 13:15</span></div>
+                        <div>Посл. обновление: <span class="date"> 09.05.19</span></div>
+                    </div>
+                    
+                        <div>
+                            Ссылки на автомобиль:
+                        </div>
+                        <div class="img_links">
+                            <a class="ria" href="#"></a>
+                            <a class="rst" href="#"></a>
+                        </div>
+                        <div class="link">
+                            <a href="#"> <i class="fas fa-car-crash"></i> Диагностика</a>
+                            <a href="#">  <i class="fas fa-car"></i></i>Найти похожие</a>
+                        </div>
+                        
+                    
+                </div>
+            </div>
+    </section>
+    <section id="car_list">
+        <div class="container">
+            <div class="list_title">
+                <h3>Последние поступления</h3>
+                <div>(Постоянно обновляется)</div>
+            </div>
+            <div class="car_wrp">
+                <div class="star"></div>
+                <div class="car_photo">
+                    <div class="swiper-container">
+                            <div class="swiper-wrapper">
+                                <div class="swiper-slide"><img class="d-block w-100" src="{% static 'img/Image 13.png' %}" alt="First slide"></div>
+                                <div class="swiper-slide"><img class="d-block w-100" src="{% static 'img/Image 13.png' %}" alt="Second slide"></div>
+                                <div class="swiper-slide"><img class="d-block w-100" src="{% static 'img/Image 13.png' %}" alt="Third slide"></div>
+                                ...
+                            </div>
+                            <div class="swiper-pagination"></div>
+                        
+                            <div class="swiper-button-prev"></div>
+                            <div class="swiper-button-next"></div>
+                        
+                    </div>
+                </div>
+                <div class="description_wrp">
+                        <div class="description">
+                            <div class="left_desc">
+                                    <ul class="accordion">
+                                            <li>
+                                            <div class="toggle_wrp">
+                                                <a class="toggle" href="#">Volkswagen Passat<i class="fas fa-caret-down"></i></a>
+                                                <ul class="inner">
+                                                    <li>
+                                                        <a class="acc_link" href="#">
+                                                            <div class="ria" href="#"></div>
+                                                            <div>Перейти на AutoRia</div>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="acc_link" href="#">
+                                                            <div class="rst" href="#"></div>
+                                                            <div>Перейти на RST</div>
+                                                        </a>
+                                                        
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            </li>
+                                        </ul>
+                                        
+                                    <p class="location">
+                                        <i class="i-mark"></i>
+                                        Житомирская обл.
+                                    </p>
+                                    <div class="car_properties">
+                                            <div class="car_item">
+                                                <div> 
+                                                    <i class="i-year"></i>
+                                                    <span>2002</span>
+                                                    
+                                                </div>
+                                            </div>
+                                            <div class="car_item">
+                                                <div> 
+                                                    <i class="i-fuel"></i>
+                                                    <span>Газ / Бензин</span>
+                                                    
+                                                </div>
+                                            </div>
+                                             <div class="car_item">
+                                                <div> 
+                                                    <i class="i-mileage"></i>
+                                                    <span>250 тис. км</span>
+                                                    
+                                                </div>
+                                            </div>
+                                            <div class="car_item">
+                                                <div> 
+                                                    <i class="i-gearbox"></i>
+                                                    <span>Механика</span>
+                                                    
+                                                </div>
+                                            </div>
+                                            <div class="car_item">
+                                                <div> 
+                                                    <i class="i-volume"></i>
+                                                    <span>1.6 v</span>
+                                                    
+                                                </div>
+                                            </div>
+                                            <div class="car_item">
+                                                <div> 
+                                                    <i class="i-type"></i>
+                                                    <span>Седан</span>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                            </div>
+                                <div class="right_desc">
+                                        <div class="cost">
+                                                <div class="cost_val">
+                                                    10 000 000 грн
+                                                    <div></div>
+                                                    <span class="cost_transform">
+                                                        +20 000 грн
+                                                    </span>
+                                                    <div class="chart_wrp">
+                                                        <canvas id="myChart" width="120" height="40"></canvas>
+                                                    </div>
+                                                </div>
+                                                <ul class="accordion">
+                                                        <li>
+                                                            <a class="toggle" href="#"><span>История цен</span><i class="fas fa-caret-down"></i></a>
+                                                            <ul class="inner">
+                                                                <li>10 000 000 грн <span>- 21.09.2019</span>
+                                                                </li>
+                                                                <li>10 000 000 грн <span>- 21.09.2019</span>
+                                                                </li>
+                                                                <li>10 000 000 грн <span>- 21.09.2019</span>
+                                                                </li>
+                                                                <li>10 000 000 грн <span>- 21.09.2019</span>
+                                                                </li>
+                                                            </ul>
+                                                        </li>
+                                                    </ul>
+                                        </div>
+                                </div>
+                            </div>
+                            <div class="about_car">
+                                    Продам свое авто! Приобреталось в салоне в 2010 году. Первый владелец. Очень надежный и динамичный автомобиль который никогда не подводил и последнее время являлся незаменимым рабочим автомобилем. Пару тысяч назад было поставлено новое сцепление с маховиком LUK. За время эксплуатации было сделано очень большое количество улучшений. Сделана полнейшая шумоизоляция, установлен оригинальный RS салон, 17-ые диски RS, ксенон и тд.. Автомобиль технически в хорошем состоянии, но по желанию требует косметики по кузову. Продажа срочная, готов к проверке на любом СТО!
+                            </div>
+
+                     
+                        
+                </div>
+                <div class="info">
+                    <div class="more_links">
+                        <div>Перекупщик</div>
+                        <a href="#">18 объявлений продавца</a>
+                    </div>
+                    <div class="date_info">
+                        <div>Добавлен: <span class="date">09.05.19 13:15</span></div>
+                        <div>Посл. обновление: <span class="date"> 09.05.19</span></div>
+                    </div>
+                    
+                        <div>
+                            Ссылки на автомобиль:
+                        </div>
+                        <div class="img_links">
+                            <a class="ria" href="#"></a>
+                            <a class="rst" href="#"></a>
+                        </div>
+                        <div class="link">
+                            <a href="#"> <i class="fas fa-car-crash"></i> Диагностика</a>
+                            <a href="#">  <i class="fas fa-car"></i></i>Найти похожие</a>
+                        </div>
+                        
+                    
+                </div>
+            </div>
+    </section>
+    <section id="car_list">
+        <div class="container">
+            <div class="list_title">
+                <h3>Последние поступления</h3>
+                <div>(Постоянно обновляется)</div>
+            </div>
+            <div class="car_wrp">
+                <div class="star"></div>
+                <div class="car_photo">
+                    <div class="swiper-container">
+                            <div class="swiper-wrapper">
+                                <div class="swiper-slide"><img class="d-block w-100" src="{% static 'img/Image 13.png' %}" alt="First slide"></div>
+                                <div class="swiper-slide"><img class="d-block w-100" src="{% static 'img/Image 13.png' %}" alt="Second slide"></div>
+                                <div class="swiper-slide"><img class="d-block w-100" src="{% static 'img/Image 13.png' %}" alt="Third slide"></div>
+                                ...
+                            </div>
+                            <div class="swiper-pagination"></div>
+                        
+                            <div class="swiper-button-prev"></div>
+                            <div class="swiper-button-next"></div>
+                        
+                    </div>
+                </div>
+                <div class="description_wrp">
+                        <div class="description">
+                            <div class="left_desc">
+                                    <ul class="accordion">
+                                            <li>
+                                            <div class="toggle_wrp">
+                                                <a class="toggle" href="#">Volkswagen Passat<i class="fas fa-caret-down"></i></a>
+                                                <ul class="inner">
+                                                    <li>
+                                                        <a class="acc_link" href="#">
+                                                            <div class="ria" href="#"></div>
+                                                            <div>Перейти на AutoRia</div>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="acc_link" href="#">
+                                                            <div class="rst" href="#"></div>
+                                                            <div>Перейти на RST</div>
+                                                        </a>
+                                                        
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            </li>
+                                        </ul>
+                                        
+                                    <p class="location">
+                                        <i class="i-mark"></i>
+                                        Житомирская обл.
+                                    </p>
+                                    <div class="car_properties">
+                                            <div class="car_item">
+                                                <div> 
+                                                    <i class="i-year"></i>
+                                                    <span>2002</span>
+                                                    
+                                                </div>
+                                            </div>
+                                            <div class="car_item">
+                                                <div> 
+                                                    <i class="i-fuel"></i>
+                                                    <span>Газ / Бензин</span>
+                                                    
+                                                </div>
+                                            </div>
+                                             <div class="car_item">
+                                                <div> 
+                                                    <i class="i-mileage"></i>
+                                                    <span>250 тис. км</span>
+                                                    
+                                                </div>
+                                            </div>
+                                            <div class="car_item">
+                                                <div> 
+                                                    <i class="i-gearbox"></i>
+                                                    <span>Механика</span>
+                                                    
+                                                </div>
+                                            </div>
+                                            <div class="car_item">
+                                                <div> 
+                                                    <i class="i-volume"></i>
+                                                    <span>1.6 v</span>
+                                                    
+                                                </div>
+                                            </div>
+                                            <div class="car_item">
+                                                <div> 
+                                                    <i class="i-type"></i>
+                                                    <span>Седан</span>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                            </div>
+                                <div class="right_desc">
+                                        <div class="cost">
+                                                <div class="cost_val">
+                                                    10 000 000 грн
+                                                    <div></div>
+                                                    <span class="cost_transform">
+                                                        +20 000 грн
+                                                    </span>
+                                                    <div class="chart_wrp">
+                                                        <canvas id="myChart" width="120" height="40"></canvas>
+                                                    </div>
+                                                </div>
+                                                <ul class="accordion">
+                                                        <li>
+                                                            <a class="toggle" href="#"><span>История цен</span><i class="fas fa-caret-down"></i></a>
+                                                            <ul class="inner">
+                                                                <li>10 000 000 грн <span>- 21.09.2019</span>
+                                                                </li>
+                                                                <li>10 000 000 грн <span>- 21.09.2019</span>
+                                                                </li>
+                                                                <li>10 000 000 грн <span>- 21.09.2019</span>
+                                                                </li>
+                                                                <li>10 000 000 грн <span>- 21.09.2019</span>
+                                                                </li>
+                                                            </ul>
+                                                        </li>
+                                                    </ul>
+                                        </div>
+                                </div>
+                            </div>
+                            <div class="about_car">
+                                    Продам свое авто! Приобреталось в салоне в 2010 году. Первый владелец. Очень надежный и динамичный автомобиль который никогда не подводил и последнее время являлся незаменимым рабочим автомобилем. Пару тысяч назад было поставлено новое сцепление с маховиком LUK. За время эксплуатации было сделано очень большое количество улучшений. Сделана полнейшая шумоизоляция, установлен оригинальный RS салон, 17-ые диски RS, ксенон и тд.. Автомобиль технически в хорошем состоянии, но по желанию требует косметики по кузову. Продажа срочная, готов к проверке на любом СТО!
+                            </div>
+
+                     
+                        
+                </div>
+                <div class="info">
+                    <div class="more_links">
+                        <div>Перекупщик</div>
+                        <a href="#">18 объявлений продавца</a>
+                    </div>
+                    <div class="date_info">
+                        <div>Добавлен: <span class="date">09.05.19 13:15</span></div>
+                        <div>Посл. обновление: <span class="date"> 09.05.19</span></div>
+                    </div>
+                    
+                        <div>
+                            Ссылки на автомобиль:
+                        </div>
+                        <div class="img_links">
+                            <a class="ria" href="#"></a>
+                            <a class="rst" href="#"></a>
+                        </div>
+                        <div class="link">
+                            <a href="#"> <i class="fas fa-car-crash"></i> Диагностика</a>
+                            <a href="#">  <i class="fas fa-car"></i></i>Найти похожие</a>
+                        </div>
+                        
+                    
+                </div>
+            </div>
+    </section>
+    
+    {% endblock content %}

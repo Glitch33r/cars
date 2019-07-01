@@ -65,11 +65,13 @@ $(function(){
     }
 });
 
+$().UItoTop({ easingType: 'easeOutQuart' });
+
 // button show_more/hide 
     $(".about_car").elimore({
-        maxLength: 340
+        maxLength: 230
         });
-    var about_w = $(".description").width();
+    var about_w = $(".description").width() * 0.8;
     $(".about_car").width(about_w);
     $(window).resize(function(){
         refreshVar();
@@ -77,6 +79,12 @@ $(function(){
         $(".about_car").width(about_w);
     })
 
+    $(".car_photo").on("mousedown", function(e){
+        $(".car_photo").css("cursor", "grabbing");
+    })
+    $(".car_photo").on("mouseup", function(e){
+        $(".car_photo").css("cursor", "grab");
+    })
 
 
 
@@ -85,46 +93,70 @@ $(function(){
         $(this).toggleClass("clicked");
     });
 
+
+
+    var mySwiper = new Swiper ('.swiper-container', {
+    // Optional parameters
+    direction: 'horizontal',
+    loop: true,
+
+    // If we need pagination
+    pagination: {
+      el: '.swiper-pagination',
+    },
+
+    // Navigation arrows
+    navigation: {
+      nextEl: '.swiper-button-next',
+      prevEl: '.swiper-button-prev',
+    },
+
+    // And if we need scrollbar
+  })
     // Chart.platform.disableCSSInjection = true;
     //chart
     // Any of the following formats may be used
-    let canvas = document.getElementById("myChart");
-    let ctx = canvas.getContext("2d");
-    let masPopChart = new Chart(myChart , {
-        type: 'line',
-        data: {
-            labels: ['0', '1' , '2', '3', '4'],
-            datasets: [{
-                label: null,
-                data: [
-                    16000,
-                    10000, 
-                    20000,
-                    15000,
-                    25000
-                ],
-                backgroundColor: "",
-                borderColor: "#2482C2",
-                borderWidth: 2,
-                steppedLine: false
-            }],
-
-        },
-        options: {
-            legend: {
-                display: false
-            },
-            scales: {
-                xAxes: [{
-                    display: false,
+    let canvas = document.querySelectorAll("#myChart");
+    console.log(canvas);
+    for (let i = 0; i < canvas.length; i++){
+        let ctx = canvas[i].getContext("2d");
+        let masPopChart = new Chart(ctx , {
+            type: 'line',
+            data: {
+                labels: ['0', '1' , '2', '3', '4'],
+                datasets: [{
+                    label: null,
+                    data: [
+                        16000,
+                        10000, 
+                        20000,
+                        15000,
+                        25000
+                    ],
+                    backgroundColor: "",
+                    borderColor: "#2482C2",
+                    borderWidth: 2,
+                    steppedLine: false
                 }],
-                yAxes: [{
-                    display: false,
-                }]
+    
             },
-            tooltips: {
-                enabled: false
+            options: {
+                legend: {
+                    display: false
+                },
+                scales: {
+                    xAxes: [{
+                        display: false,
+                    }],
+                    yAxes: [{
+                        display: false,
+                    }]
+                },
+                tooltips: {
+                    enabled: false
+                }
             }
-        }
-    });
+        });
+
+    }
 })
