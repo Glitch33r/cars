@@ -34,14 +34,14 @@ def seed_body():
     for var in json.loads(requests.get(
             way.format('https://developers.ria.com/auto/categories/1/bodystyles?api_key=', AutoRiaAPI.key)).content):
         var['name'] = var['name'].lower().replace(' ', '')
-        Body(id=var['value'], name=var['name'].lower()).save()
+        Body(name=var['name'].lower()).save()
 
 
 def seed_mark():
     from .models_merk_tuple import marks
     python_marks = []
     for mark in marks:
-        python_marks.append(Mark( name=mark[1], ria_id=mark[2], eng=mark[3]))
+        python_marks.append(Mark(name=mark[1], ria_id=mark[2], eng=mark[3]))
     Mark.objects.bulk_create(python_marks)
 
 
