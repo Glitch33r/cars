@@ -5,6 +5,7 @@
 .idea/
 */migrations
 */*/migrations
+static_content
 
 ### Django ###
 *.log

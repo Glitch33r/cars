@@ -1,0 +1,154 @@
+{% for car in car_list %}
+    <div class="car_wrp">
+        <div class="star"></div>
+        <div class="car_photo">
+            <div class="swiper-container">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide"><img class="d-block w-100" src="{{ car.image }}" alt="First slide"></div>
+                </div>
+                <div class="swiper-pagination"></div>
+                <div class="swiper-button-prev"></div>
+                <div class="swiper-button-next"></div>
+            </div>
+        </div>
+        <div class="description_wrp">
+            <div class="description">
+                <div class="left_desc">
+                    <ul class="accordion">
+                        <li>
+                        <div class="toggle_wrp">
+                            <a class="toggle" href="#">{{ car }}<i class="fas fa-caret-down"></i></a>
+                            <ul class="inner">
+                                {% if car.ria_link %}
+                                <li>
+                                    <a class="acc_link" href="{{ car.ria_link }}" target="blank">
+                                        <div class="ria"></div>
+                                        <div>Перейти на AutoRia</div>
+                                    </a>
+                                </li>
+                                {% endif %}
+                                {% if car.ab_link %}
+                                <li>
+                                    <a class="acc_link" href="{{ car.ab_link }}" target="blank">
+                                        <div class="ab"></div>
+                                        <div>Перейти на AutoBazar</div>
+                                    </a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                        </li>
+                    </ul>
+                    <p class="location">
+                        <i class="i-mark"></i>
+                        {{ car.location | title }} обл.
+                    </p>
+                    <div class="car_properties">
+                        <div class="car_item">
+                            <div> 
+                                <i class="i-year"></i>
+                                <span>{{ car.year }}</span>
+                            </div>
+                        </div>
+                        <div class="car_item">
+                            <div> 
+                                <i class="i-fuel"></i>
+                                <span>{{ car.fuel | title }}</span>
+                            </div>
+                        </div>
+                        <div class="car_item">
+                            <div> 
+                                <i class="i-mileage"></i>
+                                <span>{{ car.mileage }} тис. км</span>
+                                
+                            </div>
+                        </div>
+                        <div class="car_item">
+                            <div> 
+                                <i class="i-gearbox"></i>
+                                <span>{{ car.gearbox | title }}</span>
+                                
+                            </div>
+                        </div>
+                        <div class="car_item">
+                            <div> 
+                                <i class="i-volume"></i>
+                                <span>{{ car.engine }} v</span>
+                                
+                            </div>
+                        </div>
+                        <div class="car_item">
+                            <div>
+                                <i class="i-type"></i>
+                                {% if car.body %}
+                                    <span>{{ car.body | title }}</span>
+                                {% else %}
+                                    <span>секрет</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="right_desc">
+                    <div class="cost">
+                        <div class="cost_val">
+                            $ {{ car.price }}
+                            <div></div>
+                            <span class="cost_transform">
+                                +20 000 грн
+                            </span>
+                            <div class="chart_wrp">
+                                <canvas id="myChart" width="120" height="40"></canvas>
+                            </div>
+                        </div>
+                        <ul class="accordion">
+                            <li>
+                                <a class="toggle" href="#"><span>История цен</span><i class="fas fa-caret-down"></i></a>
+                                <ul class="inner">
+                                    {% for price in car.pricehistory_set.all %}
+                                        <li>$ {{ price.price }} <span>- {{ price.date_set | date:'d.m.Y' }}</span></li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="about_car">
+                {% if car.description %}
+                    {{ car.description | safe }}
+                {% else %}
+                    Описание отсутствует.
+                {% endif %}
+            </div>
+        </div>
+        <div class="info">
+            <div class="more_links">
+                <div>Перекупщик</div>
+                <a href="#">18 объявлений продавца</a>
+            </div>
+            <div class="date_info">
+                <div>Добавлен: <span class="date">{{ car.createdAt | date:'d.m.y H:i' }}</span></div>
+                <div>Посл. обновление: <span class="date"> {{ car.updatedAt | date:'d.m.y' }}</span></div>
+            </div>
+            <div>
+                Ссылки на автомобиль:
+            </div>
+            <div class="img_links">
+                {% if car.ria_link %}
+                    <a class="ria" href="{{ car.ria_link }}" target="blank"></a>
+                {% endif %}
+                {% if car.rst_link %}
+                    <a class="rst" href="{{ car.rst_link }}" target="blank"></a>
+                {% endif %}
+                {% if car.ab_link %}
+                    <a class="ab" href="{{ car.ab_link }}" target="blank"></a>
+                {% endif %}
+            </div>
+            <div class="link">
+                <a href="#"> <i class="fas fa-car-crash"></i> Диагностика</a>
+                <a href="#">  <i class="fas fa-car"></i></i>Найти похожие</a>
+            </div>
+        </div>
+    </div>
+{% endfor %}

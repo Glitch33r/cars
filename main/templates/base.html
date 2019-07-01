@@ -24,64 +24,16 @@
     {% block styles %}{% endblock styles %}
 </head>
 <body>
+
     <header>
-        <div class="container">
-            <div class="header_wrp">
-                <div class="logo">
-                    <span><i class="fas fa-bars"></i></span>
-                    <div></div>
-                </div>
-                <ul>
-                    <li>Автомобили</li>
-                    <li>Проверить авто</li>
-                    <li>Подробнее про 2Cars</li>
-                    <li>Все для авто</li>
-                </ul>
-                <div class="user">
-                    <div>
-                        <a href="#">продать авто</a>
-                    </div>
-                    <div>
-                        <i class="fa fa-star" aria-hidden="true"></i>
-                    </div>
-                    <div>
-                        <i class="fa fa-bell" aria-hidden="true"></i>
-                    </div>
-                    <div class="photo">
-        
-                    </div>
-                </div>
-            </div>
-        </div>
+        {% include 'components/header.html' %}
     </header>
+
     {% block content %}{% endblock content %}
+
     <footer>
-        <div class="container">
-          <div class="wrap">
-              <div class="soc_block">
-                  <div class="footer_title">
-                        Расскажи друзьям о нашем сервисе:
-                  </div>
-                  <div class="social">
-                        <a href="#"></a>
-                        <a href="#"></a>
-                        <a href="#"></a>
-                        <a href="#"></a>
-                  </div>
-              </div>
-              <a class="request" href="#"><i class="fas fa-envelope"></i>Задать вопрос</a>
-              <div class="soc_block">
-                    <div class="footer_title">
-                            Мы в соцсетях:
-                      </div>
-                      <div class="social">
-                            <a href="#"></a>
-                            <a href="#"></a>
-                            <a href="#"></a>
-                      </div>
-              </div>
-          </div>
-        </div>
+        {% include 'components/footer.html' %}
     </footer>
+
 </body>
 </html>

@@ -6,8 +6,8 @@ from .models import *
 
 @admin.register(Car)
 class CarAdmin(admin.ModelAdmin):
-    list_display = ('model', 'engine', 'gearbox', 'fuel', 'mileage', 'show_ria_link', 'show_ab_link', 'createdAt', 'updatedAt', 'last_site_updatedAt')
-
+    list_display = ('model', 'color', 'engine', 'gearbox', 'fuel', 'mileage', 'show_ria_link', 'show_ab_link', 'createdAt', 'updatedAt', 'last_site_updatedAt')
+    readonly_fields = ['price']
     # def show_rst_link(self, obj):
     #     return format_html("<a href='{url}' target='_blank'>{url}</a>", url=obj.rst_link)
     # show_rst_link.short_description = "rst link"

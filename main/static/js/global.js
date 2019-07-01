@@ -23,7 +23,7 @@ $(function(){
     $("<div class='clone-nav'></div>").insertBefore("header").css("height", navHeight).hide();
 
     $('.yearselect').yearselect();
-    $('.yrselectdesc').yearselect({step: 5, order: 'desc'});
+    $('.yrselectdesc').yearselect({order: 'desc'});
     $('.yrselectasc').yearselect({order: 'asc'});
 
 

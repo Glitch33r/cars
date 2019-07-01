@@ -26,19 +26,19 @@ class Ab:
     def __init__(self):
         pages = self.get_count_pages()
         print(pages)
-        self.data_record(1, pages)
-        # t1 = threading.Thread(target=self.data_record, args=(1, 125))
-        # t2 = threading.Thread(target=self.data_record, args=(126, 250))
-        # t3 = threading.Thread(target=self.data_record, args=(251, 375))
-        # t4 = threading.Thread(target=self.data_record, args=(376, 500))
-        # t1.start()
-        # t2.start()
-        # t3.start()
-        # t4.start()
-        # t1.join()
-        # t2.join()
-        # t3.join()
-        # t4.join()
+        # self.data_record(1, pages)
+        t1 = threading.Thread(target=self.data_record, args=(1, 125))
+        t2 = threading.Thread(target=self.data_record, args=(126, 250))
+        t3 = threading.Thread(target=self.data_record, args=(251, 375))
+        t4 = threading.Thread(target=self.data_record, args=(376, 500))
+        t1.start()
+        t2.start()
+        t3.start()
+        t4.start()
+        t1.join()
+        t2.join()
+        t3.join()
+        t4.join()
 
     def get_count_pages(self):
         url = 'https://ab.ua/api/_posts/?transport=1'
@@ -192,65 +192,65 @@ class Ab:
                 if not seller:
                     seller = SellerPhone.objects.create(phone=data['phone'])
 
-                car = Car.objects.filter(
-                    model=model,
-                    fuel=fuel,
-                    year=data['year'],
-                    dtp=data['dtp'],
-                    mileage=data['mileage']
-                )
-                if car:
-                    print('CAR IS FINDED')
-                else:
-                    print('Finish obj')
-
-                # car = Car.objects.filter(ab_link=data['ab_link']).first()
+                # car = Car.objects.filter(
+                #     model=model,
+                #     fuel=fuel,
+                #     year=data['year'],
+                #     dtp=data['dtp'],
+                #     mileage=data['mileage']
+                # )
                 # if car:
-                #     if car.pricehistory_set.filter(price=data['price']):
-                #         PriceHistory.objects.create(car=car, price=data['price'])
-                #     car.updatedAt = tz.localize(datetime.now())
-                #     car.last_site_updatedAt = data['last_site_updatedAt']
-                #     car.save()
-                #     print('>>>This link exists, the price is updated')
-                # # else:
-                # #     car = Car.objects.filter(model=model,
-                # #                     gearbox=gearbox,
-                # #                     fuel=fuel,
-                # #                     year=data['year'],
-                # #                     mileage=data['mileage'],
-                # #                     engine=data['engine'],
-                # #                     body=body,
-                # #                     dtp=data['dtp']
-                # #                     ).first()
-                # #     if car:
-                # #         car.price = data['price']
-                # #         car.ab_link = data['ab_link']
-                # #         car.updatedAt = tz.localize(datetime.now())
-                # #         car.last_site_updatedAt = data['last_site_updatedAt']
-                # #         car.save()
-                # #         print('Updated')
-
+                #     print('CAR IS FINDED')
                 # else:
-                #     car = Car(
-                #         model=model,
-                #         gearbox=gearbox,
-                #         location=location,
-                #         fuel=fuel,
-                #         color=color,
-                #         year=data['year'],
-                #         mileage=data['mileage'],
-                #         engine=data['engine'],
-                #         description=data['description'],
-                #         phone=seller,
-                #         body=body,
-                #         image=data['image'],
-                #         dtp=data['dtp'],
-                #         createdAt=tz.localize(datetime.now()),
-                #         updatedAt=tz.localize(datetime.now()),
-                #         last_site_updatedAt=data['last_site_updatedAt'],
-                #         ab_link=data['ab_link']
-                #     )
-                #     car.save()
-                #     PriceHistory.objects.create(car=car, price=data['price'])
-                #     print('Object created')
+                #     print('Finish obj')
+
+                car = Car.objects.filter(ab_link=data['ab_link']).first()
+                if car:
+                    if car.pricehistory_set.filter(price=data['price']):
+                        PriceHistory.objects.create(car=car, price=data['price'])
+                    car.updatedAt = tz.localize(datetime.now())
+                    car.last_site_updatedAt = data['last_site_updatedAt']
+                    car.save()
+                    print('>>>This link exists, the price is updated')
+                # else:
+                #     car = Car.objects.filter(model=model,
+                #                     gearbox=gearbox,
+                #                     fuel=fuel,
+                #                     year=data['year'],
+                #                     mileage=data['mileage'],
+                #                     engine=data['engine'],
+                #                     body=body,
+                #                     dtp=data['dtp']
+                #                     ).first()
+                #     if car:
+                #         car.price = data['price']
+                #         car.ab_link = data['ab_link']
+                #         car.updatedAt = tz.localize(datetime.now())
+                #         car.last_site_updatedAt = data['last_site_updatedAt']
+                #         car.save()
+                #         print('Updated')
+
+                else:
+                    car = Car(
+                        model=model,
+                        gearbox=gearbox,
+                        location=location,
+                        fuel=fuel,
+                        color=color,
+                        year=data['year'],
+                        mileage=data['mileage'],
+                        engine=data['engine'],
+                        description=data['description'],
+                        phone=seller,
+                        body=body,
+                        image=data['image'],
+                        dtp=data['dtp'],
+                        createdAt=tz.localize(datetime.now()),
+                        updatedAt=tz.localize(datetime.now()),
+                        last_site_updatedAt=data['last_site_updatedAt'],
+                        ab_link=data['ab_link']
+                    )
+                    car.save()
+                    PriceHistory.objects.create(car=car, price=data['price'])
+                    print('Object created')
         return print('FINISHED')

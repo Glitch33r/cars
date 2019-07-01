@@ -818,6 +818,9 @@ section#car_list .car_wrp .info .img_links a.ria {
 section#car_list .car_wrp .info .img_links a.rst {
   background: url("../img/NoPath\ –\ копія\ \(2\).png");
 }
+section#car_list .car_wrp .info .img_links a.ab {
+  background: url("../img/ab.png");
+}
 section#car_list .car_wrp .info .img_links a + a {
   margin-left: 8px;
 }
