@@ -3,10 +3,13 @@ import json
 import time
 import threading
 from django.utils import timezone
+from django.utils.timezone import get_current_timezone
 import requests
 
 from main.models import Model, Car, SellerPhone, PriceHistory
 from parsers.choises import location, fuel, gearbox
+
+tz = get_current_timezone()
 
 
 class WordsFormater:
@@ -43,7 +46,7 @@ class WordsFormater:
     def format_date(self, word: str):
         if len(word) <= 10:
             return None
-        return datetime.datetime.strptime(word, '%Y-%m-%d %H:%M:%S')
+        return tz.localize(datetime.datetime.strptime(word, '%Y-%m-%d %H:%M:%S'))
 
 
 class AutoRiaInnerParse(WordsFormater):
@@ -155,11 +158,11 @@ class AutoRiaUpdateParse(AutoRiaInnerParse):
         t4.join()
 
     def time_stack(self, updated: str):
-        updated = datetime.datetime.strptime(updated, '%Y-%m-%d %H:%M:%S')
-        start = datetime.datetime.now() - datetime.timedelta(hours=2)
-        print(start, updated, datetime.datetime.now())
+        updated = tz.localize(datetime.datetime.strptime(updated, '%Y-%m-%d %H:%M:%S'))
+        start = timezone.now() - timezone.timedelta(hours=2)
+        print(start, updated, timezone.now())
         updated = updated.timestamp()
-        if updated > start.timestamp() and updated < datetime.datetime.now().timestamp():
+        if updated > start.timestamp() and updated < timezone.now().timestamp():
             return True
         return False
 
