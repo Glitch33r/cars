@@ -1,14 +1,13 @@
-from django.http import JsonResponse
 from django.shortcuts import render
+from django.http import JsonResponse
 from django.views.generic import ListView
 from django.views.generic.base import View
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from main.models import Car, Mark, Model, Gearbox, Location
-from main.utils import serialize_cars
-from .forms import FilterForm
-# Create your views here.
-from seed_db.fk_tables import seed_location, seed_body, seed_color, seed_fuel, seed_gearbox, seed_mark, seed_model
 from django.views.decorators.http import require_GET
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
+from main.utils import serialize_cars
+from main.models import Car, Mark, Model, Gearbox, Location
+from seed_db.fk_tables import seed_location, seed_body, seed_color, seed_fuel, seed_gearbox, seed_mark, seed_model
 
 
 class HomePage(ListView):
@@ -16,7 +15,7 @@ class HomePage(ListView):
     context_object_name = 'car_list'
 
     def get_queryset(self):
-        return Car.objects.all()[:5]
+        return Car.objects.all().order_by('-createdAt')[:5]
 
 
 class AllCarView(ListView):
@@ -27,25 +26,22 @@ class AllCarView(ListView):
         page = params.get('page')
         current_path = request.get_full_path()
 
-        data = dict()
+        filter_data = dict()
         for key, value in params.items():
             if value != '':
                 if key == 'page':
                     pass
-                elif key == 'year_s':
-                    data['year__gte'] = value
-                elif key == 'year_e':
-                    data['year__lte'] = value
-                elif key == 'mark':
-                    data['model__mark'] = value
                 elif key == 'cleared':
-                    data[key] = False if value == '0' else True
+                    filter_data[key] = False if value == '0' else True
                 elif key == 'dtp':
-                    data[key] = False if value == '0' else True
+                    filter_data[key] = False if value == '0' else True
                 else:
-                    data[key] = value
-        print(data)
-        car_qs = Car.objects.filter(**data)
+                    filter_data[key] = value
+
+        try:
+            car_qs = Car.objects.filter(**filter_data)
+        except:
+            car_qs = []
 
         paginator = Paginator(car_qs, 10)
 
@@ -86,25 +82,13 @@ class PaginatorCars(View):
         return JsonResponse({'status': 'success', 'cars': cars})
 
 
-def filter_form_render_view(request):
-    filterForm = FilterForm()
-    return render(request, 'filter_form.html', {
-        'form': filterForm
-    })
-
-
-def filter_handle(request):
-    print(request.GET.dict())
-    pass
-
-
 @require_GET
 def seed_db(request):
-    seed_fuel()
+    # seed_fuel()
     seed_gearbox()
-    seed_body()
-    seed_color()
-    seed_location()
-    seed_mark()
-    seed_model()
+    # seed_body()
+    # seed_color()
+    # seed_location()
+    # seed_mark()
+    # seed_model()
     return JsonResponse(dict(status='success'))

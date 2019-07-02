@@ -118,20 +118,21 @@ class Car(models.Model):
     body = models.ForeignKey(Body, null=True, on_delete=models.SET_NULL)
     image = models.CharField(max_length=256)
     dtp = models.BooleanField(default=False)
-    createdAt = models.DateTimeField()
-    updatedAt = models.DateTimeField(blank=True)
-    last_site_updatedAt = models.DateTimeField(blank=True)
+    createdAt = models.DateTimeField(auto_now=True)
+    updatedAt = models.DateTimeField(blank=True, null=True)
+    last_site_updatedAt = models.DateTimeField(blank=True, null=True)
     sold = models.BooleanField(default=False)
     cleared = models.BooleanField(default=True)
     olx_link = models.URLField(blank=True)
     ria_link = models.URLField(blank=True)
     ab_link = models.URLField(blank=True)
+    ab_car_id = models.CharField(max_length=20, blank=True)
     rst_link = models.URLField(blank=True)
     price = models.IntegerField(null=True)
 
     class Meta:
         verbose_name_plural = 'Cars'
-        ordering = ['-createdAt']
+        ordering = ['-last_site_updatedAt']
 
     def __str__(self):
         return '{} {}'.format(self.model.mark.name, self.model.name)
@@ -152,39 +153,3 @@ class PriceHistory(models.Model):
         self.car.price = self.price
         self.car.save()
         super().save(*args, **kwargs)
-
-
-class Filter(models.Model):
-    GEAR_BOX_TYPE = (
-        ('ANY', 'Любая КПП'),
-        ('AUTO', 'Автоматическая'),
-        ('MANUAL', 'Механическая'),
-    )
-
-    SELL_TYPE = (
-        ('ACT', 'Актуальные(только в Продаже)'),
-        ('SOLD', 'Проданные'),
-        ('ACT_SOLD', 'Актуальные и проданные'),
-    )
-
-    CLEARED_TYPE = (
-        ('CLR', 'Растаможенные'),
-        ('NOT_CLR', 'Не растаможенные'),
-        ('ANY', 'Любая реестрация'),
-    )
-
-    ACCIDENT_TYPE = (
-        ('NO', 'без ДТП'),
-        ('YES', 'после ДТП'),
-        ('ANY', 'с ДТП и без'),
-    )
-    model = models.ForeignKey(Model, null=True, on_delete=models.SET_NULL)
-    mark = models.ForeignKey(Mark, null=True, on_delete=models.SET_NULL)
-    location = models.ForeignKey(Location, null=True, on_delete=models.SET_NULL)
-    gearbox = models.CharField(choices=GEAR_BOX_TYPE, max_length=5, default=GEAR_BOX_TYPE[0][0])
-    sell = models.CharField(choices=SELL_TYPE, max_length=8, default=SELL_TYPE[0][0])
-    cleared = models.CharField(choices=CLEARED_TYPE, max_length=7, default=CLEARED_TYPE[0][0])
-    accident = models.CharField(choices=ACCIDENT_TYPE, max_length=3, default=ACCIDENT_TYPE[0][0])
-
-    class Meta:
-        managed = False

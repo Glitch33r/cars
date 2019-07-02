@@ -24,6 +24,7 @@ def seed_color():
 
 def seed_gearbox():
     seed('https://developers.ria.com/auto/categories/2/gearboxes?api_key=', Gearbox)
+    Gearbox(name='робот').save()
 
 
 def seed_fuel():

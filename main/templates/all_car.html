@@ -15,7 +15,7 @@
                     <div class="wrap">
                         <div class="left_block">
                             <div class="fas fa-caret-down">
-                                <select class="form-control" name="mark" id="filter_brand">
+                                <select class="form-control" name="model__mark" id="filter_brand">
                                     <option selected disabled>Марка</option>
                                     {% marks as marks %}
                                     {% for mark in marks %}
@@ -56,10 +56,10 @@
                                 <label for="year">Год</label>
                                 <div class="year_pick">
                                     <div class="fas fa-caret-down">
-                                        <select class="yearselect" name="year_s" id=""></select>
+                                        <select class="yearselect" name="year__gte" id=""></select>
                                     </div>
                                     <div class="fas fa-caret-down">
-                                        <select class="yrselectdesc" name="year_e" id=""></select>
+                                        <select class="yrselectdesc" name="year__lte" id=""></select>
                                     </div>
                                 </div>
                             </div>
