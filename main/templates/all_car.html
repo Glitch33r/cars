@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% load staticfiles %}
+{% load filter_selects %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'css/cars_list.css' %}"> 
+{% endblock styles %}
+
+{% block content %}
+    <section id="filter">
+        <div class="container">
+            <form action="">
+                <div class="filter_wrp">
+                    <div class="wrap">
+                        <div class="left_block">
+                            <div class="fas fa-caret-down">
+                                <select class="form-control" name="mark" id="filter_brand">
+                                    <option selected disabled>Марка</option>
+                                    {% marks as marks %}
+                                    {% for mark in marks %}
+                                    <option value="{{ mark.id }}">{{ mark.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="fas fa-caret-down">
+                                <select class="form-control" name="model" id="filter_model">
+                                    <option selected disabled>Модель</option>
+                                    {% models as models %}
+                                    {% for model in models %}
+                                    <option value="{{ model.id }}">{{ model.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="fas fa-caret-down">
+                                <select class="form-control" name="gearbox" id="filter_gearbox">
+                                    <option selected disabled>КПП</option>
+                                    {% gearboxs as gearboxs %}
+                                    {% for gearbox in gearboxs %}
+                                    <option value="{{ gearbox.id }}">{{ gearbox.name | title }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="centr_block">
+                            <div class="fas fa-caret-down">
+                                <select class="form-control" name="location" id="filter_region">
+                                    <option selected disabled>Регион</option>
+                                    {% locations as locations %}
+                                    {% for location in locations %}
+                                    <option value="{{ location.id }}">{{ location.name | title }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="fas fa-caret-down unshow">
+                                <label for="year">Год</label>
+                                <div class="year_pick">
+                                    <div class="fas fa-caret-down">
+                                        <select class="yearselect" name="year_s" id=""></select>
+                                    </div>
+                                    <div class="fas fa-caret-down">
+                                        <select class="yrselectdesc" name="year_e" id=""></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="fas fa-caret-down unshow">
+                                <label for="price">Цена</label>
+                                <div class="price_pick">
+                                    <div class="fas fa-caret-down">
+                                        <input type="text" pattern="^[ 0-9]+$" name="" id="" placeholder="от">
+                                    </div>
+                                    <div class="fas fa-caret-down">
+                                        <input type="text" pattern="^[ 0-9]+$" name="" id="" placeholder="до">
+                                    </div>
+                                </div> 
+                            </div>
+                        </div>
+                        <div class="right_block">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="dealers" id="dealers">
+                                <label class="form-check-label" for="dealers">Исключить диллеров</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="blocked" id="blocked">
+                                <label class="form-check-label" for="blocked">Исключить заблокированных</label>
+                            </div>
+                            <div class="button">
+                                <button class="Search" type="submit">Найти</button>
+                            </div>
+                            <div class="button">
+                                <button class="advanced_Search" type="submit">Расширеный поиск</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+    <section id="car_list">
+        <div class="container">
+            {% comment %} <div class="list_title">
+                <h3>Последние поступления</h3>
+                <div>(Постоянно обновляется)</div>
+            </div> {% endcomment %}
+            {% include 'components/car_list.html' %}
+            {% if prev_url %}
+                <a href="{{ prev_url }}">PREV</a>
+            {% endif %}
+            {% if prev_url or next_page %}
+            CURRENT PAGE {{ page }}
+            {% endif %}
+            {% if next_page %}
+                <a href="{{ next_url }}">NEXT</a>
+            {% endif %}
+        </div>
+    </section>
+{% endblock content %}

@@ -100,6 +100,9 @@ class Fuel(models.Model):
 class SellerPhone(models.Model):
     phone = models.CharField(max_length=1024, unique=True)
 
+    def __str__(self):
+        return self.phone
+
 
 class Car(models.Model):
     model = models.ForeignKey(Model, null=True, on_delete=models.SET_NULL)
@@ -124,15 +127,13 @@ class Car(models.Model):
     ria_link = models.URLField(blank=True)
     ab_link = models.URLField(blank=True)
     rst_link = models.URLField(blank=True)
+    price = models.IntegerField(null=True)
 
     class Meta:
         verbose_name_plural = 'Cars'
         ordering = ['-createdAt']
 
     def __str__(self):
-        if self.updatedAt:
-            return '{} {} - last update {}'.format(self.model.mark.name, self.model.name,
-                                                   self.updatedAt.strftime("%H:%M %d.%m.%Y"))
         return '{} {}'.format(self.model.mark.name, self.model.name)
 
 
@@ -146,6 +147,11 @@ class PriceHistory(models.Model):
 
     def __str__(self):
         return f'<PriceHistory: price={self.price}, date_set={self.date_set}>'
+
+    def save(self, *args, **kwargs):
+        self.car.price = self.price
+        self.car.save()
+        super().save(*args, **kwargs)
 
 
 class Filter(models.Model):

@@ -59,9 +59,8 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             os.path.join(BASE_DIR, 'templates'),
-            'main/templates'
-        ]
-        ,
+            os.path.join(BASE_DIR, 'main', 'templates')
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -131,7 +130,7 @@ CELERY_TIMEZONE = TIME_ZONE
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static_content', 'static')
 STATICFILES_DIRS = [
     'main/static',
 ]

@@ -26,6 +26,7 @@ class Ab:
     def __init__(self):
         pages = self.get_count_pages()
         print(pages)
+        # self.data_record(1, pages)
         t1 = threading.Thread(target=self.data_record, args=(1, 125))
         t2 = threading.Thread(target=self.data_record, args=(126, 250))
         t3 = threading.Thread(target=self.data_record, args=(251, 375))
@@ -93,11 +94,13 @@ class Ab:
                 data['seller_name'] = json_data['contact_name']
                 data['location'] = json_data['location']['title']
 
-                data['mark'] = json_data['make']['title'].lower() if json_data['make']['title'] else None
-                data['model'] = json_data['model']['title'].lower() if json_data['model']['title'] else None
+                data['mark'] = json_data['make']['slug'] if json_data['make']['title'] else None
+                data['mark_title'] = json_data['make']['title'] if json_data['make']['title'] else None
+                data['model'] = json_data['model']['slug'] if json_data['model']['title'] else None
+                data['model_title'] = json_data['model']['title'] if json_data['model']['title'] else None
 
                 data['year'] = json_data['year']
-                data['mileage'] = int(json_data['mileage'] * 1000)
+                data['mileage'] = json_data['mileage']
 
                 data['engine'] = json_data['characteristics']['capacity']['number'] if 'capacity' in json_data['characteristics'] else None
                 data['gearbox'] = json_data['characteristics']['gearbox']['title'] if 'gearbox' in json_data['characteristics'] else None
@@ -132,16 +135,27 @@ class Ab:
                 if data['mark'] is None:
                     mark = None
                 else:
-                    mark = Mark.objects.filter(name=data['mark']).first()
+                    mark = Mark.objects.filter(eng=data['mark']).first()
                     if not mark:
-                        mark = Mark.objects.create(name=data['mark'])
-
+                        mark = Mark.objects.create(eng=data['mark'], name=data['mark_title'])
+                print('*'*20)
+                print(data['mark'])
+                print(data['mark_title'])
+                print('*'*20)
                 if data['model'] is None:
                     model = None
                 else:
-                    model = Model.objects.filter(name=data['model'], mark=mark).first()
+                    print('*'*20)
+                    print(data['model'])
+                    print('mark - {}'.format(mark))
+                    model = Model.objects.filter(eng=data['model'], mark=mark).first()
                     if not model:
-                        model = Model.objects.create(name=data['model'], mark=mark)
+                        print('create model eng={}, name={}, mark={}'.format(data['model'],data['model_title'], mark))
+                        try:
+                            model = Model.objects.create(eng=data['model'], name=data['model_title'], mark=mark)
+                        except:
+                            print('error')
+                            return
 
                 if data['gearbox'] is None:
                     gearbox = None
@@ -178,15 +192,17 @@ class Ab:
                 if not seller:
                     seller = SellerPhone.objects.create(phone=data['phone'])
 
-                car = Car.objects.filter(
-                    model=model,
-                    fuel=fuel,
-                    year=data['year'],
-                    dtp=data['dtp'],
-                    mileage=data['mileage']
-                )
-                if car:
-                    print('CAR IS FINDED')
+                # car = Car.objects.filter(
+                #     model=model,
+                #     fuel=fuel,
+                #     year=data['year'],
+                #     dtp=data['dtp'],
+                #     mileage=data['mileage']
+                # )
+                # if car:
+                #     print('CAR IS FINDED')
+                # else:
+                #     print('Finish obj')
 
                 car = Car.objects.filter(ab_link=data['ab_link']).first()
                 if car:
