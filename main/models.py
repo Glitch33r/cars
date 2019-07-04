@@ -116,7 +116,7 @@ class Car(models.Model):
     description = models.TextField(null=True)
     phone = models.ForeignKey(SellerPhone, null=True, on_delete=models.SET_NULL)
     body = models.ForeignKey(Body, null=True, on_delete=models.SET_NULL)
-    image = models.CharField(max_length=256)
+    image = models.CharField(max_length=256, null=True)
     dtp = models.BooleanField(default=False)
     createdAt = models.DateTimeField(auto_now=True)
     updatedAt = models.DateTimeField(blank=True, null=True)
@@ -139,9 +139,16 @@ class Car(models.Model):
 
 
 class PriceHistory(models.Model):
+    SITE = (
+        ('AR', 'AutoRia'),
+        ('RST', 'RST'),
+        ('AB', 'Auto Bazar'),
+        ('BP', 'Besplatka'),
+    )
     car = models.ForeignKey(Car, on_delete=models.CASCADE)
     price = models.IntegerField()
     date_set = models.DateTimeField(auto_now=True)
+    site = models.CharField(choices=SITE, max_length=3)
 
     class Meta:
         verbose_name_plural = 'price_history'
@@ -150,6 +157,7 @@ class PriceHistory(models.Model):
         return f'<PriceHistory: price={self.price}, date_set={self.date_set}>'
 
     def save(self, *args, **kwargs):
-        self.car.price = self.price
-        self.car.save()
+        if self.site == 'AR':
+            self.car.price = self.price
+            self.car.save()
         super().save(*args, **kwargs)

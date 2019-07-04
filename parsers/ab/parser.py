@@ -9,7 +9,7 @@ from django.db.models import Q
 from django.utils.timezone import get_current_timezone
 
 from main.models import *
-from parsers.choises import gearbox
+from parsers.choises import GEARBOX, FUEL, BODY, COLOR
 
 tz = get_current_timezone()
 
@@ -19,12 +19,21 @@ class Ab:
     def __init__(self):
         # pages = self.get_count_pages()
         # self.parse(1, pages)
-        t1 = threading.Thread(target=self.parse, args=(1, 250))
-        t2 = threading.Thread(target=self.parse, args=(251, 500))
+        t1 = threading.Thread(target=self.parse, args=(1, 100))
+        t2 = threading.Thread(target=self.parse, args=(101, 200))
+        t3 = threading.Thread(target=self.parse, args=(201, 300))
+        t4 = threading.Thread(target=self.parse, args=(301, 400))
+        t5 = threading.Thread(target=self.parse, args=(401, 500))
         t1.start()
         t2.start()
+        t3.start()
+        t4.start()
+        t5.start()
         t1.join()
         t2.join()
+        t3.join()
+        t4.join()
+        t5.join()
 
     @staticmethod
     def get_formatted_phone(phone):
@@ -93,8 +102,9 @@ class Ab:
         if r.status_code == 200:
             json_data = json.loads(r.text)
 
-            data['sold'] = True if json_data['sold'] or not json_data['active'] else False
-            data['dtp'] = True if json_data['is_crashed'] else False
+            data['sold'] = bool(json_data['sold'] or not json_data['active'])
+            data['dtp'] = bool(json_data['is_crashed'])
+            data['cleared'] = bool(not json_data['is_not_cleared'])
             data['ab_link'] = 'https://ab.ua' + json_data['permalink']
 
             if not data['sold']:
@@ -107,9 +117,9 @@ class Ab:
                 data['seller_name'] = json_data['contact_name']
                 data['location'] = json_data['location']['title'].lower()
 
-                data['mark'] = json_data['make']['slug'] if json_data['make']['title'] else None
+                data['mark'] = json_data['make']['slug'] if json_data['make']['slug'] else None
                 data['mark_title'] = json_data['make']['title'] if json_data['make']['title'] else None
-                data['model'] = json_data['model']['slug'] if json_data['model']['title'] else None
+                data['model'] = json_data['model']['slug'] if json_data['model']['slug'] else None
                 data['model_title'] = json_data['model']['title'] if json_data['model']['title'] else None
 
                 data['year'] = json_data['year']
@@ -118,13 +128,20 @@ class Ab:
                 data['engine'] = json_data['characteristics']['capacity']['number'] if 'capacity' in json_data['characteristics'] else None
                 data['gearbox'] = json_data['characteristics']['gearbox']['title'].lower() if 'gearbox' in json_data['characteristics'] else None
                 data['gearbox'] = 'ручная/механика' if data['gearbox'] == 'механика' else data['gearbox']
+
                 data['body'] = json_data['characteristics']['category']['title'].lower() if 'category' in json_data['characteristics'] else None
+                data['body'] = 'внедорожник/кроссовер' if data['body'] == 'внедорожник' or data['body'] == 'кроссовер' else data['body']
+                data['body'] = 'хэтчбек' if data['body'] == 'хетчбэк' else data['body']
+                data['body'] = 'лифтбек' if data['body'] == 'лифтбэк' else data['body']
+
                 data['fuel'] = json_data['characteristics']['engine']['title'][:6].lower() if 'engine' in json_data['characteristics'] else None
+                data['fuel'] = data['fuel'] + 'о' if data['fuel'] == 'электр' else data['fuel']
+                data['fuel'] = 'газ/бензин' if data['fuel'] == 'газ, б' else data['fuel']
 
-                if data['fuel']:
-                    data['fuel'] = data['fuel'] if data['fuel'] != 'электр' else data['fuel'] + 'о'
+                data['color'] = json_data['color']['title'].lower().replace('ё', 'е') if json_data['color']['title'] is not None else None
+                data['color'] = 'золотой' if data['color'] == 'золотистый' else data['color']
+                data['color'] = 'серебряный' if data['color'] == 'серебристый' else data['color']
 
-                data['color'] = json_data['color']['title'] if json_data['color']['title'] is not None else None
                 data['description'] = json_data['description']
 
                 data['image'] = json_data['photos'][0]['image'] if json_data['photos'] else None
@@ -164,47 +181,26 @@ class Ab:
                     if not location:
                         location = Location.objects.create(name=data['location'])
 
-                    if data['fuel'] is None:
-                        fuel = None
-                    else:
-                        fuel = Fuel.objects.filter(name=data['fuel']).first()
-                        if not fuel:
-                            fuel = Fuel.objects.create(name=data['fuel'])
-
-                    if data['color'] is None:
-                        color = None
-                    else:
-                        color = Color.objects.filter(name=data['color']).first()
-                        if not color:
-                            color = Color.objects.create(name=data['color'])
-
-                    if data['body'] is None:
-                        body = None
-                    else:
-                        body = Body.objects.filter(name=data['body']).first()
-                        if not body:
-                            body = Body.objects.create(name=data['body'])
-
-                    car = Car(
+                    car = Car.objects.create(
                         model=model,
-                        gearbox_id=gearbox.get(data['gearbox']),
+                        gearbox_id=GEARBOX.get(data['gearbox']),
                         location=location,
-                        fuel=fuel,
-                        color=color,
+                        fuel_id=FUEL.get(data['fuel']),
+                        color_id=COLOR.get(data['color']),
                         year=data['year'],
                         mileage=data['mileage'],
                         engine=data['engine'],
                         description=data['description'],
                         phone=data['seller'],
-                        body=body,
+                        body_id=BODY.get(data['body']),
                         image=data['image'],
                         dtp=data['dtp'],
+                        cleared=data['cleared'],
                         last_site_updatedAt=data['last_site_updatedAt'],
                         ab_link=data['ab_link'],
                         ab_car_id=car_id
                     )
-                    car.save()
-                    PriceHistory.objects.create(car=car, price=data['price'])
+                    PriceHistory.objects.create(car=car, price=data['price'], site='AB')
                 #     print('Object created')
 
                 # else:
@@ -215,7 +211,7 @@ class Ab:
         car = Car.objects.filter(ab_car_id=car_id).first()
         if car:
             data = self.get_info_by_id(car_id)
-            if data['sold'] == True:
+            if data['sold'] is True:
                 car.sold = True
                 car.save()
             else:

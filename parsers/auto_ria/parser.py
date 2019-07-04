@@ -7,7 +7,7 @@ from django.utils.timezone import get_current_timezone
 import requests
 
 from main.models import Model, Car, SellerPhone, PriceHistory
-from parsers.choises import location, fuel, gearbox
+from parsers.choises import LOCATION, FUEL, GEARBOX
 
 tz = get_current_timezone()
 
@@ -93,9 +93,9 @@ class AutoRiaInnerParse(WordsFormater):
 
     def set_car(self, data: dict):
         car = Car(model=self.find_model(data),
-                  gearbox_id=gearbox.get(self.formating(data['autoData']['gearboxName'])),
-                  location_id=location.get(self.formating(data['stateData']['regionName'])),
-                  fuel_id=fuel.get(self.fuel_parse(data['autoData']['fuelName'])),
+                  gearbox_id=GEARBOX.get(self.formating(data['autoData']['gearboxName'])),
+                  location_id=LOCATION.get(self.formating(data['stateData']['regionName'])),
+                  fuel_id=FUEL.get(self.fuel_parse(data['autoData']['fuelName'])),
                   engine=self.engine_parse(data['autoData']['fuelName']),
                   color=None,
                   year=data['autoData']['year'],

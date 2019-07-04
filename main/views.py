@@ -6,7 +6,7 @@ from django.views.decorators.http import require_GET
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from main.utils import serialize_cars
-from main.models import Car, Mark, Model, Gearbox, Location
+from main.models import *
 from seed_db.fk_tables import seed_location, seed_body, seed_color, seed_fuel, seed_gearbox, seed_mark, seed_model
 
 
@@ -84,11 +84,24 @@ class PaginatorCars(View):
 
 @require_GET
 def seed_db(request):
-    # seed_fuel()
+    seed_fuel()
     seed_gearbox()
-    # seed_body()
-    # seed_color()
+    seed_body()
+    seed_color()
     # seed_location()
     # seed_mark()
     # seed_model()
+    return JsonResponse(dict(status='success'))
+
+
+@require_GET
+def drop_static_tables(request):
+    Gearbox.objects.all().delete()
+    Fuel.objects.all().delete()
+    Body.objects.all().delete()
+    Color.objects.all().delete()
+    Mark.objects.all().delete()
+    Model.objects.all().delete()
+    Car.objects.all().delete()
+    SellerPhone.objects.all().delete()
     return JsonResponse(dict(status='success'))
