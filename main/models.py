@@ -1,7 +1,6 @@
 from django.db import models
-from datetime import datetime
 from django.contrib.auth.models import User
-from django.utils import timezone
+from django.urls import reverse
 
 
 class Profile(models.Model):
@@ -103,6 +102,19 @@ class SellerPhone(models.Model):
     def __str__(self):
         return self.phone
 
+    def count(self):
+        """Returns the number of seller’s cars"""
+        return self.car_set.count()
+
+    def status(self):
+        """Returns seller status"""
+        if self.count() < 20:
+            return 'Продавец'
+        return 'Перекупщик'
+
+    def get_absolute_url(self):
+        return reverse('seller', kwargs={'pk': self.pk})
+
 
 class Car(models.Model):
     model = models.ForeignKey(Model, null=True, on_delete=models.SET_NULL)
@@ -157,7 +169,7 @@ class PriceHistory(models.Model):
         return f'<PriceHistory: price={self.price}, date_set={self.date_set}>'
 
     def save(self, *args, **kwargs):
-        if self.site == 'AR':
-            self.car.price = self.price
-            self.car.save()
+        # if self.site == 'AR':
+        self.car.price = self.price
+        self.car.save()
         super().save(*args, **kwargs)

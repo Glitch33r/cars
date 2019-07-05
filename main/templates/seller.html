@@ -8,9 +8,15 @@
 {% endblock styles %}
 
 {% block content %}
+    <section id="title">
+        <div class="container">
+            <h1>{{ seller.status }} c {{ seller.count }} объявлениями.</h1>
+            <p>Телефоны: {{ seller.phone }}</p>
+        </div>
+    </section>
     <section id="filter">
         <div class="container">
-            <form action="{% url 'all-car' %}" method="get">
+            <form>
                 <div class="filter_wrp">
                     <div class="wrap">
                         <div class="left_block">

@@ -123,10 +123,12 @@
             </div>
         </div>
         <div class="info">
+            {% if not seller_page %}
             <div class="more_links">
-                <div>Перекупщик</div>
-                <a href="#">18 объявлений продавца</a>
+                <div>{{ car.phone.status }}</div>
+                <a href="{{ car.phone.get_absolute_url }}">{{ car.phone.count }} объявлений продавца</a>
             </div>
+            {% endif %}
             <div class="date_info">
                 <div>Добавлен: <span class="date">{{ car.createdAt | date:'d.m.y H:i' }}</span></div>
                 <div>Посл. обновление: <span class="date"> {{ car.updatedAt | date:'d.m.y' }}</span></div>
@@ -142,7 +144,7 @@
                     <a class="rst" href="{{ car.rst_link }}" target="blank"></a>
                 {% endif %}
                 {% if car.ab_link %}
-                    <a class="ab" href="{{ car.ab_link }}" target="blank"></a>
+                    <a class="rst" href="{{ car.ab_link }}" target="blank"></a>
                 {% endif %}
             </div>
             <div class="link">

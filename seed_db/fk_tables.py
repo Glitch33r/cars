@@ -60,7 +60,7 @@ def seed_body():
 def seed_mark():
     python_marks = []
     for mark in marks:
-        python_marks.append(Mark(id=mark[0], name=mark[1], ria_id=mark[2], eng=mark[3]))
+        python_marks.append(Mark(name=mark[1], ria_id=mark[2], eng=mark[3]))
     Mark.objects.bulk_create(python_marks)
 
 

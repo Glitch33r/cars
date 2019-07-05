@@ -1,42 +1,51 @@
-import requests
+"""Parser Autobazar (https://ab.ua/)"""
 import json
-import random
-import string
 import threading
-from time import sleep
 from datetime import datetime
+import requests
 from django.db.models import Q
 from django.utils.timezone import get_current_timezone
 
-from main.models import *
+from main.models import (
+    SellerPhone,
+    Car,
+    Mark,
+    Model,
+    Location,
+    PriceHistory,
+
+)
 from parsers.choises import GEARBOX, FUEL, BODY, COLOR
 
-tz = get_current_timezone()
+TZ = get_current_timezone()
 
 
 class Ab:
+    """Collects and updates car information from the site https://ab.ua/"""
+    url = 'https://ab.ua/api/_posts/'
 
     def __init__(self):
         # pages = self.get_count_pages()
         # self.parse(1, pages)
-        t1 = threading.Thread(target=self.parse, args=(1, 100))
-        t2 = threading.Thread(target=self.parse, args=(101, 200))
-        t3 = threading.Thread(target=self.parse, args=(201, 300))
-        t4 = threading.Thread(target=self.parse, args=(301, 400))
-        t5 = threading.Thread(target=self.parse, args=(401, 500))
-        t1.start()
-        t2.start()
-        t3.start()
-        t4.start()
-        t5.start()
-        t1.join()
-        t2.join()
-        t3.join()
-        t4.join()
-        t5.join()
+        thread_1 = threading.Thread(target=self.parse, args=(1, 100))
+        thread_2 = threading.Thread(target=self.parse, args=(101, 200))
+        thread_3 = threading.Thread(target=self.parse, args=(201, 300))
+        thread_4 = threading.Thread(target=self.parse, args=(301, 400))
+        thread_5 = threading.Thread(target=self.parse, args=(401, 500))
+        thread_1.start()
+        thread_2.start()
+        thread_3.start()
+        thread_4.start()
+        thread_5.start()
+        thread_1.join()
+        thread_2.join()
+        thread_3.join()
+        thread_4.join()
+        thread_5.join()
 
     @staticmethod
     def get_formatted_phone(phone):
+        """Returns formatted phone number"""
         phone = phone.replace('+', '')
         if len(phone) != 12:
             phone = '380' + phone[-9:]
@@ -44,43 +53,49 @@ class Ab:
 
     @staticmethod
     def get_last_site_update(json_data):
+        """Returns localized date"""
         if not json_data['date_created']:
-            return tz.localize(datetime.strptime(json_data['hot_date'][0:19], '%Y-%m-%dT%H:%M:%S'))
-        return tz.localize(datetime.strptime(json_data['date_created'][0:19], '%Y-%m-%dT%H:%M:%S'))
+            return TZ.localize(datetime.strptime(json_data['hot_date'][0:19], '%Y-%m-%dT%H:%M:%S'))
+        return TZ.localize(datetime.strptime(json_data['date_created'][0:19], '%Y-%m-%dT%H:%M:%S'))
 
     def get_seller(self, car_id):
+        """Returns SellerPhone object"""
+        url = self.url + '{0}/phones/'
         seller_phones = []
-        for phone in json.loads(requests.get("https://ab.ua/api/_posts/{0}/phones/".format(car_id)).text):
+
+        for phone in json.loads(requests.get(url.format(car_id)).text):
             seller_phones.append(self.get_formatted_phone(phone))
 
         query = Q()
-        phones = ''
         for phone in seller_phones:
-            phones += phone + ','
             query = query | Q(phone__contains=phone)
 
         seller = SellerPhone.objects.filter(query).first()
+
         if seller:
-            for phone in seller_phones:
-                if phone not in seller.phone:
-                    seller.phone += phone + ','
-                    seller.save()
+            old_phones = seller.phone.split(',')
+            phones = set(old_phones + seller_phones)
+            seller.phone = ','.join(phones)
+            seller.save()
         else:
+            phones = ','.join(seller_phones)
             seller = SellerPhone.objects.create(phone=phones)
         return seller
 
     def get_count_pages(self):
-        url = 'https://ab.ua/api/_posts/?transport=1'
-        r = requests.get(url)
-        data = json.loads(r.text)
+        """Returns the number of all existing pages"""
+        url = self.url + '?transport=1'
+        res = requests.get(url)
+        data = json.loads(res.text)
         return round(data['count'] / 20)
 
     def get_car_ids_by_page(self, page):
-        url = 'https://ab.ua/api/_posts/?transport=1&page={0}'
-        r = requests.get(url.format(page))
+        """Returns car_id list on page"""
+        url = self.url + '?transport=1&page={0}'
+        res = requests.get(url.format(page))
         car_ids = []
-        if r.status_code == 200:
-            r_json = json.loads(r.text)
+        if res.status_code == 200:
+            r_json = json.loads(res.text)
             for car in r_json['results']:
                 car_ids.append(car['id'])
         else:
@@ -88,7 +103,8 @@ class Ab:
         return car_ids
 
     def get_info_by_id(self, car_id):
-        url = 'https://ab.ua/api/_posts/{0}/'.format(car_id)
+        """Returns information about a car by the given car_id"""
+        url = self.url + '{0}/'.format(car_id)
 
         print('Parsing {}'.format(url))
 
@@ -97,10 +113,10 @@ class Ab:
             'sold': False,
             'dtp': False
         }
-        r = requests.get(url)
+        res = requests.get(url)
 
-        if r.status_code == 200:
-            json_data = json.loads(r.text)
+        if res.status_code == 200:
+            json_data = json.loads(res.text)
 
             data['sold'] = bool(json_data['sold'] or not json_data['active'])
             data['dtp'] = bool(json_data['is_crashed'])
@@ -154,7 +170,7 @@ class Ab:
         return data
 
     def parse(self, start, finish):
-
+        """Creates Car model objects from inbound page list"""
         for page in range(start, finish + 1):
             print('{} page of {}'.format(page, finish))
             for car_id in self.get_car_ids_by_page(page):
@@ -208,6 +224,7 @@ class Ab:
         return print('FINISHED')
 
     def update(self, car_id):
+        """Updates existing Car objects"""
         car = Car.objects.filter(ab_car_id=car_id).first()
         if car:
             data = self.get_info_by_id(car_id)
