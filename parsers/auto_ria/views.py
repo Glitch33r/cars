@@ -14,7 +14,7 @@ class AutoRia(View):
     def get(self, req):
         print('hi')
         print(Car.objects.count())
-        # AutoRiaInnerParse()
+        AutoRiaInnerParse()
         # upd_ria.apply_async(countdown=5)
         # r = mul.delay(12, 43)
         # print('hi## hi')

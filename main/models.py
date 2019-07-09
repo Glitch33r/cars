@@ -144,7 +144,7 @@ class Car(models.Model):
 
     class Meta:
         verbose_name_plural = 'Cars'
-        ordering = ['-last_site_updatedAt']
+        ordering = ['-createdAt']
 
     def __str__(self):
         return '{} {}'.format(self.model.mark.name, self.model.name)
