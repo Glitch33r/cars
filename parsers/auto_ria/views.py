@@ -1,11 +1,7 @@
 from django.http import JsonResponse
-from django.shortcuts import render
 from django.views import View
-
 from main.models import Car
-from parsers.auto_ria.tasks import mul, upd_ria, inner_ria
-from .parser import AutoRiaInnerParse, AutoRiaUpdateParse
-from django.views.generic.list import ListView
+from parsers.utils import CheckUserFilters
 
 
 
@@ -19,6 +15,11 @@ class AutoRia(View):
         # r = mul.delay(12, 43)
         # print('hi## hi')
         # AutoRiaInnerParse()
+
+        car = Car.objects.filter(id=3650).first()
+        # celery_serialize_car(car)
+        # check_user_filters.apply_async((car.id,), update=True)
+        CheckUserFilters(car.id, update=True)
         # AutoRiaUpdateParse()
         # print(r.get())
         # AutoRiaUpdateParse()

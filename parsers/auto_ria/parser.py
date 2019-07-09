@@ -8,6 +8,7 @@ import requests
 
 from main.models import Model, Car, SellerPhone, PriceHistory
 from parsers.choises import LOCATION, FUEL, GEARBOX
+from main.tasks import check_user_filters
 
 tz = get_current_timezone()
 
@@ -60,7 +61,8 @@ class AutoRiaInnerParse(WordsFormater):
         t1 = threading.Thread(target=self.runner, args=(0, 500))
         t2 = threading.Thread(target=self.runner, args=(501, 1000))
         t3 = threading.Thread(target=self.runner, args=(1001, 1500))
-        t4 = threading.Thread(target=self.runner, args=(1501, self.first_data['result']['search_result']['count'] // 100))
+        t4 = threading.Thread(target=self.runner,
+                              args=(1501, self.first_data['result']['search_result']['count'] // 100))
         t1.start()
         t2.start()
         t3.start()
@@ -71,11 +73,10 @@ class AutoRiaInnerParse(WordsFormater):
         t4.join()
 
     def set_saller(self, phone):
-        saller = SellerPhone.objects.filter(phone=self.format_phone(phone)).first()
-        if saller:
-            return saller
-        saller = SellerPhone(phone=self.format_phone(phone))
-        saller.save()
+        saller = SellerPhone.objects.filter(phone__contains=self.format_phone(phone)).first()
+        if not saller:
+            saller = SellerPhone(phone=self.format_phone(phone))
+            saller.save()
         return saller
 
     def find_model(self, data: dict):
@@ -87,7 +88,7 @@ class AutoRiaInnerParse(WordsFormater):
 
     def set_price(self, price_int: int, car):
         print(price_int)
-        price = PriceHistory(price=price_int, date_set=timezone.now(), car=car)
+        price = PriceHistory(price=price_int, date_set=timezone.now(), car=car, site='AR')
         price.save()
         print(price)
 
@@ -102,7 +103,7 @@ class AutoRiaInnerParse(WordsFormater):
                   mileage=data['autoData']['raceInt'],
                   # price=self.set_price(data['USD']),
                   phone=self.set_saller(data['userPhoneData']['phone']),
-                  body_id=data['autoData'].get('bodyId'),
+                  body_id=(data['autoData'].get('bodyId')),
                   image=data['photoData']['seoLinkF'],
                   dtp=self.check_dtp(data['infoBarText']),
                   sold=data['autoData']['isSold'],
@@ -117,8 +118,6 @@ class AutoRiaInnerParse(WordsFormater):
     def runner(self, start, finish):
         for i in range(start, finish):
             print('####', i)
-            if i > 900:
-                return
             start_data = json.loads(requests.get(self.list_posts_way.format(100, i)).content)
             for ids in start_data['result']['search_result']['ids']:
                 try:
@@ -140,8 +139,9 @@ class AutoRiaUpdateParse(AutoRiaInnerParse):
     list_posts_way = 'http://auto.ria.com/blocks_search_ajax/search/?countpage={}&category_id=1&page={}'
     post_way = 'https://auto.ria.com/demo/bu/searchPage/v2/view/auto/{}/?lang_id=2'
 
-    def __init__(self):
+    def __init__(self, hours_updater: int):
         # count = 0
+        self.hours_updater = hours_updater
         first_data = json.loads(requests.get(self.list_posts_way.format(10, 0)).content)
         print(first_data['result']['search_result']['count'] // 100)
         t1 = threading.Thread(target=self.runner, args=(0, 500))
@@ -159,7 +159,7 @@ class AutoRiaUpdateParse(AutoRiaInnerParse):
 
     def time_stack(self, updated: str):
         updated = tz.localize(datetime.datetime.strptime(updated, '%Y-%m-%d %H:%M:%S'))
-        start = timezone.now() - timezone.timedelta(hours=2)
+        start = timezone.now() - timezone.timedelta(hours=self.hours_updater)
         print(start, updated, timezone.now())
         updated = updated.timestamp()
         if updated > start.timestamp() and updated < timezone.now().timestamp():
@@ -175,8 +175,6 @@ class AutoRiaUpdateParse(AutoRiaInnerParse):
             print('####', i)
             start_data = json.loads(requests.get(self.list_posts_way.format(100, i)).content)
             for ids in start_data['result']['search_result']['ids']:
-                if count > 10900:
-                    return
                 count += 1
                 print(count)
                 data = json.loads(requests.get(self.post_way.format(ids)).content)
@@ -194,17 +192,18 @@ class AutoRiaUpdateParse(AutoRiaInnerParse):
                             if car:
                                 print(f'updates price {data["USD"]}')
                                 self.set_price(price_int=data['USD'], car=car)
+                                check_user_filters.apply_async((car.id,), update=True)
                             else:
                                 print('create car')
                                 car = self.set_car(data)
                                 car.save()
                                 self.set_price(price_int=data['USD'], car=car)
+                                check_user_filters.apply_async((car.id,))
                         else:
                             print('model not find')
                             pass
                 else:
                     pass
-
 
 # pass
 
