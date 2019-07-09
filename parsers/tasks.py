@@ -7,8 +7,8 @@ from parsers.auto_ria.parser import AutoRiaUpdateParse, AutoRiaInnerParse
 
 
 @shared_task
-def upd_ria():
-    AutoRiaUpdateParse(2)
+def upd_ria(hours):
+    AutoRiaUpdateParse(hours)
     return None
 
 

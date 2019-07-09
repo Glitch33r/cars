@@ -17,7 +17,7 @@ class CheckUserFilters:
         print('finish')
 
     def check_is_match(self, filter):
-        attrs = ['model_id', 'mark_id', 'gearbox_id', 'location_id', 'fuel_id', 'body_id', 'dtp', 'cleared']
+        attrs = ['model_id', 'gearbox_id', 'location_id', 'fuel_id', 'body_id', 'dtp', 'cleared']
         valid = True
         print('hi')
         for attr in attrs:
@@ -25,7 +25,9 @@ class CheckUserFilters:
                 valid = False
                 if getattr(filter, attr) is None:
                     valid = True
-        if getattr(filter, 'blocked') != self.car.user.is_blocked:
+        if getattr(filter,  'mark_id') != self.car.model.mark.id:
+            valid = False
+        if getattr(filter, 'blocked') != self.saller.is_blocked:
             valid = False
         if getattr(filter, 'dealer') == self.saller.is_dealer:
             valid = False
