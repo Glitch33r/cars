@@ -105,9 +105,9 @@
                             <li>
                                 <a class="toggle" href="#"><span>История цен</span><i class="fas fa-caret-down"></i></a>
                                 <ul class="inner">
-                                    {% for price in car.pricehistory_set.all %}
-                                        <li>$ {{ price.price }} <span>- {{ price.date_set | date:'d.m.Y' }}</span></li>
-                                    {% endfor %}
+{#                                    {% for price in car.pricehistory_set.all %}#}
+{#                                        <li>$ {{ price.price }} <span>- {{ price.date_set | date:'d.m.Y' }}</span></li>#}
+{#                                    {% endfor %}#}
                                 </ul>
                             </li>
                         </ul>
