@@ -127,7 +127,7 @@ def seed_db(request):
     seed_gearbox()
     seed_body()
     seed_color()
-    # seed_location()
+    seed_location()
     seed_mark()
     seed_model()
     return JsonResponse(dict(status='success'))

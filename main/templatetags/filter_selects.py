@@ -11,17 +11,17 @@ from main.models import (
 
 @register.simple_tag(name='marks')
 def mark_list():
-    return Mark.objects.all()
+    return Mark.objects.all().order_by('name')
 
 
 @register.simple_tag(name='models')
 def model_list():
-    return Model.objects.all()
+    return Model.objects.all().order_by('name')
 
 
 @register.simple_tag(name='locations')
 def location_list():
-    return Location.objects.all()
+    return Location.objects.all().order_by('name')
 
 
 @register.simple_tag(name='gearboxs')
