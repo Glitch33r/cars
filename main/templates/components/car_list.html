@@ -97,6 +97,7 @@
                             <span class="cost_transform">
                                 +20 000 грн
                             </span>
+                        {% if car.price_history %}
                             <div class="chart_wrp">
                                 <canvas id="myChart" width="120" height="40"></canvas>
                             </div>
@@ -105,12 +106,15 @@
                             <li>
                                 <a class="toggle" href="#"><span>История цен</span><i class="fas fa-caret-down"></i></a>
                                 <ul class="inner">
-{#                                    {% for price in car.pricehistory_set.all %}#}
-{#                                        <li>$ {{ price.price }} <span>- {{ price.date_set | date:'d.m.Y' }}</span></li>#}
-{#                                    {% endfor %}#}
+                                    {% for price in car.pricehistory_set.all %}
+                                        <li>$ {{ price.price }} <span>- {{ price.date_set | date:'d.m.Y' }}</span> {{ price.site }}</li>
+                                    {% endfor %}
                                 </ul>
                             </li>
                         </ul>
+                        {% else %}
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>

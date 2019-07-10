@@ -30,8 +30,11 @@ def get_pagination_data(request, car_qs, page, item_on_page=10):
     if next_page > paginator.num_pages:
         next_page = False
 
-    prev_url = current_path.replace('page={}'.format(page), 'page={}'.format(page-1)) if 'page=' in current_path and page != 1 else None
-    next_url = current_path.replace('page={}'.format(page), 'page={}'.format(next_page)) if 'page=' in current_path else current_path + '&page={}'.format(next_page) if '?' in current_path else '?page={}'.format(next_page)
+    prev_url = current_path.replace('page={}'.format(page), 'page={}'.format(page-1)) \
+        if 'page=' in current_path and page != 1 else None
+    next_url = current_path.replace('page={}'.format(page), 'page={}'.format(next_page)) \
+        if 'page=' in current_path else current_path + '&page={}'.format(next_page) \
+        if '?' in current_path else '?page={}'.format(next_page)
 
     return car_list, page, prev_url, next_url
 
@@ -43,9 +46,9 @@ def get_filtered_car_qs(params, qs):
             if key == 'page':
                 pass
             elif key == 'cleared':
-                filter_data[key] = False if value == '0' else True
+                filter_data[key] = bool(value != '0')
             elif key == 'dtp':
-                filter_data[key] = False if value == '0' else True
+                filter_data[key] = bool(value != '0')
             else:
                 filter_data[key] = value
 
@@ -61,7 +64,7 @@ class HomePage(ListView):
     context_object_name = 'car_list'
 
     def get_queryset(self):
-        return Car.objects.all().order_by('-createdAt')[:5]
+        return Car.objects.filter(sold=False).order_by('-createdAt')[:5]
 
 
 class AllCarView(ListView):
@@ -124,7 +127,7 @@ def seed_db(request):
     seed_gearbox()
     seed_body()
     seed_color()
-    # seed_location()
+    seed_location()
     seed_mark()
     seed_model()
     return JsonResponse(dict(status='success'))

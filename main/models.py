@@ -107,24 +107,27 @@ class Fuel(models.Model):
 
 class SellerPhone(models.Model):
     phone = models.CharField(max_length=1024, unique=True)
+    dealer = models.BooleanField(default=False)
     is_blocked = models.BooleanField(default=False)
 
     def __str__(self):
         return self.phone
 
-    def count(self):
+    @property
+    def car_count(self):
         """Returns the number of seller’s cars"""
         return self.car_set.count()
 
+    @property
     def status(self):
         """Returns seller status"""
-        if self.count() < 20:
-            return 'Продавец'
-        return 'Перекупщик'
+        if self.car_count > 9 or self.dealer:
+            return 'Диллер'
+        return 'Продавец'
 
     @property
     def is_dealer(self):
-        if self.count() >= 10:
+        if self.car_count >= 10:
             return True
         return False
 
@@ -160,10 +163,16 @@ class Car(models.Model):
 
     class Meta:
         verbose_name_plural = 'Cars'
-        ordering = ['-last_site_updatedAt']
+        ordering = ['-createdAt']
 
     def __str__(self):
-        return '{} {}'.format(self.model.mark.name, self.model.name)
+        return '{} {}'.format(self.model.mark if self.model.mark is not None else '', self.model)
+
+    @property
+    def price_history(self):
+        if self.pricehistory_set.all().count() > 1:
+            return True
+        return False
 
 
 class PriceHistory(models.Model):
@@ -185,7 +194,7 @@ class PriceHistory(models.Model):
         return f'<PriceHistory: price={self.price}, date_set={self.date_set}>'
 
     def save(self, *args, **kwargs):
-        if self.site == 'AR' and not bool(PriceHistory.objects.filter(car=self.car, site='AR').count()):
+        if self.site == 'AR' or not bool(PriceHistory.objects.filter(car=self.car, site='AR').count()):
             self.car.price = self.price
             self.car.save()
         super().save(*args, **kwargs)
