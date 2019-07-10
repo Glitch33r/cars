@@ -9,6 +9,7 @@ import requests
 from main.models import Model, Car, SellerPhone, PriceHistory
 from parsers.choises import LOCATION, FUEL, GEARBOX
 from main.tasks import check_user_filters
+from parsers.utils import GetModel, find_same_car
 
 tz = get_current_timezone()
 
@@ -80,39 +81,44 @@ class AutoRiaInnerParse(WordsFormater):
         return saller
 
     def find_model(self, data: dict):
-        model = Model.objects.filter(
-            ria_id=data['modelId'], mark__ria_id=data['markId']).first()
-        if not model:
-            return None
-        return model
+        model_obj = GetModel(data['markNameEng'], data['modelNameEng'])
+        return model_obj.get_model_id()
 
     def set_price(self, price_int: int, car):
-        print(price_int)
         price = PriceHistory(price=price_int, date_set=timezone.now(), car=car, site='AR')
         price.save()
-        print(price)
 
-    def set_car(self, data: dict):
-        car = Car(model=self.find_model(data),
-                  gearbox_id=GEARBOX.get(self.formating(data['autoData']['gearboxName'])),
-                  location_id=LOCATION.get(self.formating(data['stateData']['regionName'])),
-                  fuel_id=FUEL.get(self.fuel_parse(data['autoData']['fuelName'])),
-                  engine=self.engine_parse(data['autoData']['fuelName']),
-                  color=None,
-                  year=data['autoData']['year'],
-                  mileage=data['autoData']['raceInt'],
-                  # price=self.set_price(data['USD']),
-                  phone=self.set_saller(data['userPhoneData']['phone']),
-                  body_id=(data['autoData'].get('bodyId')),
-                  image=data['photoData']['seoLinkF'],
-                  dtp=self.check_dtp(data['infoBarText']),
-                  sold=data['autoData']['isSold'],
-                  cleared=not bool(data['autoData']['custom']),
-                  ria_link='https://auto.ria.com' + data['linkToView'],
-                  createdAt=self.format_date(data['addDate']),
-                  updatedAt=timezone.now(),
-                  last_site_updatedAt=self.format_date(data['updateDate'])
-                  )
+    def set_car(self, data: dict) -> dict:
+        car = dict(model_id=self.find_model(data),
+                   gearbox_id=GEARBOX.get(self.formating(data['autoData']['gearboxName'])),
+                   location_id=LOCATION.get(self.formating(data['stateData']['regionName'])),
+                   fuel_id=FUEL.get(self.fuel_parse(data['autoData']['fuelName'])),
+                   engine=self.engine_parse(data['autoData']['fuelName']),
+                   color=None,
+                   year=data['autoData']['year'],
+                   mileage=data['autoData']['raceInt'],
+                   # price=self.set_price(data['USD']),
+                   seller=self.set_saller(data['userPhoneData']['phone']),
+                   body_id=(data['autoData'].get('bodyId')),
+                   image=data['photoData']['seoLinkF'],
+                   dtp=self.check_dtp(data['infoBarText']),
+                   sold=data['autoData']['isSold'],
+                   cleared=not bool(data['autoData']['custom']),
+                   ria_link='https://auto.ria.com' + data['linkToView'],
+                   createdAt=self.format_date(data['addDate']),
+                   updatedAt=timezone.now(),
+                   last_site_updatedAt=self.format_date(data['updateDate'])
+                   )
+        return car
+
+    def ar_same_car(self, car: dict, price: int):
+        car = find_same_car(car, car['model_id'], 'ar')
+        if car:
+            print(f'car updated with id {car.id}')
+            car.ria_link = car['ria_link']
+            car.updatedAt = car['updatedAt']
+            car.save()
+            self.set_price(price, car)
         return car
 
     def runner(self, start, finish):
@@ -125,11 +131,14 @@ class AutoRiaInnerParse(WordsFormater):
                 except json.decoder.JSONDecodeError:
                     time.sleep(1)
                     data = json.loads(requests.get(self.post_way.format(ids)).content)
-                car = self.set_car(data)
-                if car.model:
-                    print('car save()')
-                    car.save()
-                    self.set_price(data['USD'], car)
+                car_dict = self.set_car(data)
+                if car_dict['model_id']:
+                    same_car = self.ar_same_car(car_dict, data['USD'])
+                    if not same_car:
+                        print('car save()')
+                        car_obj = Car(**car_dict)
+                        car_obj.save()
+                        self.set_price(data['USD'], car_obj)
                 else:
                     print(f'car not save Mark:{data["markNameEng"]}, model:{data["modelNameEng"]}, link: https://auto.ria.com{data["linkToView"]}')
                     pass
@@ -160,7 +169,6 @@ class AutoRiaUpdateParse(AutoRiaInnerParse):
     def time_stack(self, updated: str):
         updated = tz.localize(datetime.datetime.strptime(updated, '%Y-%m-%d %H:%M:%S'))
         start = timezone.now() - timezone.timedelta(hours=self.hours_updater)
-        print(start, updated, timezone.now())
         updated = updated.timestamp()
         if updated > start.timestamp() and updated < timezone.now().timestamp():
             return True
@@ -170,35 +178,40 @@ class AutoRiaUpdateParse(AutoRiaInnerParse):
         pass
 
     def runner(self, start, finish):
-        count = 0
+        # count = 0
         for i in range(start, finish):
-            print('####', i)
+            print('####', start + i)
             start_data = json.loads(requests.get(self.list_posts_way.format(100, i)).content)
             for ids in start_data['result']['search_result']['ids']:
-                count += 1
-                print(count)
+                # count += 1
+                # print(count)
                 data = json.loads(requests.get(self.post_way.format(ids)).content)
                 if self.time_stack(data['updateDate']):
-                    print('good')
+                    # print('good')
                     car = Car.objects.filter(ria_link='https://auto.ria.com' + data['linkToView']).first()
                     if data['autoData']['isSold']:
-                        (car.delete, self.Noner,)[bool(car)]()
-                        print(f'delete car {data["linkToView"]}')
+                        if car:
+                            car.sold = True
+                            car.save()
+                        # (car.delete, self.Noner,)[bool(car)]()
+                        print(f'sold car {data["linkToView"]}')
                     else:
-                        print('go to <else:> where car is not sold')
+                        # print('go to <else:> where car is not sold')
                         model = self.find_model(data)
                         if model:
-                            print('model find')
+                            # print('model find')
                             if car:
                                 print(f'updates price {data["USD"]}')
                                 self.set_price(price_int=data['USD'], car=car)
                                 check_user_filters.apply_async((car.id,), update=True)
                             else:
-                                print('create car')
-                                car = self.set_car(data)
-                                car.save()
-                                self.set_price(price_int=data['USD'], car=car)
-                                check_user_filters.apply_async((car.id,))
+                                car_dict = self.set_car(data)
+                                same_car = self.ar_same_car(car_dict, data['USD'])
+                                if not same_car:
+                                    print('create car')
+                                    car_obj = Car(**car_dict)
+                                    car_obj.save()
+                                    self.set_price(data['USD'], car_obj)
                         else:
                             print('model not find')
                             pass

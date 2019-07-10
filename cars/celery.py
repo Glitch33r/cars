@@ -20,7 +20,7 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
     'update_autoRia_every_hour': {
         'task': 'parsers.tasks.upd_ria',
-        'schedule': crontab(minute=16, hour='*/2'),
+        'schedule': crontab(minute=16, hour='*/3'),
         'args': (3,)
     },
     'check_is_active_users': {

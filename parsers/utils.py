@@ -5,6 +5,7 @@ from django.utils import timezone
 
 from main.models import UserFilter, Profile, Car, Order, Mark, Model
 from main.utils import tg_send_message
+from parsers.choises import GEARBOX, FUEL, BODY
 
 
 class CheckUserFilters:
@@ -67,8 +68,25 @@ class CheckIsActiveUsers:
                 user.is_active = False
 
 
-def serialize_car(car: object):
-    print(vars(car))
+def find_same_car(data: dict, model_id: int, site: str):
+    site_dict = {'ab': 'ab_link',
+                 'ar': 'ria_link',
+                 'rst': 'rst_link',
+                 'olx': 'olx_link',
+                 'bp': 'bp_link'}
+    car = Car.objects.filter(**{
+        'model_id': model_id,
+        'fuel_id': data['fuel_id'],
+        'year': data['year'],
+        'mileage': data['mileage'],
+        'engine': data['engine'],
+        'seller': data['seller'],
+        'body_id': data['body_id'],
+        'dtp': data['dtp'],
+        'cleared': data['cleared'],
+        site_dict[site]: ''}
+    ).first()
+    return car
 
 
 class GetModel():

@@ -5,7 +5,7 @@ import requests
 from django.db.models import Q
 from django.utils.timezone import get_current_timezone
 
-from parsers.utils import GetModel
+from parsers.utils import GetModel, find_same_car
 from main.models import (
     SellerPhone,
     Car,
@@ -195,21 +195,25 @@ class Ab:
                         location = Location.objects.create(name=data['location'])
 
                     if model_id:
+                        # car = find_same_car(data, model_id)
                         car = Car.objects.filter(
                             model_id=model_id,
-                            gearbox_id=GEARBOX.get(data['gearbox']),
-                            fuel_id=FUEL.get(data['fuel']),
-                            year=data['year'],
-                            mileage=data['mileage'],
-                            engine=data['engine'],
-                            phone=data['seller'],
-                            body_id=BODY.get(data['body']),
-                            dtp=data['dtp'],
-                            cleared=data['cleared'],
+                            # gearbox_id=GEARBOX.get(data['gearbox']),
+                            # fuel_id=FUEL.get(data['fuel']),
+                            # year=data['year'],
+                            # mileage=data['mileage'],
+                            # engine=data['engine'],
+                            seller=data['seller'],
+                            # body_id=BODY.get(data['body']),
+                            # dtp=data['dtp'],
+                            # cleared=data['cleared'],
                             ab_link=''
                         ).first()
 
                         if car:
+                            print(f' ###########################################')
+                            print(f' ######car is find {car.id}############')
+                            print(f' ###########################################')
                             car.ab_link = data['ab_link']
                             car.ab_car_id = car_id
                             car.updatedAt = TZ.localize(datetime.now())
@@ -226,7 +230,7 @@ class Ab:
                                 mileage=data['mileage'],
                                 engine=data['engine'],
                                 description=data['description'],
-                                phone=data['seller'],
+                                seller=data['seller'],
                                 body_id=BODY.get(data['body']),
                                 image=data['image'],
                                 dtp=data['dtp'],
