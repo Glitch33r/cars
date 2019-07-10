@@ -91,13 +91,23 @@ class GetModel():
             mark_id = mark_obj.id if mark_obj else None
 
             if mark_id:
-                self.model = re.sub(r"(\-gruz|\-pass|\-1)$", "", self.model)
-
-                if mark_id == 22:
+                self.model = re.sub(r"^(\-gruz|\-pass|\-1)$", "", self.model)
+                
+                if mark_id == 4:
+                    self.model = re.sub(r"-4", "", self.model)
+                elif mark_id == 11:
+                    self.model = re.sub(r"rs-5", "rs5", self.model)
+                    self.model = re.sub(r"(rs-6|audi-rs-6-avant)", "rs6", self.model)
+                    self.model = re.sub(r"(audi-|-7|-2|-3|-4)", "", self.model)
+                elif mark_id == 18:
+                    self.model = re.sub(r"^(-gt|-flying-spur)$", "", self.model)
+                elif mark_id == 22:
                     self.model = re.sub(r"seriya", "series", self.model)
+                    self.model = re.sub(r"(-2|-m)", "", self.model)
                     self.model = re.sub(r"^([0-9])[0-9]{2}$", "\1-series", self.model)
                 elif mark_id == 34:
                     self.model = re.sub(r"tigo", "tiggo", self.model)
+                    self.model = re.sub(r"(-2|-3|-4|-5|-6|-7)", "", self.model)
                     self.model = re.sub(r"sweet-qq", "qq", self.model)
                     self.model = re.sub(r"^qq.+?$", "qq", self.model)
                     self.model = re.sub(r"^kimo.+?$", "kimo", self.model)
@@ -105,19 +115,28 @@ class GetModel():
                 elif mark_id == 35:
                     self.model = re.sub(r"lacetti(-variant|-hatchback|-furgon|-pick-up|-sedan)", "lacetti", self.model)
                     self.model = re.sub(r"lanos(-sens|-hatchback|-furgon|-pick-up|-sedan|-2)", "lanos", self.model)
+                    self.model = re.sub(r"(-ev|-2)", "", self.model)
                 elif mark_id == 36:
                     self.model = re.sub(r"300(c|m|s)", "300-\1", self.model)
+                    self.model = re.sub(r"(-3|-2)", "", self.model)
+                elif mark_id == 37:
+                    self.model = re.sub(r"jumper-vu", "jumper", self.model)
                 elif mark_id == 40:
-                    self.model = re.sub(r"lanos(-sens|-hatchback|-furgon|-pick-up|-sedan|-2)", "lanos", self.model)
+                    self.model = re.sub(r"(-sens|-hatchback|-furgon|-pick-up|-sedan|-2|-3)", "", self.model)
+                elif mark_id == 51:
+                    self.model = re.sub(r"-2", "", self.model)
                 elif mark_id == 59:
                     self.model = re.sub(r"new-500", "500", self.model)
-                    self.model = re.sub(r"^500(l|x)$", "500", self.model)
+                    self.model = re.sub(r"^500(l|x|-2)$", "500", self.model)
                     self.model = re.sub(r"grandepunto", "grande-punto", self.model)
+                    self.model = re.sub(r"(-2|-abarth)", "", self.model)
                 elif mark_id == 62:
                     self.model = re.sub(r"fiesta-st", "fiesta", self.model)
                     self.model = re.sub(r"^connect$", "tourneo-connect", self.model)
                     self.model = re.sub(r"^tourneo$", "tourneo-connect", self.model)
                     self.model = re.sub(r"^connect-tourneo$", "tourneo-connect", self.model)
+                    self.model = re.sub(r"^connect-transit$", "transit-connect", self.model)
+                    self.model = re.sub(r"(-2|-3)", "", self.model)
                 elif mark_id == 67:
                     self.model = re.sub(r"emgrandx(\d)", "emgrand-x\1", self.model)
                     self.model = re.sub(r"emgrand[0-9\-].+?$", "emgrand", self.model)
@@ -130,24 +149,27 @@ class GetModel():
                     self.model = re.sub(r"^.*?accord.*?$", "accord", self.model)
                 elif mark_id == 85:
                     self.model = re.sub(r"^h$", "h1", self.model)
-                    self.model = re.sub(r"h1-starex", "h1", self.model)
+                    self.model = re.sub(r"(-starex|-7)", "", self.model)
                     self.model = re.sub(r"^h([0-9]{3})$", "h-\1", self.model)
                     self.model = re.sub(r"^.*?ix55.*?$", "ix55", self.model)
                     self.model = re.sub(r"santafe", "santa-fe", self.model)
                 elif mark_id == 86:
                     self.model = re.sub(r"^(qx|q|m|g)-([0-9]{2})$", "\1\2", self.model)
+                    self.model = re.sub(r"-series", "", self.model)
                 elif mark_id == 95:
                     self.model = re.sub(r"grandcherokee", "grand-cherokee", self.model)
                 elif mark_id == 102:
                     self.model = re.sub(r"^.*?rio.*?$", "rio", self.model)
                     self.model = re.sub(r"^.*?cerato.*?$", "cerato", self.model)
                     self.model = re.sub(r"^.*?ceed.*?$", "ceed", self.model)
+                    self.model = re.sub(r"-ev", "", self.model)
                 elif mark_id == 109:
                     self.model = re.sub(r"^rangeroversport$", "range-rover-sport", self.model)
                     self.model = re.sub(r"^rangerover$", "range-rover", self.model)
                     self.model = re.sub(r"^evoque$", "range-rover-evoque", self.model)
+                    self.model = re.sub(r"(-velar|-supercharged|-vogue)", "", self.model)
                 elif mark_id == 112:
-                    self.model = re.sub(r"\-seriya", "", self.model)
+                    self.model = re.sub(r"(-seriya|-450-h|-450d)", "", self.model)
                     self.model = re.sub(r"^(es|gs|is|ls|lx|nx|rx|sc)-[0-9]{3}$", "\1", self.model)
                 elif mark_id == 122:
                     self.model = re.sub(r"xedos6", "xedos-6", self.model)
@@ -155,18 +177,27 @@ class GetModel():
                     self.model = re.sub(r"e-2000-2200-bus", "e-series", self.model)
                     self.model = re.sub(r"cx-6", "cx-5", self.model)
                     self.model = re.sub(r"cx([0-9])", "cx-\1", self.model)
-                    self.model = re.sub(r"^6-3$", "6", self.model)
-                    self.model = re.sub(r"^3-5$", "3", self.model)
+                    self.model = re.sub(r"(-3|-5|-4)", "", self.model)
                 elif mark_id == 125:
                     self.model = re.sub(r"seriya", "class", self.model)
+                    self.model = re.sub(r"maybach-s-class-x222", "maybach", self.model)
                     self.model = re.sub(r"sprinter-\d+$", "sprinter", self.model)
                     self.model = re.sub(r"w(124|123)", "e-class", self.model)
+                    self.model = re.sub(r"(aamg-gt-4|amg(-gt|-gt-c-190|-gt-roadster-r190))", "amg", self.model)
                     self.model = re.sub(r"^(gl|glk|gls|ml|g|sl|slk|cls|clk|clc|cla|a|b|cl|s|r|v)-[0-9]{3}", "\1-class", self.model)
                     self.model = re.sub(r"^(gl|glk|gls|ml|g|sl|slk|cls|clk|clc|cla|a|b|cl|s|r|v)$", "\1-class", self.model)
                     self.model = re.sub(r"^(gl|glk|gls|ml|g|sl|slk|cls|clk|clc|cla|a|b|cl|s|r|v)\-[0-9]{2}\-amg", "\1-class", self.model)
                     self.model = re.sub(r"^(gls|s)-[0-9]{2}", "\1-class", self.model)
+                elif mark_id == 128:
+                    self.model = re.sub(r"(-2|-cross)", "couper", self.model)
+                elif mark_id == 130:
+                    self.model = re.sub(r"cooper(-hatch|-countryman|-clubman)", "couper", self.model)
+                    self.model = re.sub(r"cooper-s(-hatch|-countryman|-clubman)", "couper-s", self.model)
+                    self.model = re.sub(r"cooper-d(-hatch|-countryman|-clubman)", "couper-d", self.model)
                 elif mark_id == 131:
+                    self.model = re.sub(r"mitsubishi-l200", "l-200", self.model)
                     self.model = re.sub(r"lanser", "lancer", self.model)
+                    self.model = re.sub(r"eclipse-cross", "eclipse", self.model)
                     self.model = re.sub(r"spacestar", "space-star", self.model)
                     self.model = re.sub(r"spacewagon", "space-wagon", self.model)
                     self.model = re.sub(r"^lancer.+?$", "lancer", self.model)
@@ -176,19 +207,24 @@ class GetModel():
                     self.model = re.sub(r"almera-classic", "almera", self.model)
                     self.model = re.sub(r"skyline-gt-r", "skyline", self.model)
                     self.model = re.sub(r"nv200", "nv", self.model)
+                    self.model = re.sub(r"350-z", "350z", self.model)
                     self.model = re.sub(r"^maxima.+?$", "maxima", self.model)
                     self.model = re.sub(r"^micra.+?$", "micra", self.model)
                     self.model = re.sub(r"^qashqai.+?$", "qashqai", self.model)
                 elif mark_id == 140:
                     self.model = re.sub(r"record", "rekord", self.model)
-                    self.model = re.sub(r"(astra|vectra).+?$", "\1", self.model)
+                    self.model = re.sub(r"(astra|vectra|-2).+?$", "\1", self.model)
+                    self.model = re.sub(r"(-3|-sports-tourer)", "", self.model)
                 elif mark_id == 146:
                     self.model = re.sub(r"j5", "g-5", self.model)
+                    self.model = re.sub(r"(-tepee|-1|-2)", "", self.model)
                 elif mark_id == 151:
                     self.model = re.sub(r"^cayenne.+?$", "cayenne", self.model)
+                elif mark_id == 156:
+                    self.model = re.sub(r"-", "", self.model)
                 elif mark_id == 157:
                     self.model = re.sub(r"logan-mcv", "logan", self.model)
-                    self.model = re.sub(r"-passenger", "", self.model)
+                    self.model = re.sub(r"(-passenger|-1|-2)", "", self.model)
                     self.model = re.sub(r"^(kangoo|scenic|clio|symbol).*?$", "\1", self.model)
                 elif mark_id == 178:
                     self.model = re.sub(r"^octavia.+?$", "octavia", self.model)
@@ -199,6 +235,7 @@ class GetModel():
                     self.model = re.sub(r"grandvitara", "grand-vitara", self.model)
                 elif mark_id == 201:
                     self.model = re.sub(r"rav4", "rav-4", self.model)
+                    self.model = re.sub(r"(-hybrid|-plus)", "", self.model)
                     self.model = re.sub(r"^.*?land-cruiser-prado.*?$", "land-cruiser-prado", self.model)
                     self.model = re.sub(r"^landcruiser$", "land-cruiser", self.model)
                     self.model = re.sub(r"hilux-pick-up", "hilux", self.model)
@@ -207,7 +244,7 @@ class GetModel():
                     self.model = re.sub(r"^land-cruiser-[0-9]{3}$", "land-cruiser", self.model)
                 elif mark_id == 210:
                     self.model = re.sub(r"^t\d+\-transporter$", "transporter", self.model)
-                    self.model = re.sub(r"(-sedan|-variant|-hatchback)", "", self.model)
+                    self.model = re.sub(r"(-sedan|-variant|-hatchback|-kombi-maxi|-kasten-maxi|-kasten|-maxi|-kombi|-allspace)", "", self.model)
                     self.model = re.sub(r"passat\-b\d+$", "passat", self.model)
                     self.model = re.sub(r"camper", "transporter", self.model)
                     self.model = re.sub(r"^golf.+?$", "golf", self.model)
@@ -215,7 +252,8 @@ class GetModel():
                     self.model = re.sub(r"^cc$", "passat-cc", self.model)
                     self.model = re.sub(r"^lt-2$", "lt", self.model)
                 elif mark_id == 211:
-                    self.model = re.sub(r"(-kombi|-k)", "", self.model)
+                    self.model = re.sub(r"(-kombi|-k|volvo-|-cross-country|-2)", "", self.model)
+                    self.model = re.sub(r"s-60-cc", "s60", self.model)
                 elif mark_id == 228:
                     self.model = re.sub(r"^.*?(kalina|priora).*?$", "\1", self.model)
                     self.model = re.sub(r"^21(0[1-8]|[1-9][0-9]|099|093|09).*?$", "21\1", self.model)
@@ -225,15 +263,16 @@ class GetModel():
                     self.model = re.sub(r"^.*?pobeda.*?$", "20", self.model)
                     self.model = re.sub(r"^.*?gazel.*?$", "gazel", self.model)
                     self.model = re.sub(r"24-10-volga", "24", self.model)
-                    self.model = re.sub(r"12-zim", "12", self.model)
+                    self.model = re.sub(r"(-zim|lada-)", "", self.model)
                     self.model = re.sub(r"2790", "gazel", self.model)
-                    self.model = re.sub(r"^(21|23|24|24[0-9]{2}|3110[0-9]?|3109)$", "volga", self.model)
+                    self.model = re.sub(r"^(21|23|24|24[0-9]{2}|3110[0-9]?|3109|(31029|24|3110|31105|21)-volga)$", "volga", self.model)
                 elif mark_id == 236:
                     self.model = re.sub(r"^(1102|1140).*?$", "tavriya", self.model)
                     self.model = re.sub(r"^(1105|1125).*?$", "dana", self.model)
                     self.model = re.sub(r"^1103.*?$", "slavuta", self.model)
                     self.model = re.sub(r"(tavria-pickup|tavria)", "tavriya", self.model)
-                    self.model = re.sub(r"lanos(-sens|-hatchback|-furgon|-pick-up|-pickup|-sedan)", "lanos", self.model)
+                    self.model = re.sub(r"lanos(-sens|-hatchback|-furgon|-pick-up|-pickup|-sedan|-cargo)", "lanos", self.model)
+                    self.model = re.sub(r"-cargo", "", self.model)
                 elif mark_id == 240:
                     self.model = re.sub(r"^(21|27)([0-9]{2}).*?$", "\1\2", self.model)
                 elif mark_id == 242 and self.model == '2125':
@@ -241,6 +280,7 @@ class GetModel():
                 elif mark_id == 242:
                     self.model = re.sub(r"^.*?2141.*?$", "2141", self.model)
                     self.model = re.sub(r"^.*?2135.*?$", "2335", self.model)
+                    self.model = re.sub(r"^-2$", "", self.model)
                 elif mark_id == 254:
                     self.model = re.sub(r"^.*?hunter.*?$", "hunter", self.model)
                     self.model = re.sub(r"^.*?patriot.*?$", "patriot", self.model)
@@ -252,4 +292,9 @@ class GetModel():
                     return model_id
 
         print('Not save {} {}'.format(self.mark, self.model))
+
+        with open('not_saved.json', 'a+', encoding='utf8') as f:
+            import json
+            json.dump({'mark': self.mark, 'model': self.model}, f, ensure_ascii=False)
+            f.write(',\n')
         return None

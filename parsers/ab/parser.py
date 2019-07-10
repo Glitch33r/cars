@@ -115,7 +115,7 @@ class Ab:
                 data['mark'] = json_data['make']['slug'].lower() if json_data['make']['slug'] else None
                 data['mark_title'] = json_data['make']['title'] \
                     if json_data['make']['title'] else None
-                data['model'] = json_data['model']['slug'].lower() if json_data['model']['slug'] else None
+                data['model'] = json_data['model']['slug'].lower().replace('klass', 'class') if json_data['model']['slug'] else None
                 data['model_title'] = json_data['model']['title'] \
                     if json_data['model']['title'] else None
 
@@ -167,23 +167,6 @@ class Ab:
                 car = Car.objects.filter(ab_link=data['ab_link']).first()
 
                 if not car:
-                    # if data['mark'] is None:
-                    #     mark = None
-                    # else:
-                    #     mark = Mark.objects.filter(eng=data['mark']).first()
-                    #     if not mark:
-                    #         mark = Mark.objects.create(eng=data['mark'], name=data['mark_title'])
-
-                    # if data['model'] is None:
-                    #     model = None
-                    # else:
-                    #     model = Model.objects.filter(eng=data['model'], mark=mark).first()
-                    #     if not model:
-                    #         model = Model.objects.create(
-                    #             eng=data['model'],
-                    #             name=data['model_title'],
-                    #             mark=mark)
-
                     if data['mark'] is not None and data['model'] is not None:
                         obj = GetModel(data['mark'], data['model'])
                         model_id = obj.get_model_id()
@@ -237,6 +220,8 @@ class Ab:
                                 ab_car_id=car_id
                             )
                         PriceHistory.objects.create(car=car, price=data['price'], site='AB')
+                    else:
+                        print('>>>>>>>>>>>>>>>>>>>>>>{} {}'.format(data['mark'], data['ab_link']))
         return print('FINISHED')
 
     def update(self, car):
