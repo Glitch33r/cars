@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from django.views import View
 from main.models import Car
 from parsers.utils import CheckUserFilters
-from parsers.auto_ria.parser import AutoRiaInnerParse
+from parsers.auto_ria.parser import AutoRiaInnerParse, AutoRiaUpdateParse
 
 
 class AutoRia(View):
@@ -10,7 +10,7 @@ class AutoRia(View):
     def get(self, req):
         print('hi')
         print(Car.objects.count())
-        AutoRiaInnerParse()
+        # AutoRiaInnerParse()
         # upd_ria.apply_async(countdown=5)
         # r = mul.delay(12, 43)
         # print('hi## hi')
@@ -22,6 +22,6 @@ class AutoRia(View):
         # CheckUserFilters(car.id, update=True)
         # AutoRiaUpdateParse()
         # print(r.get())
-        # AutoRiaUpdateParse()
+        # AutoRiaUpdateParse(3)
         # inner_ria.apply_async(countdown=2)
         return JsonResponse(dict(status='success'))
