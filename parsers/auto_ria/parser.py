@@ -9,7 +9,7 @@ import requests
 from main.models import Model, Car, SellerPhone, PriceHistory
 from parsers.choises import LOCATION, FUEL, GEARBOX
 from main.tasks import check_user_filters
-from parsers.utils import GetModel, find_same_car
+from parsers.utils import get_model_id, find_same_car
 
 tz = get_current_timezone()
 
@@ -35,8 +35,8 @@ class WordsFormater:
         for liter in word:
             if liter not in integers:
                 response = response.replace(liter, '')
-        if response[:3] == '380':
-            return response[2:]
+        if response[:3] != '380':
+            response = f'38{response}'
         return response
 
     def check_dtp(self, word: str):
@@ -81,8 +81,7 @@ class AutoRiaInnerParse(WordsFormater):
         return saller
 
     def find_model(self, data: dict):
-        model_obj = GetModel(data['markNameEng'], data['modelNameEng'])
-        return model_obj.get_model_id()
+        return get_model_id(data['markNameEng'], data['modelNameEng'])
 
     def set_price(self, price_int: int, car):
         price = PriceHistory(price=price_int, date_set=timezone.now(), car=car, site='AR')
