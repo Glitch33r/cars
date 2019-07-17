@@ -9,7 +9,7 @@ import requests
 from main.models import Model, Car, SellerPhone, PriceHistory
 from parsers.choises import LOCATION, FUEL, GEARBOX
 from main.tasks import check_user_filters
-from parsers.utils import GetModel, find_same_car
+from parsers.utils import get_model_id, find_same_car
 
 tz = get_current_timezone()
 
@@ -29,6 +29,14 @@ class WordsFormater:
     def formating(self, word: str):
         return word.lower().replace(' ', '')
 
+    # @staticmethod
+    # def format_phone(phone):
+    #     """Returns formatted phone number"""
+    #     phone = phone.replace('+', '').replace(' ', '').replace('-', '')
+    #     if len(phone) != 12:
+    #         phone = '380' + phone[-9:]
+    #     return phone
+
     def format_phone(self, word: str):
         integers = '0123456789'
         response = word
@@ -36,8 +44,11 @@ class WordsFormater:
             if liter not in integers:
                 response = response.replace(liter, '')
         if response[:3] == '380':
-            return response[2:]
-        return response
+            print(response)
+            return response
+            # return response[2:]
+        print(f'38{response}')
+        return f'38{response}'
 
     def check_dtp(self, word: str):
         exept = 'После ДТП'
@@ -56,9 +67,7 @@ class AutoRiaInnerParse(WordsFormater):
     post_way = 'https://auto.ria.com/demo/bu/searchPage/v2/view/auto/{}/?lang_id=2'
 
     def __init__(self):
-        print('Hi, I\'m started')
         self.first_data = json.loads(requests.get(self.list_posts_way.format(10, 0)).content)
-        print(self.first_data['result']['search_result']['count'] // 100)
         t1 = threading.Thread(target=self.runner, args=(0, 500))
         t2 = threading.Thread(target=self.runner, args=(501, 1000))
         t3 = threading.Thread(target=self.runner, args=(1001, 1500))
@@ -81,8 +90,8 @@ class AutoRiaInnerParse(WordsFormater):
         return saller
 
     def find_model(self, data: dict):
-        model_obj = GetModel(data['markNameEng'], data['modelNameEng'])
-        return model_obj.get_model_id()
+        return get_model_id(data['markNameEng'], data['modelNameEng'])
+        # model_obj.get_model_id()
 
     def set_price(self, price_int: int, car):
         price = PriceHistory(price=price_int, date_set=timezone.now(), car=car, site='AR')
@@ -97,7 +106,6 @@ class AutoRiaInnerParse(WordsFormater):
                    color=None,
                    year=data['autoData']['year'],
                    mileage=data['autoData']['raceInt'],
-                   # price=self.set_price(data['USD']),
                    seller=self.set_saller(data['userPhoneData']['phone']),
                    body_id=(data['autoData'].get('bodyId')),
                    image=data['photoData']['seoLinkF'],
@@ -114,7 +122,6 @@ class AutoRiaInnerParse(WordsFormater):
     def ar_same_car(self, car: dict, price: int):
         car = find_same_car(car, car['model_id'], 'ar')
         if car:
-            print(f'car updated with id {car.id}')
             car.ria_link = car['ria_link']
             car.updatedAt = car['updatedAt']
             car.save()
@@ -123,7 +130,6 @@ class AutoRiaInnerParse(WordsFormater):
 
     def runner(self, start, finish):
         for i in range(start, finish):
-            print('####', i)
             start_data = json.loads(requests.get(self.list_posts_way.format(100, i)).content)
             for ids in start_data['result']['search_result']['ids']:
                 try:
@@ -140,7 +146,9 @@ class AutoRiaInnerParse(WordsFormater):
                         car_obj.save()
                         self.set_price(data['USD'], car_obj)
                 else:
-                    print(f'car not save Mark:{data["markNameEng"]}, model:{data["modelNameEng"]}, link: https://auto.ria.com{data["linkToView"]}')
+                    print('car not save Mark:{}, model:{}, link: https://auto.ria.com{}'.format(
+                        data["markNameEng"], data[
+                            "modelNameEng"], data["linkToView"]))
                     pass
 
 
@@ -152,7 +160,6 @@ class AutoRiaUpdateParse(AutoRiaInnerParse):
         # count = 0
         self.hours_updater = hours_updater
         first_data = json.loads(requests.get(self.list_posts_way.format(10, 0)).content)
-        print(first_data['result']['search_result']['count'] // 100)
         t1 = threading.Thread(target=self.runner, args=(0, 500))
         t2 = threading.Thread(target=self.runner, args=(501, 1000))
         t3 = threading.Thread(target=self.runner, args=(1001, 1500))
@@ -174,37 +181,29 @@ class AutoRiaUpdateParse(AutoRiaInnerParse):
             return True
         return False
 
-    def Noner(self):
-        pass
-
     def runner(self, start, finish):
-        # count = 0
         for i in range(start, finish):
             print('####', start + i)
             start_data = json.loads(requests.get(self.list_posts_way.format(100, i)).content)
             for ids in start_data['result']['search_result']['ids']:
-                # count += 1
-                # print(count)
                 data = json.loads(requests.get(self.post_way.format(ids)).content)
                 if self.time_stack(data['updateDate']):
-                    # print('good')
                     car = Car.objects.filter(ria_link='https://auto.ria.com' + data['linkToView']).first()
                     if data['autoData']['isSold']:
                         if car:
                             car.sold = True
                             car.save()
-                        # (car.delete, self.Noner,)[bool(car)]()
                         print(f'sold car {data["linkToView"]}')
                     else:
-                        # print('go to <else:> where car is not sold')
                         model = self.find_model(data)
                         if model:
-                            # print('model find')
-                            if car:
-                                print(f'updates price {data["USD"]}')
+                            # if car:
+                            if car and data["USD"] != car.price:
+                                print(f'updates price {data["USD"]}, mark {data["markName"]}')
                                 self.set_price(price_int=data['USD'], car=car)
-                                check_user_filters.apply_async((car.id,), update=True)
-                            else:
+                                check_user_filters.apply_async(args=(car.id,), kwargs={'update': True})
+                                # check_user_filters.apply_async((car.id,), update=True)
+                            elif car is None:
                                 car_dict = self.set_car(data)
                                 same_car = self.ar_same_car(car_dict, data['USD'])
                                 if not same_car:
@@ -212,6 +211,7 @@ class AutoRiaUpdateParse(AutoRiaInnerParse):
                                     car_obj = Car(**car_dict)
                                     car_obj.save()
                                     self.set_price(data['USD'], car_obj)
+                                    check_user_filters.apply_async(args=(car_obj.id,), kwargs={'update': False})
                         else:
                             print('model not find')
                             pass

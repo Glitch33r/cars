@@ -1,9 +1,8 @@
 from datetime import datetime
+from threading import Thread
 
-from django.utils import timezone
-import telebot
-from .models import Telegram
-from main.models import PriceHistory
+from parsers.ab.parser import Ab
+
 
 
 def serialize_cars(cars):
@@ -36,17 +35,21 @@ def serialize_cars(cars):
 #     print(car_dict)
 
 
-def get_chat(profile):
-    telegram = Telegram.objects.filter(user=profile.user).first()
-    if telegram:
-        return int(telegram.chat_id)
-    return False
 
 
-def tg_send_message(profile, car, update=False):
-    bot = telebot.TeleBot('769710155:AAEzNRKxFG8-Jl5fETdf2WS9Wt2c1hkhzMw')
-    message = ['появилась новая машина {} {} с ценой {}', '{} {} обновилась с ценой {}']
-    chat = get_chat(profile)
-    if chat:
-        message_send = message[bool(update)].format(car.model.mark.name, car.model.name, car.price)
-        bot.send_message(chat, message_send)
+
+def init_ab_utils():
+    ab_obj = Ab()
+    thread_1 = Thread(target=ab_obj.parse, args=(1, 100))
+    thread_2 = Thread(target=ab_obj.parse, args=(101, 200))
+    thread_3 = Thread(target=ab_obj.parse, args=(201, 300))
+    # thread_4 = Thread(target=ab_obj.parse, args=(301, 400))
+    # thread_5 = Thread(target=ab_obj.parse, args=(401, 500))
+    thread_1.start()
+    thread_2.start()
+    thread_3.start()
+    # thread_4.start()
+    # thread_5.start()
+    thread_1.join()
+    thread_2.join()
+    thread_3.join()

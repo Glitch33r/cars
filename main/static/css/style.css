@@ -39,6 +39,13 @@ i {
   width: 100%;
   z-index: 999999;
 }
+.header_wrp a{
+    color: #606060;
+}
+.header_wrp li:hover a{
+  color: #3D87C6;
+  text-decoration: none;
+}
 .shadow {
   -webkit-box-shadow: 0px 7px 17px -2px #757575;
   -moz-box-shadow: 0px 7px 17px -2px #757575;

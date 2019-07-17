@@ -3,25 +3,18 @@ from django.views import View
 from main.models import Car
 from parsers.utils import CheckUserFilters
 from parsers.auto_ria.parser import AutoRiaInnerParse, AutoRiaUpdateParse
+from main.tasks import check_user_filters
+from parsers.tasks import check_is_active_users
 
 
 class AutoRia(View):
 
     def get(self, req):
-        print('hi')
-        print(Car.objects.count())
-        # AutoRiaInnerParse()
-        # upd_ria.apply_async(countdown=5)
-        # r = mul.delay(12, 43)
-        # print('hi## hi')
-        # AutoRiaInnerParse()
-
-        # car = Car.objects.filter(id=3650).first()
-        # celery_serialize_car(car)
-        # check_user_filters.apply_async((car.id,), update=True)
-        # CheckUserFilters(car.id, update=True)
-        # AutoRiaUpdateParse()
-        # print(r.get())
-        # AutoRiaUpdateParse(3)
-        # inner_ria.apply_async(countdown=2)
+        # print(Car.objects.count())
+        # print(Car.objects.exclude(ria_link='').exclude(ab_link='').count())
+        AutoRiaInnerParse()
+        # check_is_active_users.apply_async(queue='normal')
+        # car = Car.objects.filter(id=37173).first()
+        # check_user_filters.delay(car.id, update=True)
+        print('done')
         return JsonResponse(dict(status='success'))

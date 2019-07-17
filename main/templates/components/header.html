@@ -2,10 +2,14 @@
     <div class="header_wrp">
         <div class="logo">
             <span><i class="fas fa-bars"></i></span>
-            <a href="{% url 'home' %}"><div></div></a>
+            <a href="{% url 'home' %}">
+                <div></div>
+            </a>
         </div>
         <ul>
-            <li>Автомобили</li>
+
+                <a href="{% url 'all-car' %}"><li>Автомобили</li></a>
+
             <li>Проверить авто</li>
             <li>Подробнее про 2Cars</li>
             <li>Все для авто</li>
@@ -20,8 +24,8 @@
             <div>
                 <i class="fa fa-bell" aria-hidden="true"></i>
             </div>
-            <div class="photo">
-            </div>
+            <a style="display: block;float: left;margin-left: 1rem;margin-top: 0.2rem;" class="photo" href="{% url 'profile' %}">
+            </a>
         </div>
     </div>
 </div>

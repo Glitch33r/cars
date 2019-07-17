@@ -39,7 +39,7 @@ def get_pagination_data(request, car_qs, page, item_on_page=10):
     return car_list, page, prev_url, next_url
 
 
-def get_filtered_car_qs(params, qs):
+def filter_qs(params):
     filter_data = dict()
     for key, value in params.items():
         if value != '':
@@ -51,6 +51,23 @@ def get_filtered_car_qs(params, qs):
                 filter_data[key] = bool(value != '0')
             else:
                 filter_data[key] = value
+    return filter_data
+
+
+def get_filtered_car_qs(params, qs):
+
+    filter_data = filter_qs(params)
+    # filter_data = dict()
+    # for key, value in params.items():
+    #     if value != '':
+    #         if key == 'page':
+    #             pass
+    #         elif key == 'cleared':
+    #             filter_data[key] = bool(value != '0')
+    #         elif key == 'dtp':
+    #             filter_data[key] = bool(value != '0')
+    #         else:
+    #             filter_data[key] = value
 
     try:
         car_qs = qs.filter(**filter_data)

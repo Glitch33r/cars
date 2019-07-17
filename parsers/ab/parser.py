@@ -5,7 +5,7 @@ import requests
 from django.db.models import Q
 from django.utils.timezone import get_current_timezone
 
-from parsers.utils import GetModel, find_same_car
+from parsers.utils import get_model_id
 from main.models import (
     SellerPhone,
     Car,
@@ -185,8 +185,7 @@ class Ab:
                     #             mark=mark)
 
                     if data['mark'] is not None and data['model'] is not None:
-                        obj = GetModel(data['mark'], data['model'])
-                        model_id = obj.get_model_id()
+                        model_id = get_model_id(data['mark'], data['model'])
                     else:
                         model_id = None
 

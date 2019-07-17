@@ -17,16 +17,51 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 # Load task modules from all registered Django app configs.
 app.autodiscover_tasks()
 
+# app.worker_max_memory_per_child = 50000
+#
+# CELERY_QUEUES = (
+#     Queue('high', Exchange('high'), routing_key='high'),
+#     Queue('normal', Exchange('normal'), routing_key='normal'),
+#     Queue('low', Exchange('low'), routing_key='low'),
+# )
+# CELERY_DEFAULT_QUEUE = 'normal'
+# CELERY_DEFAULT_EXCHANGE = 'normal'
+# CELERY_DEFAULT_ROUTING_KEY = 'normal'
+# CELERY_ROUTES = {
+#     # -- HIGH PRIORITY QUEUE -- #
+#     'myapp.tasks.check_payment_status': {'queue': 'high'},
+#     # -- LOW PRIORITY QUEUE -- #
+#     'myapp.tasks.close_session': {'queue': 'low'},
+# }
+
 app.conf.beat_schedule = {
     'update_autoRia_every_hour': {
         'task': 'parsers.tasks.upd_ria',
-        'schedule': crontab(minute=16, hour='*/3'),
-        'args': (3,)
+        'schedule': crontab(minute=30, hour='*/3'),
+        'args': (3,),
+        # 'options': {"expires": 10799, 'max_retries': 0}
+
+    },
+    'init_ab_every_hour': {
+        'task': 'parsers.tasks.inner_ab',
+        'schedule': crontab(minute=1, hour='*/2'),
+        # 'args': (3,),
+        # 'options': {"expires": 10799, 'max_retries': 0}
+
+    },
+    'update_ab_every_hour': {
+        'task': 'parsers.tasks.inner_ab',
+        'schedule': crontab(minute=49, hour='*'),
+        # 'args': (3,),
+        'options': {"queue": 'normal'}
+
     },
     'check_is_active_users': {
         'task': 'parsers.tasks.check_is_active_users',
-        'schedule': crontab(hour=0, minute=0)
+        'schedule': crontab(hour=0, minute=0),
         # 'args': (2,)
+        # 'kwargs': {"options": {"expires": 10}}
+        # 'options': {"expires": 10, 'max_retries': 1}
     },
 }
 
