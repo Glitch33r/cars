@@ -14,7 +14,7 @@ class Besplatka:
     def phone_format(phone):
         phone = '38' + phone if phone[0:2] != '38' and phone[0:3] != '+38' else phone
         phone = '+' + phone if phone[0:1] != '+' else phone
-        return phone
+        return phone[3:]
 
     def get_count_pages(self):
         url = 'https://besplatka.ua/transport/legkovye-avtomobili'
@@ -59,10 +59,10 @@ class Besplatka:
             headers = {'referer': url, 'x-csrf-token': csrf, 'x-requested-with': 'XMLHttpRequest'}
             phones = requests.post('https://besplatka.ua/message/show-phone', data={'id': car_id},
                                    headers=headers).text.split(',')
-            car_info['phones'] = [
+            car_info['phones'] = ', '.join([
                 self.phone_format(x.replace(" ", "").replace("-", "").replace("(", "").replace(")", ""))
                 for x in phones if x
-            ]
+            ])
             # Основные параметры по мнению бесплатки
             properties = body.xpath('//div[@class="mes-properties"]/div/div[@class="property"]')
             for prop in properties:

@@ -29,14 +29,6 @@ class WordsFormater:
     def formating(self, word: str):
         return word.lower().replace(' ', '')
 
-    # @staticmethod
-    # def format_phone(phone):
-    #     """Returns formatted phone number"""
-    #     phone = phone.replace('+', '').replace(' ', '').replace('-', '')
-    #     if len(phone) != 12:
-    #         phone = '380' + phone[-9:]
-    #     return phone
-
     def format_phone(self, word: str):
         integers = '0123456789'
         response = word
@@ -46,7 +38,6 @@ class WordsFormater:
         if response[:3] != '380':
             response = f'38{response}'
         return response
-
 
     def check_dtp(self, word: str):
         exept = 'После ДТП'
@@ -180,7 +171,6 @@ class AutoRiaUpdateParse(AutoRiaInnerParse):
 
     def runner(self, start, finish):
         for i in range(start, finish):
-            print('####', start + i)
             start_data = json.loads(requests.get(self.list_posts_way.format(100, i)).content)
             for ids in start_data['result']['search_result']['ids']:
                 data = json.loads(requests.get(self.post_way.format(ids)).content)
@@ -194,12 +184,10 @@ class AutoRiaUpdateParse(AutoRiaInnerParse):
                     else:
                         model = self.find_model(data)
                         if model:
-                            # if car:
                             if car and data["USD"] != car.price:
                                 print(f'updates price {data["USD"]}, mark {data["markName"]}')
                                 self.set_price(price_int=data['USD'], car=car)
                                 check_user_filters.apply_async(args=(car.id,), kwargs={'update': True})
-                                # check_user_filters.apply_async((car.id,), update=True)
                             elif car is None:
                                 car_dict = self.set_car(data)
                                 same_car = self.ar_same_car(car_dict, data['USD'])
