@@ -1,14 +1,58 @@
 import requests
+from django.db.models import Q
+from django.utils import timezone
 from lxml import html
 from pprint import pprint
 import re
 
+from main.models import SellerPhone
+from parsers.auto_ria.parser import WordsFormater
+from parsers.choises import GEARBOX_ab, LOCATION, BODY_ab, FUEL_ab
+from parsers.utils import get_model_id
 
-class Besplatka:
+
+class Besplatka(WordsFormater):
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
     }
+    body = []
+
+    def set_saller(self, phones):
+        query = Q()
+        for phone in phones:
+            query = query | Q(phone__contains=phone)
+        seller = SellerPhone.objects.filter(query).first()
+        return seller
+
+    def set_car(self, car_dict: dict):
+        car = dict(models_id=get_model_id(car_dict['mark'], car_dict['model']),
+                   gearbox_id=GEARBOX_ab.get(car_dict['gearbox']),
+                   location_id=LOCATION.get(
+                       car_dict['location']),
+                   fuel_id=FUEL_ab.get(
+                       car_dict['fuel']),
+                   engine=self.engine_parse(
+                       car_dict['autoData']['fuelName']),
+                   color=None,
+                   year=car_dict['autoData']['year'],
+                   mileage=car_dict['autoData'][
+                       'raceInt'],
+                   seller=self.set_saller(
+                       car_dict['userPhoneData']['phone']),
+                   body_id=(BODY_ab.get(car_dict['body'])),
+                   image=
+                   car_dict['photoData']['seoLinkF'],
+                   dtp=self.check_dtp(car_dict['infoBarText']),
+                   sold=car_dict['autoData']['isSold'],
+                   cleared=not bool(car_dict['autoData']['custom']),
+                   ria_link='https://auto.ria.com' + car_dict['linkToView'],
+                   createdAt=self.format_date(car_dict['addDate']),
+                   updatedAt=timezone.now(),
+                   last_site_updatedAt=self.format_date(
+                       car_dict['updateDate'])
+                   )
+        return None
 
     @staticmethod
     def phone_format(phone):
@@ -40,7 +84,7 @@ class Besplatka:
         car_info = {'sold': 0, 'dtp': 0, 'car_key': url.split('-')[-1], 'url': url}
 
         if req.status_code != requests.codes.ok:
-            print(req.status_code)
+            # print(req.status_code)
             car_info['sold'] = 1
 
         # Получаем цену по микроразметке
@@ -59,10 +103,10 @@ class Besplatka:
             headers = {'referer': url, 'x-csrf-token': csrf, 'x-requested-with': 'XMLHttpRequest'}
             phones = requests.post('https://besplatka.ua/message/show-phone', data={'id': car_id},
                                    headers=headers).text.split(',')
-            car_info['phones'] = ', '.join([
+            car_info['phones'] = [
                 self.phone_format(x.replace(" ", "").replace("-", "").replace("(", "").replace(")", ""))
                 for x in phones if x
-            ])
+            ]
             # Основные параметры по мнению бесплатки
             properties = body.xpath('//div[@class="mes-properties"]/div/div[@class="property"]')
             for prop in properties:
@@ -110,7 +154,8 @@ class Besplatka:
                 '//ul[contains(@class, "ms-slider")]/li/a/*[self::div or self::span]/img/@data-src'
             )
 
-            pprint(car_info)
-            return car_info
-
-        return None
+            pprint(car_info['gearbox'])
+            # if car_info['body'] in self.body:
+                # self.body.append(car_info['body'])
+                # return car_info
+            return None
