@@ -1,8 +1,12 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import *
+from main.models import Car, SellerPhone, Profile, Location
 
+
+class CarInline(admin.TabularInline):
+    model = Car
+    extra = 0
 
 @admin.register(Car)
 class CarAdmin(admin.ModelAdmin):
@@ -24,6 +28,7 @@ class CarAdmin(admin.ModelAdmin):
 @admin.register(SellerPhone)
 class SellerPhoneAdmin(admin.ModelAdmin):
     list_display = ['phone', 'dealer']
+    inlines = [CarInline]
 
 
 admin.site.register(Profile)

@@ -5,7 +5,9 @@ import requests
 from django.db.models import Q
 from django.utils.timezone import get_current_timezone
 
-from parsers.utils import get_model_id
+
+from parsers.utils import get_model_id, find_same_car
+
 from main.models import (
     SellerPhone,
     Car,
@@ -110,12 +112,12 @@ class Ab:
                         data['price'] = int(price['value'])
 
                 data['seller_name'] = json_data['contact_name']
-                data['location'] = json_data['location']['title'].lower()
+                data['location'] = json_data['location']['title'].lower() if json_data['location'] else None
 
                 data['mark'] = json_data['make']['slug'].lower() if json_data['make']['slug'] else None
                 data['mark_title'] = json_data['make']['title'] \
                     if json_data['make']['title'] else None
-                data['model'] = json_data['model']['slug'].lower() if json_data['model']['slug'] else None
+                data['model'] = json_data['model']['slug'].lower().replace('klass', 'class') if json_data['model']['slug'] else None
                 data['model_title'] = json_data['model']['title'] \
                     if json_data['model']['title'] else None
 
@@ -164,82 +166,71 @@ class Ab:
             for car_id in self.get_car_ids_by_page(page):
                 data = self.get_info_by_id(car_id)
 
-                car = Car.objects.filter(ab_link=data['ab_link']).first()
+                if not data['sold']:
+                    car = Car.objects.filter(ab_link=data['ab_link']).first()
 
-                if not car:
-                    # if data['mark'] is None:
-                    #     mark = None
-                    # else:
-                    #     mark = Mark.objects.filter(eng=data['mark']).first()
-                    #     if not mark:
-                    #         mark = Mark.objects.create(eng=data['mark'], name=data['mark_title'])
+                    if not car:
+                        if data['mark'] is not None and data['model'] is not None:
+                            model_id = get_model_id(data['mark'], data['model'])
+                            if model_id is None:
+                                print('{} {} id {}'.format(data['mark'], data['model'], model_id))
 
-                    # if data['model'] is None:
-                    #     model = None
-                    # else:
-                    #     model = Model.objects.filter(eng=data['model'], mark=mark).first()
-                    #     if not model:
-                    #         model = Model.objects.create(
-                    #             eng=data['model'],
-                    #             name=data['model_title'],
-                    #             mark=mark)
-
-                    if data['mark'] is not None and data['model'] is not None:
-                        model_id = get_model_id(data['mark'], data['model'])
-                    else:
-                        model_id = None
-
-                    location = Location.objects.filter(name=data['location']).first()
-                    if not location:
-                        location = Location.objects.create(name=data['location'])
-
-                    if model_id:
-                        # car = find_same_car(data, model_id)
-                        car = Car.objects.filter(
-                            model_id=model_id,
-                            # gearbox_id=GEARBOX.get(data['gearbox']),
-                            # fuel_id=FUEL.get(data['fuel']),
-                            # year=data['year'],
-                            # mileage=data['mileage'],
-                            # engine=data['engine'],
-                            seller=data['seller'],
-                            # body_id=BODY.get(data['body']),
-                            # dtp=data['dtp'],
-                            # cleared=data['cleared'],
-                            ab_link=''
-                        ).first()
-
-                        if car:
-                            print(f' ###########################################')
-                            print(f' ######car is find {car.id}############')
-                            print(f' ###########################################')
-                            car.ab_link = data['ab_link']
-                            car.ab_car_id = car_id
-                            car.updatedAt = TZ.localize(datetime.now())
-                            car.save()
-                            print('Car exists, add ab_link')
                         else:
-                            car = Car.objects.create(
+                            model_id = None
+
+                        location = Location.objects.filter(name=data['location']).first()
+                        if not location:
+                            location = Location.objects.create(name=data['location'])
+
+                        if model_id:
+                            # car = find_same_car(data, model_id)
+                            car = Car.objects.filter(
                                 model_id=model_id,
                                 gearbox_id=GEARBOX.get(data['gearbox']),
-                                location=location,
                                 fuel_id=FUEL.get(data['fuel']),
-                                color_id=COLOR.get(data['color']),
                                 year=data['year'],
                                 mileage=data['mileage'],
                                 engine=data['engine'],
-                                description=data['description'],
                                 seller=data['seller'],
                                 body_id=BODY.get(data['body']),
-                                image=data['image'],
                                 dtp=data['dtp'],
                                 cleared=data['cleared'],
-                                last_site_updatedAt=data['last_site_updatedAt'],
-                                updatedAt=TZ.localize(datetime.now()),
-                                ab_link=data['ab_link'],
-                                ab_car_id=car_id
-                            )
-                        PriceHistory.objects.create(car=car, price=data['price'], site='AB')
+                                ab_link=''
+                            ).first()
+
+                            if car:
+                                print(f' ###########################################')
+                                print(f' ###########car is find {car.id}############')
+                                print(f' ###########################################')
+                                car.ab_link = data['ab_link']
+                                car.ab_car_id = car_id
+                                car.updatedAt = TZ.localize(datetime.now())
+                                car.save()
+                                print('Car exists, add ab_link')
+                            else:
+                                car = Car.objects.create(
+                                    model_id=model_id,
+                                    gearbox_id=GEARBOX.get(data['gearbox']),
+                                    location=location,
+                                    fuel_id=FUEL.get(data['fuel']),
+                                    color_id=COLOR.get(data['color']),
+                                    year=data['year'],
+                                    mileage=data['mileage'],
+                                    engine=data['engine'],
+                                    description=data['description'],
+                                    seller=data['seller'],
+                                    body_id=BODY.get(data['body']),
+                                    image=data['image'],
+                                    dtp=data['dtp'],
+                                    cleared=data['cleared'],
+                                    last_site_updatedAt=data['last_site_updatedAt'],
+                                    updatedAt=TZ.localize(datetime.now()),
+                                    ab_link=data['ab_link'],
+                                    ab_car_id=car_id
+                                )
+                            PriceHistory.objects.create(car=car, price=data['price'], site='AB')
+                        else:
+                            print('>>>>>>>>>>>>>>>>>>>>>>{} {}'.format(data['mark'], data['ab_link']))
         return print('FINISHED')
 
     def update(self, car):
@@ -248,7 +239,7 @@ class Ab:
         if data['sold'] is True:
             car.sold = True
             car.save()
-            print('Car sold')
+            # print('Car sold')
         else:
             if car.price != data['price']:
                 PriceHistory.objects.create(car=car, price=data['price'], site='AB')
@@ -256,5 +247,5 @@ class Ab:
                 car.last_site_updatedAt = data['last_site_updatedAt']
             car.updatedAt = TZ.localize(datetime.now())
             car.save()
-            print('Car updated')
+            # print('Car updated')
         return
