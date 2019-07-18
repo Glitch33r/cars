@@ -216,3 +216,19 @@
     </div>
 </section>
 {% endblock content %}
+{% block scripts %}
+    <script type="text/javascript">
+        $('#filter_brand').change(function () {
+            let mark_id = $(this).val()
+            console.log(mark_id)
+            let url_path = '{{ url_post }}' + '/' + mark_id
+            $.get(url_path, function (data) {
+                console.log(data)
+                $('#filter_model').html('<option selected value="">Не выбрано</option>')
+                data.models.forEach(function (element) {
+                    $('#filter_model').append('<option value="' + element.id + '">' + element.name + '</option>')
+                })
+            })
+        })
+    </script>
+{% endblock scripts %}

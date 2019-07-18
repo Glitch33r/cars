@@ -95,11 +95,14 @@ class AllCarView(ListView):
 
         car_list, page, prev_url, next_url = get_pagination_data(request, car_qs, page)
 
+        url_post = f'http{"s" if request.is_secure() else ""}://{request.META["HTTP_HOST"]}/auth/models'
+
         context = {
             'car_list': car_list,
             'page': page,
             'prev_url': prev_url,
-            'next_url': next_url
+            'next_url': next_url,
+            'url_post': url_post
         }
         return render(request, self.template_name, context)
 

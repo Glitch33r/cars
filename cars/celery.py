@@ -39,22 +39,23 @@ app.conf.beat_schedule = {
         'task': 'parsers.tasks.upd_ria',
         'schedule': crontab(minute=30, hour='*/3'),
         'args': (3,),
+        'options': {"queue": 'normal'}
         # 'options': {"expires": 10799, 'max_retries': 0}
 
     },
-    'init_ab_every_hour': {
-        'task': 'parsers.tasks.inner_ab',
+    'upd_ab_every_hour': {
+        'task': 'parsers.tasks.upd_ab',
         'schedule': crontab(minute=1, hour='*/2'),
         # 'args': (3,),
+        'options': {"queue": 'low'}
         # 'options': {"expires": 10799, 'max_retries': 0}
 
     },
-    'update_ab_every_hour': {
+    'inner_ab_every_hour': {
         'task': 'parsers.tasks.inner_ab',
-        'schedule': crontab(minute=49, hour='*'),
+        'schedule': crontab(minute=49, hour='*/2'),
         # 'args': (3,),
-        'options': {"queue": 'normal'}
-
+        'options': {"queue": 'low'}
     },
     'check_is_active_users': {
         'task': 'parsers.tasks.check_is_active_users',
