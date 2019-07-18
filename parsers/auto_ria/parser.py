@@ -43,12 +43,10 @@ class WordsFormater:
         for liter in word:
             if liter not in integers:
                 response = response.replace(liter, '')
-        if response[:3] == '380':
-            print(response)
-            return response
-            # return response[2:]
-        print(f'38{response}')
-        return f'38{response}'
+        if response[:3] != '380':
+            response = f'38{response}'
+        return response
+
 
     def check_dtp(self, word: str):
         exept = 'После ДТП'
@@ -91,7 +89,6 @@ class AutoRiaInnerParse(WordsFormater):
 
     def find_model(self, data: dict):
         return get_model_id(data['markNameEng'], data['modelNameEng'])
-        # model_obj.get_model_id()
 
     def set_price(self, price_int: int, car):
         price = PriceHistory(price=price_int, date_set=timezone.now(), car=car, site='AR')
