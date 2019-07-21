@@ -111,7 +111,7 @@ class SellerPhone(models.Model):
     is_blocked = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.phone
+        return f'<SellerPhone: id={self.id} phone={self.phone}, deale={self.dealer}, is_blocked={self.is_blocked}>'
 
     @property
     def car_count(self):
