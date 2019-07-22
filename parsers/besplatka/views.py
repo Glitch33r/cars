@@ -11,8 +11,10 @@ class Bsp(View):
     def get(self, req):
         # bp_slicer_of_pages(3)
         for pages in bp_slicer_of_pages(3):
+            print(pages)
             bp = Besplatka()
             bp.run(*pages)
+            break
         # print(get_pages_sum())
         return JsonResponse({'status': 'success'})
 

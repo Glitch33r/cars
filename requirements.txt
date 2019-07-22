@@ -1,6 +1,7 @@
 amqp==2.5.0
 asn1crypto==0.24.0
 astroid==2.2.5
+Babel==2.7.0
 backcall==0.1.0
 beautifulsoup4==4.7.1
 billiard==3.6.0.0
@@ -17,6 +18,7 @@ django-celery-results==1.1.2
 django-field-history==0.7.0
 django-timezone-field==3.0
 fake-useragent==0.1.11
+flower==0.9.3
 idna==2.8
 ipython==7.5.0
 ipython-genutils==0.2.0
@@ -44,6 +46,7 @@ selenium==3.141.0
 six==1.12.0
 soupsieve==1.9.1
 sqlparse==0.3.0
+tornado==5.1.1
 traitlets==4.3.2
 typed-ast==1.4.0
 urllib3==1.25.3

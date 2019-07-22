@@ -92,6 +92,7 @@ class AutoRiaInnerParse(WordsFormater):
                    fuel_id=FUEL.get(self.fuel_parse(data['autoData']['fuelName'])),
                    engine=self.engine_parse(data['autoData']['fuelName']),
                    color=None,
+                   description=data['autoData']['description'],
                    year=data['autoData']['year'],
                    mileage=data['autoData']['raceInt'],
                    seller=self.set_saller(data['userPhoneData']['phone']),
