@@ -167,7 +167,7 @@ class Car(models.Model):
         ordering = ['-createdAt']
 
     def __str__(self):
-        return '{} {}'.format(self.model.mark if self.model.mark is not None else '', self.model)
+        return '{} {}'.format(self.model.mark if self.model else '', self.model)
 
     @property
     def price_history(self):

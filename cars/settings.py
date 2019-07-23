@@ -59,8 +59,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, 'templates'),
-            os.path.join(BASE_DIR, 'main', 'templates')
+            os.path.join(BASE_DIR, 'cars', 'templates'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -86,6 +85,7 @@ DATABASES = {
         'USER': 'pars_admin',
         'PASSWORD': 'qwerty',
         'HOST': '127.0.0.1',
+        # 'HOST': '192.168.1.19',
         'PORT': '5432',
     }
 }
@@ -140,7 +140,7 @@ CELERY_TIMEZONE = TIME_ZONE
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static_content', 'static')
 STATICFILES_DIRS = [
-    'main/static',
+    'cars/static',
 ]
 
 MEDIA_URL = '/media/'

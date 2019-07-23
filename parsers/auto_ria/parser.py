@@ -131,9 +131,14 @@ class AutoRiaInnerParse(WordsFormater):
             for ids in start_data['result']['search_result']['ids']:
                 try:
                     data = json.loads(requests.get(self.post_way.format(ids)).content)
-                except json.decoder.JSONDecodeError:
-                    time.sleep(1)
-                    data = json.loads(requests.get(self.post_way.format(ids)).content)
+                except:
+                    with open('not_saved_ria.json', 'a+', encoding='utf8') as f:
+                        import json
+                        json.dump({'mark': '123'}, f, ensure_ascii=False)
+                        f.write(',\n')
+                # except json.decoder.JSONDecodeError:
+                #     time.sleep(1)
+                #     data = json.loads(requests.get(self.post_way.format(ids)).content)
                 car_dict = self.set_car(data)
                 if car_dict['model_id']:
                     same_car = self.ar_same_car(car_dict, data['USD'])
@@ -146,7 +151,6 @@ class AutoRiaInnerParse(WordsFormater):
                     print('car not save Mark:{}, model:{}, link: https://auto.ria.com{}'.format(
                         data["markNameEng"], data[
                             "modelNameEng"], data["linkToView"]))
-                    pass
 
 
 class AutoRiaUpdateParse(AutoRiaInnerParse):

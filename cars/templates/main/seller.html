@@ -8,9 +8,15 @@
 {% endblock styles %}
 
 {% block content %}
+    <section id="title">
+        <div class="container">
+            <h1>{{ seller.status }} c {{ seller.car_count }} объявлениями.</h1>
+            {% comment %} <p>Телефоны: {{ seller.phone }}</p> {% endcomment %}
+        </div>
+    </section>
     <section id="filter">
         <div class="container">
-            <form action="{% url 'all-car' %}" method="get">
+            <form>
                 <div class="filter_wrp">
                     <div class="wrap">
                         <div class="left_block">
@@ -98,7 +104,7 @@
     </section>
     <section id="car_list">
         <div class="container">
-            {% include 'components/car_list.html' %}
+            {% include 'main/components/car_list.html' %}
             <div class="btn_see_more">
                 {% if prev_url %}
                     <a href="{{ prev_url }}"><i class="fas fa-arrow-left"></i></a>
@@ -106,7 +112,7 @@
                 {% if page %}
                     &nbsp;{{ page }}&nbsp;
                 {% endif %}
-                {% if next_url %}
+                {% if next_page %}
                     <a href="{{ next_url }}"><i class="fas fa-arrow-right"></i></a>
                 {% endif %}
             </div>

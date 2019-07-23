@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% load staticfiles %}
+{% load filter_selects %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+{% endblock styles %}
+
+{% block content %}
+    <a class="btn btn-primary" href="{% url 'analitic-mileage' %}">Аналитика по пробегу</a>
+    <a class="btn btn-primary" href="{% url 'analitic-selltime' %}">Аналитика по ценам</a>
+{% endblock content %}

@@ -8,15 +8,9 @@
 {% endblock styles %}
 
 {% block content %}
-    <section id="title">
-        <div class="container">
-            <h1>{{ seller.status }} c {{ seller.count }} объявлениями.</h1>
-            {% comment %} <p>Телефоны: {{ seller.phone }}</p> {% endcomment %}
-        </div>
-    </section>
     <section id="filter">
         <div class="container">
-            <form>
+            <form action="{% url 'all-car' %}" method="get">
                 <div class="filter_wrp">
                     <div class="wrap">
                         <div class="left_block">
@@ -32,10 +26,10 @@
                             <div class="fas fa-caret-down">
                                 <select class="form-control" name="model" id="filter_model">
                                     <option selected disabled>Модель</option>
-                                    {% models as models %}
+                                    {% comment %} {% models as models %}
                                     {% for model in models %}
                                     <option value="{{ model.id }}">{{ model.name }}</option>
-                                    {% endfor %}
+                                    {% endfor %} {% endcomment %}
                                 </select>
                             </div>
                             <div class="fas fa-caret-down">
@@ -104,7 +98,7 @@
     </section>
     <section id="car_list">
         <div class="container">
-            {% include 'components/car_list.html' %}
+            {% include 'main/components/car_list.html' %}
             <div class="btn_see_more">
                 {% if prev_url %}
                     <a href="{{ prev_url }}"><i class="fas fa-arrow-left"></i></a>
@@ -119,3 +113,19 @@
         </div>
     </section>
 {% endblock content %}
+{% block scripts %}
+    <script type="text/javascript">
+        $('#filter_brand').change(function () {
+            let mark_id = $(this).val()
+            console.log(mark_id)
+            let url_path = '/api/models/' + mark_id
+            $.get(url_path, function (data) {
+                console.log(data)
+                $('#filter_model').html('<option selected value="">Не выбрано</option>')
+                data.models.forEach(function (element) {
+                    $('#filter_model').append('<option value="' + element.id + '">' + element.name + '</option>')
+                })
+            })
+        })
+    </script>
+{% endblock scripts %}
