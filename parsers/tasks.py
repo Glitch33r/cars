@@ -2,7 +2,7 @@ from __future__ import absolute_import, unicode_literals
 
 from celery import shared_task
 
-from main.utils import init_ab_utils
+from main.utils import init_ab_utils, upd_ab_utils
 from .utils import CheckIsActiveUsers
 
 from parsers.auto_ria.parser import AutoRiaUpdateParse, AutoRiaInnerParse
@@ -31,6 +31,10 @@ def check_is_active_users():
 def xsum(numbers):
     return numbers
 
+@shared_task
+def inner_ab():
+    upd_ab_utils()
+    return None
 
 @shared_task
 def inner_ab():
