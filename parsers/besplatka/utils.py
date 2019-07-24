@@ -9,7 +9,7 @@ def get_pages_sum() -> int:
     }
     body = html.document_fromstring(
         requests.get('https://besplatka.ua/transport/legkovye-avtomobili', headers=headers).text)
-    return int(body.xpath('//*[@id="pagination"]/div/ul/li[14]/a')[0].text)
+    return int(body.xpath('//*[@id="pagination"]/div/ul/li[14]/a/text()')[0])
 
 
 def bp_slicer_of_pages(threads: int) -> list:

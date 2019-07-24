@@ -1,4 +1,6 @@
+import json
 from datetime import datetime
+from pprint import pprint
 
 import requests
 from django.db.models import Q
@@ -87,7 +89,7 @@ class ParserBesplatka:
 
     def parse_fuel(self):
         line = self.post_body.xpath('//div[@class="mes-properties"][1]/div[2]/div[1]/div[2]/a/text()')
-                                     #//*[@id="message"]/div[5                 ]/div[2]/div[1]/div[2]/a
+        # //*[@id="message"]/div[5                 ]/div[2]/div[1]/div[2]/a
         return False if not line else FUEL.get(line[0].lower())
 
     def parse_location(self):
@@ -104,7 +106,15 @@ class ParserBesplatka:
 
     def parse_year(self):
         line = self.post_body.xpath('//div[@class="mes-properties"][1]/div[1]/div[3]/div[2]/text()')
-        return False if not line else int(line[0].strip())
+        # if not line:
+        #     return False
+        # if str(line[0]).strip().isdigit():
+        #     return int(line[0].strip())
+        return False if not line else (False, int(line[0].strip()))[line[0].strip().isdigit()]
+
+    def parse_image(self):
+        line = self.post_body.xpath('//*[@id="message"]/div[1]/div[1]/ul/li[1]/div/img/@src')
+        return False if not line else line[0]
 
 
 class Besplatka(ParserBesplatka):
@@ -127,14 +137,12 @@ class Besplatka(ParserBesplatka):
         list_required_keys = ['model_id', 'gearbox_id', 'location_id', 'fuel_id',
                               'year', 'mileage', 'engine', 'seller', 'body_id']
         for key in list_required_keys:
-            if self.car_dict.get(key) is False:
+            if self.car_dict.get(key, False) is False:
                 return False
         return True
 
     def find_car_data(self):
-        print(self.current_link)
         self.car_dict = dict(
-            image=(False, self.post_body.xpath('//*[@id="message"]/div[1]/div[1]/ul/li[1]/div/img/@src')[0])[self.include_image],
             model_id=get_model_id(*self.get_mark_model_name()),
             description=self.parser_description(),
             createdAt=self.parse_date_created(),
@@ -147,6 +155,7 @@ class Besplatka(ParserBesplatka):
             bp_link=self.current_link,
             body_id=self.parse_body(),
             fuel_id=self.parse_fuel(),
+            image=self.parse_image(),
             updatedAt=timezone.now(),
             last_site_updatedAt=None,
             year=self.parse_year(),
@@ -155,14 +164,25 @@ class Besplatka(ParserBesplatka):
         print(self.car_dict)
 
     def parse_post(self):
+        # print(self.current_link)
+        if Car.objects.filter(bp_link=self.current_link):
+            # print('hi, find same link')
+            return
         self.post_body = html.document_fromstring(requests.get(self.current_link, headers=self.headers).text)
         self.include_image = bool(self.post_body.xpath('//*[@id="message"]/div[1]/div[1]/ul/li[1]/div/img'))
         self.info_row = int(self.include_image)
         self.find_car_data()
+        # print('###############################')
+        # print(f'####### model={self.car_dict["model_id"]}, year={self.car_dict["year"]} ######')
+        # print('###############################')
 
     def set_car(self):
         same_car = find_same_car(self.car_dict, self.car_dict['model_id'], site='bp')
         if same_car:
+            print('#############################################################################')
+            print(
+                f'###################### find car model={same_car.model.name}, id={same_car.id}##############################')
+            print('############################################################################')
             same_car.bp_link = self.car_dict['bp_link']
             same_car.updatedAt = timezone.now()
             return same_car
@@ -172,24 +192,53 @@ class Besplatka(ParserBesplatka):
         price = self.parser_price()
         PriceHistory(site='BP', price=price, car=car).save()
 
+    def set_base_info(self):
+        body = html.document_fromstring(requests.get(self.base_way.format(0), headers=self.headers).text)
+
     def run(self, start: int, finish: int) -> None:
-        for page in range(start, finish):
-            body = html.document_fromstring(requests.get(self.base_way.format(page), headers=self.headers).text)
-            for post in range(1, 30):
-                self.current_link = self.root_way.format(body.xpath(f'//*[@id="servermessages"]/div[4]/div[{post}]/div/div[3]/a/@href')[0])
-                # self.current_link = 'https://besplatka.ua/obyavlenie/prodam-avtomobil-d0bf22'
-                self.parse_post()
-                if self.car_dict_is_valid:
-                    print('True')
-                    car = self.set_car()
-                    car.save()
-                    self.set_price(car)
-                    #  сделать проверку на существующие записи по ссылке
+        """
+        1)Выполнятся запрос на общую страницу для получения токена,
+        2)выпонляеться пост запрос на список постов со страницы и через фор получение html и его парсинг
+        """
+        # for page in range(start, finish):
+        body = html.document_fromstring(requests.get(self.base_way.format(0), headers=self.headers).text)
+        # car_id = self.post_body.xpath('//a[@class="show-phone"]/@data-id')
+        local_headers = {'referer': 'https://besplatka.ua/transport/legkovye-avtomobili',
+                         'x-csrf-token': body.xpath('//meta[@name="csrf-token"]/@content')[0],
+                         'x-requested-with': 'XMLHttpRequest'}
+        data = {'sort': 'date-a-z',
+                'currency': 'USD',
+                'category_id': '129',
+                'region_id': '0',
+                'city_id': '0',
+                'refresh_filters': '0',
+                # 'ad_type':
+                # language: }
+                }
+        test = requests.post('https://besplatka.ua/category/index?page=1&query=', data=data, headers=local_headers)
+        print(test.status_code)
+        data = test.text
+        print(data)
+        # pprint(data.keys())
+        # pprint(data['messages'])
+        # print(len(data['messages']))
 
-
-
-
-
+            # print(self.base_way.format(page))
+            # for post in range(1, 30):
+            #     self.current_link = self.root_way.format(body.xpath(f'//*[@id="servermessages"]/div[4]/div[{post}]/div/div[3]/a/@href')[0])
+            #     self.current_link = 'https://besplatka.ua/obyavlenie/prodam-avtomobil-d0bf22'
+            # self.parse_post()
+            # if self.car_dict_is_valid:
+            #     print('True')
+            # car = self.set_car()
+            # car.save()
+            # self.set_price(car)
+            #  сделать проверку на существующие записи по ссылке
+    #
+    #
+    #
+    #
+    #
     # def set_car(self, car_dict: dict):
     #     car = dict(models_id=get_model_id(car_dict['mark'], car_dict['model']),
     #                gearbox_id=GEARBOX_ab.get(car_dict['gearbox']),
