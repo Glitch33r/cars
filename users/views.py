@@ -72,7 +72,7 @@ class FilterSave(View):
 
     def get(self, request, *args, **kwargs):
         context = dict()
-        context['url_post'] = f'http{"s" if request.is_secure() else ""}://{request.META["HTTP_HOST"]}/auth/models'
+        context['url_post'] = f'http{"s" if request.is_secure() else ""}://{request.META["HTTP_HOST"]}/api/models'
         context['marks'] = Mark.objects.all()
         context['gearboxs'] = Gearbox.objects.all()
         context['locations'] = Location.objects.all()

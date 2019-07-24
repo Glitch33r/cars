@@ -11,21 +11,16 @@ class AbParse(View):
 
     def get(self, request):
         ab_obj = Ab()
-        thread_1 = Thread(target=ab_obj.parse, args=(1, 100))
-        thread_2 = Thread(target=ab_obj.parse, args=(101, 200))
-        thread_3 = Thread(target=ab_obj.parse, args=(201, 300))
-        thread_4 = Thread(target=ab_obj.parse, args=(301, 400))
-        thread_5 = Thread(target=ab_obj.parse, args=(401, 500))
-        thread_1.start()
-        thread_2.start()
-        thread_3.start()
-        thread_4.start()
-        thread_5.start()
-        thread_1.join()
-        thread_2.join()
-        thread_3.join()
-        thread_4.join()
-        thread_5.join()
+        count = 5
+        threads = []
+        for i in range(1, count + 1):
+            finish = int(f'{i}01')
+            start = finish - 100
+            thread = Thread(target=ab_obj.parse, args=(start, finish))
+            thread.start()
+            threads.append(thread)
+        for thread in threads:
+            thread.join()
         return HttpResponse('DONE')
 
 
@@ -33,23 +28,16 @@ class AbUpdate(View):
 
     def get(self, request):
         ab_obj = Ab()
-        paginator = Paginator(Car.objects.filter(ab_car_id__isnull=False, sold=False), 5)
+        count = 5
+        threads = []
+        paginator = Paginator(Car.objects.exclude(ab_car_id=''), count)
         for page in range(1, paginator.num_pages):
             car_list = paginator.page(page)
-            thread_1 = Thread(target=ab_obj.update, args=(car_list[0],))
-            thread_2 = Thread(target=ab_obj.update, args=(car_list[1],))
-            thread_3 = Thread(target=ab_obj.update, args=(car_list[2],))
-            thread_4 = Thread(target=ab_obj.update, args=(car_list[3],))
-            thread_5 = Thread(target=ab_obj.update, args=(car_list[4],))
-            thread_1.start()
-            thread_2.start()
-            thread_3.start()
-            thread_4.start()
-            thread_5.start()
-            thread_1.join()
-            thread_2.join()
-            thread_3.join()
-            thread_4.join()
-            thread_5.join()
+            for car in car_list:
+                thread = Thread(target=ab_obj.update, args=(car,))
+                thread.start()
+                threads.append(thread)
+            for thread in threads:
+                thread.join()
         print('>>>>> FINISHED <<<<<')
         return HttpResponse('DONE')

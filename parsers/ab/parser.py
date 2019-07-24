@@ -11,13 +11,11 @@ from parsers.utils import get_model_id, find_same_car
 from main.models import (
     SellerPhone,
     Car,
-    Mark,
-    Model,
     Location,
     PriceHistory,
 
 )
-from parsers.choises import GEARBOX, FUEL, BODY, COLOR
+from parsers.choises import GEARBOX, FUEL, BODY, COLOR, LOCATION_ALL
 
 TZ = get_current_timezone()
 
@@ -43,6 +41,14 @@ class Ab:
         if not json_data['date_created']:
             return TZ.localize(datetime.strptime(json_data['hot_date'][0:19], '%Y-%m-%dT%H:%M:%S'))
         return TZ.localize(datetime.strptime(json_data['date_created'][0:19], '%Y-%m-%dT%H:%M:%S'))
+
+    @staticmethod
+    def set_price(car, price):
+        """Set price history"""
+        price = int(price)
+        price_history_obj = PriceHistory.objects.filter(car=car, site='AB').first()
+        if car.price != price and ((price_history_obj and price_history_obj.price != price) or not price_history_obj):
+            PriceHistory.objects.create(car=car, price=price, site='AB')
 
     def get_seller(self, car_id, dealer):
         """Returns SellerPhone object"""
@@ -112,43 +118,56 @@ class Ab:
                         data['price'] = int(price['value'])
 
                 data['seller_name'] = json_data['contact_name']
-                data['location'] = json_data['location']['title'].lower() if json_data['location'] else None
-
-                data['mark'] = json_data['make']['slug'].lower() if json_data['make']['slug'] else None
-                data['mark_title'] = json_data['make']['title'] \
-                    if json_data['make']['title'] else None
-                data['model'] = json_data['model']['slug'].lower().replace('klass', 'class') if json_data['model']['slug'] else None
-                data['model_title'] = json_data['model']['title'] \
-                    if json_data['model']['title'] else None
 
                 data['year'] = json_data['year']
                 data['mileage'] = json_data['mileage']
 
                 data['engine'] = json_data['characteristics']['capacity']['number'] \
                     if 'capacity' in json_data['characteristics'] else None
-                data['gearbox'] = json_data['characteristics']['gearbox']['title'].lower() \
+
+                # get mark and model
+                mark = json_data['make']['slug'].lower() if json_data['make']['slug'] else None
+                model = json_data['model']['slug'].lower() if json_data['model']['slug'] else None
+                if mark is not None and model is not None:
+                    data['model_id'] = get_model_id(mark, model)
+                else:
+                    data['model_id'] = None
+
+                # get location
+                location = json_data['location']['title'].lower() if json_data['location'] else None
+                data['location_id'] = LOCATION_ALL.get(location)
+
+                # get gearbox id
+                gearbox = json_data['characteristics']['gearbox']['title'].lower() \
                     if 'gearbox' in json_data['characteristics'] else None
-                data['gearbox'] = 'ручная/механика' \
-                    if data['gearbox'] == 'механика' else data['gearbox']
+                gearbox = 'ручная/механика' \
+                    if gearbox == 'механика' else gearbox
+                data['gearbox_id'] = GEARBOX.get(gearbox)
 
-                data['body'] = json_data['characteristics']['category']['title'].lower() \
+                # get body id
+                body = json_data['characteristics']['category']['title'].lower() \
                     if 'category' in json_data['characteristics'] else None
-                data['body'] = 'внедорожник/кроссовер' if data['body'] == 'внедорожник' \
-                    or data['body'] == 'кроссовер' else data['body']
-                data['body'] = 'хэтчбек' if data['body'] == 'хетчбэк' else data['body']
-                data['body'] = 'лифтбек' if data['body'] == 'лифтбэк' else data['body']
+                body = 'внедорожник/кроссовер' if body == 'внедорожник' \
+                    or body == 'кроссовер' else body
+                body = 'хэтчбек' if body == 'хетчбэк' else body
+                body = 'лифтбек' if body == 'лифтбэк' else body
+                data['body_id'] = BODY.get(body)
 
-                data['fuel'] = json_data['characteristics']['engine']['title'][:6].lower() \
+                # get fuel id
+                fuel = json_data['characteristics']['engine']['title'][:6].lower() \
                     if 'engine' in json_data['characteristics'] else None
-                data['fuel'] = data['fuel'] + 'о' if data['fuel'] == 'электр' else data['fuel']
-                data['fuel'] = 'газ/бензин' if data['fuel'] == 'газ, б' else data['fuel']
+                fuel = fuel + 'о' if fuel == 'электр' else fuel
+                fuel = 'газ/бензин' if fuel == 'газ, б' else fuel
+                data['fuel_id'] = FUEL.get(fuel)
 
-                data['color'] = json_data['color']['title'].lower().replace('ё', 'е') \
+                # get color id
+                color = json_data['color']['title'].lower().replace('ё', 'е') \
                     if json_data['color']['title'] is not None else None
-                data['color'] = 'золотой' if data['color'] == 'золотистый' else data['color']
-                data['color'] = 'серебряный' if data['color'] == 'серебристый' else data['color']
+                color = 'золотой' if color == 'золотистый' else color
+                color = 'серебряный' if color == 'серебристый' else color
+                data['color_id'] = COLOR.get(color)
 
-                data['description'] = json_data['description']
+                data['description'] = json_data['description'] if json_data['description'] else None
 
                 data['image'] = json_data['photos'][0]['image'] if json_data['photos'] else None
 
@@ -161,77 +180,45 @@ class Ab:
 
     def parse(self, start, finish):
         """Creates Car model objects from inbound page list"""
-        for page in range(start, finish + 1):
+        for page in range(start, finish):
             print('{} page of {}'.format(page, finish))
             for car_id in self.get_car_ids_by_page(page):
                 data = self.get_info_by_id(car_id)
 
                 if not data['sold']:
                     car = Car.objects.filter(ab_link=data['ab_link']).first()
-
-                    if not car:
-                        if data['mark'] is not None and data['model'] is not None:
-                            model_id = get_model_id(data['mark'], data['model'])
-                            if model_id is None:
-                                print('{} {} id {}'.format(data['mark'], data['model'], model_id))
-
+                    if not car and data['model_id']:
+                        car = find_same_car(data, data['model_id'], 'ab')
+                        if car:
+                            print(f' ###########################################')
+                            print(f' ##### Car {car.id} exists,add ab_link #####')
+                            print(f' ###########################################')
+                            car.ab_link = data['ab_link']
+                            car.ab_car_id = car_id
+                            car.updatedAt = TZ.localize(datetime.now())
+                            car.save()
                         else:
-                            model_id = None
-
-                        location = Location.objects.filter(name=data['location']).first()
-                        if not location:
-                            location = Location.objects.create(name=data['location'])
-
-                        if model_id:
-                            # car = find_same_car(data, model_id)
-                            car = Car.objects.filter(
-                                model_id=model_id,
-                                gearbox_id=GEARBOX.get(data['gearbox']),
-                                fuel_id=FUEL.get(data['fuel']),
+                            car = Car.objects.create(
+                                model_id=data['model_id'],
+                                gearbox_id=data['gearbox_id'],
+                                location_id=data['location_id'],
+                                fuel_id=data['fuel_id'],
+                                color_id=data['color_id'],
                                 year=data['year'],
                                 mileage=data['mileage'],
                                 engine=data['engine'],
+                                description=data['description'],
                                 seller=data['seller'],
-                                body_id=BODY.get(data['body']),
+                                body_id=data['body_id'],
+                                image=data['image'],
                                 dtp=data['dtp'],
                                 cleared=data['cleared'],
-                                ab_link=''
-                            ).first()
-
-                            if car:
-                                print(f' ###########################################')
-                                print(f' ###########car is find {car.id}############')
-                                print(f' ###########################################')
-                                car.ab_link = data['ab_link']
-                                car.ab_car_id = car_id
-                                car.updatedAt = TZ.localize(datetime.now())
-                                car.save()
-                                print('Car exists, add ab_link')
-                            else:
-                                car = Car.objects.create(
-                                    model_id=model_id,
-                                    gearbox_id=GEARBOX.get(data['gearbox']),
-                                    location=location,
-                                    fuel_id=FUEL.get(data['fuel']),
-                                    color_id=COLOR.get(data['color']),
-                                    year=data['year'],
-                                    mileage=data['mileage'],
-                                    engine=data['engine'],
-                                    description=data['description'],
-                                    seller=data['seller'],
-                                    body_id=BODY.get(data['body']),
-                                    image=data['image'],
-                                    dtp=data['dtp'],
-                                    cleared=data['cleared'],
-                                    last_site_updatedAt=data['last_site_updatedAt'],
-                                    updatedAt=TZ.localize(datetime.now()),
-                                    ab_link=data['ab_link'],
-                                    ab_car_id=car_id
-                                )
-                            PriceHistory.objects.create(car=car, price=data['price'], site='AB')
-                        else:
-                            print('>>>>>>>>>>>>>>>>>>>>>>{} {}'.format(data['mark'], data['ab_link']))
-        return print('FINISHED')
+                                last_site_updatedAt=data['last_site_updatedAt'],
+                                updatedAt=TZ.localize(datetime.now()),
+                                ab_link=data['ab_link'],
+                                ab_car_id=car_id
+                            )
+                        self.set_price(car, data['price'])
 
     def update(self, car):
         """Updates existing Car objects"""
@@ -239,13 +226,9 @@ class Ab:
         if data['sold'] is True:
             car.sold = True
             car.save()
-            # print('Car sold')
         else:
-            if car.price != data['price']:
-                PriceHistory.objects.create(car=car, price=data['price'], site='AB')
+            self.set_price(car, data['price'])
             if car.last_site_updatedAt != data['last_site_updatedAt']:
                 car.last_site_updatedAt = data['last_site_updatedAt']
             car.updatedAt = TZ.localize(datetime.now())
             car.save()
-            # print('Car updated')
-        return

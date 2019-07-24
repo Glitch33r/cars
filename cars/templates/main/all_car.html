@@ -26,10 +26,10 @@
                             <div class="fas fa-caret-down">
                                 <select class="form-control" name="model" id="filter_model">
                                     <option selected disabled>Модель</option>
-                                    {% models as models %}
+                                    {% comment %} {% models as models %}
                                     {% for model in models %}
                                     <option value="{{ model.id }}">{{ model.name }}</option>
-                                    {% endfor %}
+                                    {% endfor %} {% endcomment %}
                                 </select>
                             </div>
                             <div class="fas fa-caret-down">
@@ -98,7 +98,7 @@
     </section>
     <section id="car_list">
         <div class="container">
-            {% include 'components/car_list.html' %}
+            {% include 'main/components/car_list.html' %}
             <div class="btn_see_more">
                 {% if prev_url %}
                     <a href="{{ prev_url }}"><i class="fas fa-arrow-left"></i></a>
@@ -119,7 +119,7 @@
         $('#filter_brand').change(function () {
             let mark_id = $(this).val()
             console.log(mark_id)
-            let url_path = '{{ url_post }}' + '/' + mark_id
+            let url_path = '/api/models/' + mark_id
             $.get(url_path, function (data) {
                 console.log(data)
                 $('#filter_model').html('<option selected value="">Не выбрано</option>')

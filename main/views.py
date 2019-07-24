@@ -9,7 +9,7 @@ from main.utils import serialize_cars
 from main.models import (
     Car,
     SellerPhone,
-
+    Model
 )
 from seed_db.fk_tables import seed_location, seed_body, seed_color, seed_fuel, seed_gearbox, seed_mark, seed_model
 
@@ -76,16 +76,21 @@ def get_filtered_car_qs(params, qs):
     return car_qs
 
 
+def get_models(request, mark_id):
+    models = [{'id': model.id, 'name': model.name} for model in Model.objects.filter(mark__id=mark_id)]
+    return JsonResponse({'models': models})
+
+
 class HomePage(ListView):
-    template_name = 'home.html'
+    template_name = 'main/home.html'
     context_object_name = 'car_list'
 
     def get_queryset(self):
-        return Car.objects.filter(sold=False).order_by('-createdAt')[:5]
+        return Car.objects.filter(sold=False).exclude(ab_link='').exclude(ria_link='').order_by('-createdAt')[:5]
 
 
 class AllCarView(ListView):
-    template_name = 'all_car.html'
+    template_name = 'main/all_car.html'
 
     def get(self, request, *args, **kwargs):
         params = request.GET
@@ -108,7 +113,7 @@ class AllCarView(ListView):
 
 
 class SellerView(DetailView):
-    template_name = 'seller.html'
+    template_name = 'main/seller.html'
     model = SellerPhone
     context_object_name = 'seller'
 

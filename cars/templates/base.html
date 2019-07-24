@@ -26,15 +26,15 @@
 <body>
 
     <header>
-        {% include 'components/header.html' %}
+        {% include 'main/components/header.html' %}
     </header>
 
     {% block content %}{% endblock content %}
 
     <footer>
-        {% include 'components/footer.html' %}
+        {% include 'main/components/footer.html' %}
     </footer>
     {% block modal %}{% endblock modal %}
-{% block scripts %}{% endblock scripts %}
+    {% block scripts %}{% endblock scripts %}
 </body>
 </html>

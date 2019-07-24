@@ -96,6 +96,7 @@ def find_same_car(data: dict, model_id: int, site: str):
         'engine': data['engine'],
         'seller': data['seller'],
         'body_id': data['body_id'],
+        # 'location_id': data['location_id'],
         'dtp': data['dtp'],
         'cleared': data['cleared'],
         site_dict[site]: ''}
@@ -214,15 +215,15 @@ def get_model_id(mark, model):
                 model = re.sub(r"cx([0-9])", r"cx-\1", model)
             elif mark_id == 125:
                 model = re.sub(r"(-coupe|-roadster-r190|-c-190)", "", model)
-                model = re.sub(r"seriya", "class", model)
+                model = re.sub(r"(seriya|klass)", "class", model)
                 model = re.sub(r"maybach-s-class-x222", "maybach", model)
                 model = re.sub(r"sprinter-\d+$", "sprinter", model)
                 model = re.sub(r"(w(124|123)|w114-w115)", "e-class", model)
                 model = re.sub(r"class-550", "550", model)
-                model = re.sub(r"(aamg-gt-4|amg(-gt|-gt-c-190|-gt-roadster-r190))", "amg", model)
-                model = re.sub(r"^(gl|glk|gls|glc|ml|g|sl|slk|cls|clk|clc|cla|a|b|cl|s|r|v|m|e|c)$", r"\1-class", model)
-                model = re.sub(r"^(gl|glk|gls|glc|ml|g|sl|slk|cls|clk|clc|cla|a|b|cl|s|r|v|m|e|c)(-[0-9]{3}|[0-9]{2}|-[0-9]{3}\w)$", r"\1-class", model)
-                model = re.sub(r"^(gl|glk|gls|glc|ml|g|sl|slk|cls|clk|clc|cla|a|b|cl|s|r|v|m|e|c)\-[0-9]{2}\-amg$", r"\1-class", model)
+                model = re.sub(r"(aamg-gt-4|amg(-gt|-gt-c-190|-gt-roadster-r190|-c90))", "amg", model)
+                model = re.sub(r"^(gl|glk|gls|glc|gle|ml|g|sl|slk|cls|clk|clc|cla|a|b|cl|s|r|v|m|e|c)$", r"\1-class", model)
+                model = re.sub(r"^(gl|glk|gls|glc|gle|ml|g|sl|slk|cls|clk|clc|cla|a|b|cl|s|r|v|m|e|c)(-[0-9]{3}|[0-9]{2}|-[0-9]{3}\w+|-klass)$", r"\1-class", model)
+                model = re.sub(r"^(gl|glk|gls|glc|gle|ml|g|sl|slk|cls|clk|clc|cla|a|b|cl|s|r|v|m|e|c)\-[0-9]{2}\-amg$", r"\1-class", model)
                 model = re.sub(r"^(gls|s)-[0-9]{2}", r"\1-class", model)
             elif mark_id == 128:
                 model = re.sub(r"(-2|-cross)", "", model)
@@ -334,8 +335,8 @@ def get_model_id(mark, model):
 
     print('Not save {} {}'.format(mark, model))
 
-    # with open('not_saved.json', 'a+', encoding='utf8') as f:
-    #     import json
-    #     json.dump({'mark': mark, 'model': model, 'old_mark': old_mark, 'old_model': old_model}, f, ensure_ascii=False)
-    #     f.write(',\n')
+    with open('not_saved.json', 'a+', encoding='utf8') as f:
+        import json
+        json.dump({'mark': mark, 'model': model, 'old_mark': old_mark, 'old_model': old_model}, f, ensure_ascii=False)
+        f.write(',\n')
     return None

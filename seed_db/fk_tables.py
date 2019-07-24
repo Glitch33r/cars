@@ -2,7 +2,7 @@ import json
 
 import requests
 
-from parsers.choises import BODY, GEARBOX, FUEL, COLOR
+from parsers.choises import BODY, GEARBOX, FUEL, COLOR, LOCATION
 
 from main.models import Location, Color, Gearbox, Fuel, Body, Mark, Model
 from .auto_ria_api import AutoRiaAPI
@@ -18,8 +18,11 @@ def seed(api_way, class_obj):
 
 
 def seed_location():
-    seed('https://developers.ria.com/auto/states?api_key=', Location)
-
+    # seed('https://developers.ria.com/auto/states?api_key=', Location)
+    python_locations = []
+    for key,value in LOCATION.items():
+        python_locations.append(Location(id=value, name=key))
+    Location.objects.bulk_create(python_locations)
 
 def seed_color():
     # seed('https://developers.ria.com/auto/colors?api_key=', Color)

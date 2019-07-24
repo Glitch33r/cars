@@ -129,8 +129,8 @@
         <div class="info">
             {% if not seller_page %}
             <div class="more_links">
-                <div>{{ car.phone.status }}</div>
-                <a href="{{ car.phone.get_absolute_url }}">{{ car.phone.count }} объявлений продавца</a>
+                <div>{{ car.seller.status }}</div>
+                <a href="{{ car.seller.get_absolute_url }}">{{ car.seller.car_count }} объявлений продавца</a>
             </div>
             {% endif %}
             <div class="date_info">
@@ -148,7 +148,7 @@
                     <a class="rst" href="{{ car.rst_link }}" target="blank"></a>
                 {% endif %}
                 {% if car.ab_link %}
-                    <a class="rst" href="{{ car.ab_link }}" target="blank"></a>
+                    <a class="ab" href="{{ car.ab_link }}" target="blank"></a>
                 {% endif %}
             </div>
             <div class="link">

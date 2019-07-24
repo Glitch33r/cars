@@ -650,13 +650,19 @@ section#car_list .car_wrp .description_wrp .accordion ul.inner .ria {
   height: 24px;
   width: 24px;
   margin-right: 5px;
-  background: url("../img/NoPath\ –\ копія.png") no-repeat center / cover;
+  background: url("../img/ria-logo.png") no-repeat center / cover;
 }
 section#car_list .car_wrp .description_wrp .accordion ul.inner .rst {
   height: 24px;
   width: 24px;
   margin-right: 5px;
-  background: url("../img/NoPath\ –\ копія\ \(2\).png") no-repeat center / cover;
+  background: url("../img/rst-logo.png") no-repeat center / cover;
+}
+section#car_list .car_wrp .description_wrp .accordion ul.inner .ab {
+  height: 24px;
+  width: 24px;
+  margin-right: 5px;
+  background: url("../img/ab-logo.png") no-repeat center / cover;
 }
 section#car_list .car_wrp .description_wrp .accordion ul .acc_link {
   display: flex;
@@ -820,13 +826,13 @@ section#car_list .car_wrp .info .img_links a {
   display: block;
 }
 section#car_list .car_wrp .info .img_links a.ria {
-  background: url("../img/NoPath\ –\ копія.png");
+  background: url("../img/ria-logo.png");
 }
 section#car_list .car_wrp .info .img_links a.rst {
-  background: url("../img/NoPath\ –\ копія\ \(2\).png");
+  background: url("../img/rst-logo.png");
 }
 section#car_list .car_wrp .info .img_links a.ab {
-  background: url("../img/ab.png");
+  background: url("../img/ab-logo.png") no-repeat center / cover;
 }
 section#car_list .car_wrp .info .img_links a + a {
   margin-left: 8px;
