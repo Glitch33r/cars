@@ -27,10 +27,6 @@
                         <div class="fas fa-caret-down">
                             <select class="form-control" name="model" id="filter_model" required>
                                 <option selected disabled value="">Модель</option>
-                                {% models as models %}
-                                {% for model in models %}
-                                <option value="{{ model.id }}">{{ model.name }}</option>
-                                {% endfor %}
                             </select>
                         </div>
                         <div class="button">

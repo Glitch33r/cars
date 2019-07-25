@@ -56,6 +56,9 @@ class Mark(models.Model):
     ria_id = models.IntegerField(null=True)
     eng = models.CharField(max_length=128, blank=True)
 
+    class Meta:
+        ordering = ['name']
+
     def __str__(self):
         return self.name
 
@@ -66,12 +69,18 @@ class Model(models.Model):
     ria_id = models.IntegerField(null=True)
     eng = models.CharField(max_length=128, blank=True)
 
+    class Meta:
+        ordering = ['name']
+
     def __str__(self):
         return self.name
 
 
 class Location(models.Model):
     name = models.CharField(max_length=128, blank=False)
+
+    class Meta:
+        ordering = ['name']
 
     def __str__(self):
         return self.name
