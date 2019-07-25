@@ -10,10 +10,15 @@ from django.views import View
 class Bsp(View):
     def get(self, req):
         # bp_slicer_of_pages(3)
-        for pages in bp_slicer_of_pages(3):
+        thrs = []
+        for pages in bp_slicer_of_pages(1):
             bp = Besplatka()
-            bp.run(*pages)
-        # print(get_pages_sum())
+            thr = Thread(target=bp.run, args=(pages[0], pages[1]))
+            print('hi')
+            thr.start()
+            thrs.append(thr)
+        for thr in thrs:
+            thr.join()
         return JsonResponse({'status': 'success'})
 
 
