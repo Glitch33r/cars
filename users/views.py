@@ -62,6 +62,7 @@ def cleared_filter_qs(data):
     filter_dict['year_finish'] = data['year__lte']
     return filter_dict
 
+
 class FilterSave(View):
     # template_name = 'filter_page.html'
 
@@ -93,6 +94,6 @@ class FilterSave(View):
         return redirect('filter')
 
 
-def get_models(request, mark_id):
-    models = [{'id': model.id, 'name': model.name} for model in Model.objects.filter(mark__id=mark_id)]
-    return JsonResponse({'models': models})
+def get_mark(request):
+    marks = [{'id': mark.id, 'name': mark.name} for mark in Mark.objects.all()]
+    return JsonResponse({'marks': marks})
