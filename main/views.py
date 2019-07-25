@@ -9,7 +9,8 @@ from main.utils import serialize_cars
 from main.models import (
     Car,
     SellerPhone,
-    Model
+    Model,
+    Mark
 )
 from seed_db.fk_tables import seed_location, seed_body, seed_color, seed_fuel, seed_gearbox, seed_mark, seed_model
 
@@ -79,6 +80,11 @@ def get_filtered_car_qs(params, qs):
 def get_models(request, mark_id):
     models = [{'id': model.id, 'name': model.name} for model in Model.objects.filter(mark__id=mark_id)]
     return JsonResponse({'models': models})
+
+
+def get_marks(request):
+    marks = [{'id': mark.id, 'name': mark.name} for mark in Mark.objects.all()]
+    return JsonResponse({'marks': marks})
 
 
 class HomePage(ListView):
