@@ -117,7 +117,6 @@ $().UItoTop({ easingType: 'easeOutQuart' });
     //chart
     // Any of the following formats may be used
     let canvas = document.querySelectorAll("#myChart");
-    console.log(canvas);
     for (let i = 0; i < canvas.length; i++){
         let ctx = canvas[i].getContext("2d");
         let masPopChart = new Chart(ctx , {

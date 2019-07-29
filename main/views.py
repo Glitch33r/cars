@@ -9,7 +9,8 @@ from main.utils import serialize_cars
 from main.models import (
     Car,
     SellerPhone,
-    Model
+    Model,
+    Mark
 )
 from seed_db.fk_tables import seed_location, seed_body, seed_color, seed_fuel, seed_gearbox, seed_mark, seed_model
 
@@ -81,6 +82,11 @@ def get_models(request, mark_id):
     return JsonResponse({'models': models})
 
 
+def get_marks(request):
+    marks = [{'id': mark.id, 'name': mark.name} for mark in Mark.objects.all()]
+    return JsonResponse({'marks': marks})
+
+
 class HomePage(ListView):
     template_name = 'main/home.html'
     context_object_name = 'car_list'
@@ -100,14 +106,11 @@ class AllCarView(ListView):
 
         car_list, page, prev_url, next_url = get_pagination_data(request, car_qs, page)
 
-        url_post = f'http{"s" if request.is_secure() else ""}://{request.META["HTTP_HOST"]}/auth/models'
-
         context = {
             'car_list': car_list,
             'page': page,
             'prev_url': prev_url,
-            'next_url': next_url,
-            'url_post': url_post
+            'next_url': next_url
         }
         return render(request, self.template_name, context)
 

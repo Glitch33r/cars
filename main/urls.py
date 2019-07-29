@@ -2,6 +2,7 @@ from django.urls import path
 
 from main.views import (
     seed_db,
+    get_marks,
     get_models,
     # PaginatorCars,
 
