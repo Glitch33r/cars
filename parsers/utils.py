@@ -222,7 +222,7 @@ def get_model_id(mark, model):
                 model = re.sub(r"class-550", "550", model)
                 model = re.sub(r"(aamg-gt-4|amg(-gt|-gt-c-190|-gt-roadster-r190|-c90))", "amg", model)
                 model = re.sub(r"^(gl|glk|gls|glc|gle|ml|g|sl|slk|cls|clk|clc|cla|a|b|cl|s|r|v|m|e|c)$", r"\1-class", model)
-                model = re.sub(r"^(gl|glk|gls|glc|gle|ml|g|sl|slk|cls|clk|clc|cla|a|b|cl|s|r|v|m|e|c)(-[0-9]{3}|[0-9]{2}|-[0-9]{3}\w+|-klass)$", r"\1-class", model)
+                model = re.sub(r"^(gl|glk|gls|glc|gle|ml|g|sl|slk|cls|clk|clc|cla|a|b|cl|s|r|v|m|e|c)(-[0-9]{3}|[0-9]{2}|[0-9]{3}|-[0-9]{3}\w+|-klass)$", r"\1-class", model)
                 model = re.sub(r"^(gl|glk|gls|glc|gle|ml|g|sl|slk|cls|clk|clc|cla|a|b|cl|s|r|v|m|e|c)\-[0-9]{2}\-amg$", r"\1-class", model)
                 model = re.sub(r"^(gls|s)-[0-9]{2}", r"\1-class", model)
             elif mark_id == 128:
