@@ -1,9 +1,26 @@
 import requests
 from django.http import JsonResponse
+from django.views.generic.base import View
 from lxml import html
 from time import sleep
 from threading import Thread
-from .parser import OLX
+
+from parsers.besplatka.utils import bp_slicer_of_pages
+from parsers.olx._parser import OLXInner
+# from .parser import OLX
+
+
+class OLXView(View):
+
+    def get(self, request):
+        for ind, i in enumerate(bp_slicer_of_pages(1, 200)):
+            # print(f'##{i}#########{ind}')
+            ind += 1
+            # print(i[0], i[1], ind)
+            # print(f'<start={i[0]}, finish={i[1]}, numb={ind}>')
+            OLXInner(start=i[0], finish=i[1], numb=ind)
+            print('done !!')
+        return JsonResponse(dict(status='success'))
 
 
 def run(request):
@@ -24,9 +41,9 @@ def run(request):
                 print(f'link #{idx}, {post_url}')
                 sleep(15)
                 print('sleep 15')
-                olx = OLX(post_url)
-                olx.start()
-                del olx
+                # olx = OLX(post_url)
+                # olx.start()
+                # del olx
 
     import time
     start = time.time()

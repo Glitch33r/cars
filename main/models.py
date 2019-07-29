@@ -180,6 +180,7 @@ class PriceHistory(models.Model):
     SITE = (
         ('AR', 'AutoRia'),
         ('RST', 'RST'),
+        ('OLX', 'OLX'),
         ('AB', 'Auto Bazar'),
         ('BP', 'Besplatka'),
     )

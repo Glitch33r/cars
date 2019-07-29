@@ -12,8 +12,12 @@ def get_pages_sum() -> int:
     return int(body.xpath('//*[@id="pagination"]/div/ul/li[14]/a/text()')[0])
 
 
-def bp_slicer_of_pages(threads: int) -> list:
-    rest = get_pages_sum() // threads
+def bp_slicer_of_pages(threads: int, set_sum_page=False) -> list:
+
+    if set_sum_page:
+        rest = set_sum_page // threads
+    else:
+        rest = get_pages_sum() // threads
     response = [(0, rest,)]
     [response.append(((page - 1) * rest + 1, rest * page)) for page in range(2, threads + 1)]
     return response
