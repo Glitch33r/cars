@@ -10,7 +10,7 @@
 {% block content %}
 <section id="filter">
     <div class="container">
-        <form method="POST">
+        <form method="POST">{% csrf_token %}
             <div class="filter_wrp">
                 <div class="wrap col-12">
                     <div class="left_block">
