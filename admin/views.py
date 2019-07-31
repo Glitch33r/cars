@@ -12,10 +12,6 @@ class AnaliticView(TemplateView):
 class AnaliticMileageView(TemplateView):
     template_name = 'admin/mileage.html'
 
-    @csrf_exempt
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
-
     def post(self, request, *args, **kwargs):
         model = request.POST.get('model')
         car_qs = Car.objects.filter(model_id=model)
@@ -30,7 +26,7 @@ class AnaliticMileageView(TemplateView):
                 mileages = 0
                 count = 0
                 for car in car_qs.filter(year=year, fuel=fuel):
-                    if car.mileage != 0 and car.mileage < 100000:
+                    if car.mileage > 0 and car.mileage < 100000:
                         mileages += car.mileage
                         count += 1
                 mileage = mileages // count * 1000 if mileages != 0 and count != 0 else 0

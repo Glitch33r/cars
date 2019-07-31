@@ -10,22 +10,23 @@ $('#filter_brand').change(function () {
   })
 });
 $('.Search').on('click', function (e) {
-  var modelValue = $('#filter_model option:selected').val();
-  var modelName = $('#filter_model option:selected').text();
-  var markName = $('#filter_brand option:selected').text();
+  let modelValue = $('#filter_model option:selected').val();
+  let modelName = $('#filter_model option:selected').text();
+  let markName = $('#filter_brand option:selected').text();
   if (modelValue) {
     e.preventDefault();
+    let csrf_token = $("[name='csrfmiddlewaretoken']")[0].value;
     $.ajax({
       url: '/analitic/mileage/',
       type: 'post',
-      data: { 'model': modelValue },
+      data: { 'model': modelValue , csrfmiddlewaretoken: csrf_token },
       success: function (response) {
         $('.graph').css('display', 'block');
-        var years = response['years']
-        var fuels = response['fuels']
-        var dataSets = []
+        let years = response['years']
+        let fuels = response['fuels']
+        let dataSets = []
         for (fuel in fuels) {
-          var mydict = {
+          let mydict = {
             'label': fuel,
             'data': fuels[fuel],
             //'backgroundColor': $.Color([ 255, 0, 100 ]),
@@ -33,11 +34,11 @@ $('.Search').on('click', function (e) {
           }
           dataSets.push(mydict)
         }
-        var chartData = {
+        let chartData = {
           labels: years,
           datasets: dataSets
         };
-        var chLine = $('#chLine');
+        let chLine = $('#chLine');
         if (chLine) {
           new Chart(chLine, {
             type: 'line',
