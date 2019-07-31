@@ -39,24 +39,24 @@ app.conf.beat_schedule = {
         'task': 'parsers.tasks.upd_ria',
         'schedule': crontab(minute=30, hour='*/3'),
         'args': (3,),
-        'options': {"queue": 'normal'}
+        # 'options': {"queue": 'normal'}
         # 'options': {"expires": 10799, 'max_retries': 0}
 
     },
-    'upd_ab_every_hour': {
-        'task': 'parsers.tasks.upd_ab',
-        'schedule': crontab(minute=1, hour='*/2'),
-        # 'args': (3,),
-        'options': {"queue": 'low'}
-        # 'options': {"expires": 10799, 'max_retries': 0}
-
-    },
-    'inner_ab_every_hour': {
-        'task': 'parsers.tasks.inner_ab',
-        'schedule': crontab(minute=49, hour='*/2'),
-        # 'args': (3,),
-        'options': {"queue": 'low'}
-    },
+    # 'upd_ab_every_hour': {
+    #     'task': 'parsers.tasks.upd_ab',
+    #     'schedule': crontab(minute=1, hour='*/2'),
+    #     # 'args': (3,),
+    #     'options': {"queue": 'low'}
+    #     # 'options': {"expires": 10799, 'max_retries': 0}
+    #
+    # },
+    # 'inner_ab_every_hour': {
+    #     'task': 'parsers.tasks.inner_ab',
+    #     'schedule': crontab(minute=49, hour='*/2'),
+    #     # 'args': (3,),
+    #     'options': {"queue": 'low'}
+    # },
     'check_is_active_users': {
         'task': 'parsers.tasks.check_is_active_users',
         'schedule': crontab(hour=0, minute=0),
@@ -64,6 +64,10 @@ app.conf.beat_schedule = {
         # 'kwargs': {"options": {"expires": 10}}
         # 'options': {"expires": 10, 'max_retries': 1}
     },
+    'inner_olx_every_30_minutes': {
+        'task': 'parsers.tasks.inner_olx',
+        'schedule': crontab(minute='*/20'),
+    }
 }
 
 

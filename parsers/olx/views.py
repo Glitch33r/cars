@@ -6,19 +6,15 @@ from time import sleep
 from threading import Thread
 
 from parsers.besplatka.utils import bp_slicer_of_pages
-from parsers.olx._parser import OLXInner
-# from .parser import OLX
+from parsers.olx.parser import OLXInner, update_olx_util
 
 
 class OLXView(View):
 
     def get(self, request):
         for ind, i in enumerate(bp_slicer_of_pages(1, 200)):
-            # print(f'##{i}#########{ind}')
-            ind += 1
-            # print(i[0], i[1], ind)
-            # print(f'<start={i[0]}, finish={i[1]}, numb={ind}>')
-            OLXInner(start=i[0], finish=i[1], numb=ind)
+            # OLXInner()
+            update_olx_util()
             print('done !!')
         return JsonResponse(dict(status='success'))
 
