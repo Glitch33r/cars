@@ -8,6 +8,7 @@ from fake_useragent import UserAgent
 from django.core.paginator import Paginator
 from main.models import SellerPhone, Car, PriceHistory
 from parsers.choises import GEARBOX, FUEL, BODY, LOCATION
+from parsers.olx.utils import set_price
 from parsers.utils import get_model_id, find_same_car
 
 
@@ -300,7 +301,7 @@ class OLXInner(ParsDataOLX):
                 else:
                     self.find_same_car()
                     self.car.save()
-                    self.set_price()
+                    set_price(self.parse_price(), self.car)
 
     def data_valid(self):
         list_required_keys = ['model_id', 'gearbox_id', 'location_id', 'fuel_id',
@@ -354,8 +355,8 @@ class OLXInner(ParsDataOLX):
                 if self.check_time_valid(row):
                     self.links_of_post.append(
                         self.driver.find_element_by_xpath(
-                        f'//*[@id="offers_table"]/tbody/tr[{row}]/td/div/table/tbody/tr[1]/td[2]/div/h3/a').get_attribute(
-                        'href'))
+                            f'//*[@id="offers_table"]/tbody/tr[{row}]/td/div/table/tbody/tr[1]/td[2]/div/h3/a').get_attribute(
+                            'href'))
                 else:
                     return False
             except NoSuchElementException:
@@ -363,23 +364,9 @@ class OLXInner(ParsDataOLX):
         print('good, stack_links successfully complete')
         return True
 
-    @staticmethod
-    def read_start_time():
-        with open('./shed_olx.txt', 'r') as file:
-            v_time = file.read()
-            print(v_time)
-        print(f'###################### read time <{v_time}> #####')
-        return v_time
-
-    def write_start_time(self):
-        line = self.xpath('//*[@id="offers_table"]/tbody/tr[2]/td/div/table/tbody/tr[2]/td[1]/div/p/small[2]/span').text
-        time = line[line.rfind(' ') + 1:]
-        with open('shed_olx.txt', 'w+') as file:
-            file.write(time)
-
-    def set_price(self):
-        price = self.parse_price()
-        PriceHistory(car=self.car, price=price, date_set=timezone.now(), site='OLX').save()
+    # def set_price(self):
+    #     price = self.parse_price()
+    #     PriceHistory(car=self.car, price=price, date_set=timezone.now(), site='OLX').save()
 
     def find_same_car(self):
         car_same = find_same_car(self.car_dict, self.car_dict['model_id'], site='olx')
@@ -397,6 +384,20 @@ class OLXInner(ParsDataOLX):
             print('car present')
             return True
         return False
+
+    @staticmethod
+    def read_start_time():
+        with open('./shed_olx.txt', 'r') as file:
+            v_time = file.read()
+            print(v_time)
+        print(f'###################### read time <{v_time}> #####')
+        return v_time
+
+    def write_start_time(self):
+        line = self.xpath('//*[@id="offers_table"]/tbody/tr[2]/td/div/table/tbody/tr[2]/td[1]/div/p/small[2]/span').text
+        time = line[line.rfind(' ') + 1:]
+        with open('shed_olx.txt', 'w+') as file:
+            file.write(time)
 
 
 class OLXUpdater(ParsDataOLX):
@@ -419,7 +420,7 @@ class OLXUpdater(ParsDataOLX):
 
     def set_driver(self):
         self.chrome_options = webdriver.ChromeOptions()
-        self.chrome_options.headless = False
+        self.chrome_options.headless = True
         self.chrome_options.add_argument(f'--proxy={self.proxy["address5"]}')
         self.chrome_options.add_argument(f'--proxy-auth={self.proxy["username"]}:{self.proxy["password"]}')
         ua = UserAgent()
@@ -434,13 +435,14 @@ class OLXUpdater(ParsDataOLX):
             new_price = self.parse_price()
             if new_price:
                 if car.price != new_price:
-                    self.
+                    print('price is new')
+                    set_price(new_price, car)
 
-
-    def set_price(self):
-        pass
 
 def update_olx_util():
     cars = Car.objects.filter(sold=False).exclude(olx_link='')
     pages = Paginator(cars, 100)
+    start_time = timezone.now()
+    print(f'start {start_time}')
     OLXUpdater(pages.page(1))
+    print(f'сompleted in {timezone.now() - start_time} minutes')
