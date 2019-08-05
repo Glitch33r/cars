@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+{% endblock styles %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-6 offset-4 mt-3 mb-3">
+            <lable for="modal_bt">{% if profile.is_payed %}
+                <label>{{ date_expired }}</label>
+            {% else %}
+                <label> не уплочено </label>
+            {% endif %}</lable>
+            <button type="button" id="modal_bt" class="btn btn-primary" data-toggle="modal" data-target="#modalPoll-1">
+                Пополнить
+            </button>
+        </div>
+        <div class="col-5 offset-3">
+            <form>
+                <label for="name">Name</label>
+                <input class="form-control" type="text" id="name" value="{{ user.username }}">
+                <label for="email">Email</label>
+                <input type="email" class="form-control" id="email" value="{{ user.email }}">
+                <label for="phone">Phone</label>
+                <input type="text" class="form-control" id="phone" value="+{{ profile.phone }}">
+            </form>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block modal %}
+
+
+    <!-- Modal: modalPoll -->
+    <div class="modal fade right" id="modalPoll-1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true" data-backdrop="false">
+        <div class="modal-dialog modal-full-height modal-right modal-notify modal-info" role="document">
+            <div class="modal-content">
+                <!--Header-->
+                <div class="modal-header">
+                    <p class="heading lead">Feedback request
+                    </p>
+
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true" class="white-text">×</span>
+                    </button>
+                </div>
+
+                <!--Body-->
+                <div class="modal-body">
+                    <div class="text-center">
+                        <i class="far fa-file-alt fa-4x mb-3 animated rotateIn"></i>
+                        <p>
+                            <strong>Оплатить через приват</strong>
+                        </p>
+                        <p>мы используем ликпей
+                            <strong>Give us your feedback.</strong>
+                        </p>
+                    </div>
+
+                    <hr>
+
+                    <!-- Radio -->
+                    <p class="text-center">
+                        <strong>Ваш выбор</strong>
+                    </p>
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" name="group1" type="radio" id="radio-179" value="option1"
+                               checked>
+                        <label class="form-check-label" for="radio-179">3 дня 100 грн</label>
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" name="group1" type="radio" id="radio-279" value="option2">
+                        <label class="form-check-label" for="radio-279">7 дней 200 грн</label>
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" name="group1" type="radio" id="radio-379" value="option3">
+                        <label class="form-check-label" for="radio-379">10 дней 250 грн</label>
+                    </div>
+{#                    <div class="form-check mb-4">#}
+{#                        <input class="form-check-input" name="group1" type="radio" id="radio-479" value="option4">#}
+{#                        <label class="form-check-label" for="radio-479">Bad</label>#}
+{#                    </div>#}
+{#                    <div class="form-check mb-4">#}
+{#                        <input class="form-check-input" name="group1" type="radio" id="radio-579" value="option5">#}
+{#                        <label class="form-check-label" for="radio-579">Very bad</label>#}
+{#                    </div>#}
+                    <!-- Radio -->
+
+{#                    <p class="text-center">#}
+{#                        <strong>What could we improve?</strong>#}
+{#                    </p>#}
+{#                    <!--Basic textarea-->#}
+{#                    <div class="md-form">#}
+{#                        <textarea type="text" id="form79textarea" class="md-textarea form-control" rows="3"></textarea>#}
+{#                        <label for="form79textarea">Your message</label>#}
+{#                    </div>#}
+
+                </div>
+
+                <!--Footer-->
+                <div class="modal-footer justify-content-center">
+                    <button type="button" id="confirm_payment" class="btn btn-primary waves-effect waves-light">Пополнить
+                        <i class="fa fa-paper-plane ml-1"></i>
+                    </button>
+                    <a type="button" class="btn btn-outline-primary waves-effect" data-dismiss="modal">Отмена</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock modal %}
+
+{% block scripts %}
+    <script type="text/javascript">
+    $('#confirm_payment').click(function () {
+
+    })
+    
+    </script>
+{% endblock scripts %}

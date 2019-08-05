@@ -304,8 +304,9 @@ class OLXInner(ParsDataOLX):
                     set_price(self.parse_price(), self.car)
 
     def data_valid(self):
-        list_required_keys = ['model_id', 'gearbox_id', 'location_id', 'fuel_id',
-                              'year', 'mileage', 'engine', 'seller', 'body_id']
+        list_required_keys = ['model_id', 'gearbox_id', 'location_id',
+                              'fuel_id', 'year', 'mileage',
+                              'engine', 'seller', 'body_id']
         for key in list_required_keys:
             if self.car_dict.get(key, None) is None:
                 print(f'#################### invalid key ####{key}##########')
@@ -318,22 +319,22 @@ class OLXInner(ParsDataOLX):
         self.car_dict = {
             'model_id': self.parse_model(),
             'seller': self.find_seller(),
+            'sold': False,
+            'dtp': self.parse_dtp(),
             'year': self.parse_year(),
+            'last_site_updatedAt': None,
+            'updatedAt': timezone.now(),
+            'image': self.parse_image(),
+            'body_id': self.parse_body(),
+            'fuel_id': self.parse_fuel(),
+            'olx_link': self.parse_link(),
+            'engine': self.parse_engine(),
+            'mileage': self.parse_mileage(),
+            'cleared': self.parse_cleared(),
             'gearbox_id': self.parse_gearbox(),
             'location_id': self.parse_location(),
-            'fuel_id': self.parse_fuel(),
-            'engine': self.parse_engine(),
-            'description': self.parse_description(),
-            'mileage': self.parse_mileage(),
-            'body_id': self.parse_body(),
-            'image': self.parse_image(),
-            'dtp': self.parse_dtp(),
-            'sold': False,
-            'cleared': self.parse_cleared(),
-            'olx_link': self.parse_link(),
             'createdAt': self.parse_date_create(),
-            'updatedAt': timezone.now(),
-            'last_site_updatedAt': None
+            'description': self.parse_description(),
         }
 
     def check_time_valid(self, row):
@@ -363,10 +364,6 @@ class OLXInner(ParsDataOLX):
                 pass
         print('good, stack_links successfully complete')
         return True
-
-    # def set_price(self):
-    #     price = self.parse_price()
-    #     PriceHistory(car=self.car, price=price, date_set=timezone.now(), site='OLX').save()
 
     def find_same_car(self):
         car_same = find_same_car(self.car_dict, self.car_dict['model_id'], site='olx')
