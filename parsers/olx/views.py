@@ -13,8 +13,8 @@ class OLXView(View):
 
     def get(self, request):
         for ind, i in enumerate(bp_slicer_of_pages(1, 200)):
-            # OLXInner()
-            update_olx_util()
+            OLXInner()
+            # update_olx_util()
             print('done !!')
         return JsonResponse(dict(status='success'))
 

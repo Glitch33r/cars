@@ -57,16 +57,6 @@ class ParsDataOLX:
     def format_phone(self, phone: str) -> str:
         return f'38{self.cleaned_numbers(phone)[-10:]}'
 
-    def find_seller(self):
-        phone = self.parse_phone()
-        if phone is None:
-            return None
-        seller = SellerPhone.objects.filter(phone__contains=phone).first()
-        if seller is None:
-            seller = self.create_seller(phone)
-        # print(seller)
-        return seller
-
     def parse_phone(self):
         phone = self.xpath('//*[@id="contact_methods"]/li[2]/div/span')
         if phone:
@@ -80,7 +70,7 @@ class ParsDataOLX:
                     break
                 elif count > 30:
                     print('phone not find')
-                    return None
+                    return 'broken proxy'
             return phone
         return None
 
@@ -224,13 +214,20 @@ class OLXInner(ParsDataOLX):
     links_of_post = []
     proxy_counter = {'local': 0, 'base': 1}
     proxy = {
-        # 'address3': '45.67.120.4:30032',
-        'address3': '45.67.120.6:30032',
-        'address4': '45.67.123.107:30032',
-        'address1': '45.67.123.13:30032',
-        'address2': '45.67.120.171:30032',
+        'address1': '45.67.122.230:30032',
+        'address2': '45.67.123.184:30032',
+        'address3': '45.67.121.171:30032',
+        'address4': '45.67.123.20:30032',
+        'address5': '45.67.120.226:30032',
+        'address6': '45.67.122.181:30032',
+        'address7': '45.67.121.50:30032',
+        'address8': '45.67.123.232:30032',
+        'address9': '45.67.122.236:30032',
+        'address10': '45.67.121.74:30032',
         'username': 'jorjclub0420_gmail_c',
-        'password': '2c752798d6'}
+        'password': '2c752798d6'
+    }
+
     base_way = 'https://www.olx.ua/transport/legkovye-avtomobili/?page={}'
 
     def __init__(self):
@@ -275,9 +272,9 @@ class OLXInner(ParsDataOLX):
     def change_proxy(self):
         current_url = self.driver.current_url
         self.driver.close()
-        print(f'PROXY IS CHANGED to No "{self.proxy_counter["base"] + 1 if self.proxy_counter["base"] < 4 else 1}"')
+        print(f'PROXY IS CHANGED to No "{self.proxy_counter["base"] + 1 if self.proxy_counter["base"] < 7 else 1}"')
         self.proxy_counter['local'] = 0
-        self.proxy_counter['base'] = self.proxy_counter["base"] + 1 if self.proxy_counter["base"] < 4 else 1
+        self.proxy_counter['base'] = self.proxy_counter["base"] + 1 if self.proxy_counter["base"] < 7 else 1
         self.set_driver()
         self.driver.get(current_url)
 
@@ -304,9 +301,8 @@ class OLXInner(ParsDataOLX):
                     set_price(self.parse_price(), self.car)
 
     def data_valid(self):
-        list_required_keys = ['model_id', 'gearbox_id', 'location_id',
-                              'fuel_id', 'year', 'mileage',
-                              'engine', 'seller', 'body_id']
+        list_required_keys = ['model_id', 'gearbox_id', 'location_id', 'fuel_id',
+                              'year', 'mileage', 'engine', 'seller', 'body_id']
         for key in list_required_keys:
             if self.car_dict.get(key, None) is None:
                 print(f'#################### invalid key ####{key}##########')
@@ -319,22 +315,22 @@ class OLXInner(ParsDataOLX):
         self.car_dict = {
             'model_id': self.parse_model(),
             'seller': self.find_seller(),
-            'sold': False,
-            'dtp': self.parse_dtp(),
             'year': self.parse_year(),
-            'last_site_updatedAt': None,
-            'updatedAt': timezone.now(),
-            'image': self.parse_image(),
-            'body_id': self.parse_body(),
-            'fuel_id': self.parse_fuel(),
-            'olx_link': self.parse_link(),
-            'engine': self.parse_engine(),
-            'mileage': self.parse_mileage(),
-            'cleared': self.parse_cleared(),
             'gearbox_id': self.parse_gearbox(),
             'location_id': self.parse_location(),
-            'createdAt': self.parse_date_create(),
+            'fuel_id': self.parse_fuel(),
+            'engine': self.parse_engine(),
             'description': self.parse_description(),
+            'mileage': self.parse_mileage(),
+            'body_id': self.parse_body(),
+            'image': self.parse_image(),
+            'dtp': self.parse_dtp(),
+            'sold': False,
+            'cleared': self.parse_cleared(),
+            'olx_link': self.parse_link(),
+            'createdAt': self.parse_date_create(),
+            'updatedAt': timezone.now(),
+            'last_site_updatedAt': None
         }
 
     def check_time_valid(self, row):
@@ -364,6 +360,21 @@ class OLXInner(ParsDataOLX):
                 pass
         print('good, stack_links successfully complete')
         return True
+
+    def find_seller(self):
+        phone = self.parse_phone()
+        if phone is None:
+            self.change_proxy()
+            return None
+        seller = SellerPhone.objects.filter(phone__contains=phone).first()
+        if seller is None:
+            seller = self.create_seller(phone)
+        # print(seller)
+        return seller
+
+    # def set_price(self):
+    #     price = self.parse_price()
+    #     PriceHistory(car=self.car, price=price, date_set=timezone.now(), site='OLX').save()
 
     def find_same_car(self):
         car_same = find_same_car(self.car_dict, self.car_dict['model_id'], site='olx')
@@ -401,13 +412,17 @@ class OLXUpdater(ParsDataOLX):
     driver = None
     chrome_options = None
     proxy = {
-        'address5': '45.67.120.4:30032',
-        'address3': '45.67.120.6:30032',
-        'address4': '45.67.123.107:30032',
-        'address1': '45.67.123.13:30032',
-        'address2': '45.67.120.171:30032',
-        'username': 'jorjclub0420_gmail_c',
-        'password': '2c752798d6'}
+        'address1': '45.67.122.230:30032',
+        'address2': '45.67.123.184:30032',
+        'address3': '45.67.121.171:30032',
+        'address4': '45.67.123.20:30032',
+        'address5': '45.67.120.226:30032',
+        'address6': '45.67.122.181:30032',
+        'address7': '45.67.121.50:30032',
+        'address8': '45.67.123.232:30032',
+        'address9': '45.67.122.236:30032',
+        'address10': '45.67.121.74:30032',
+    }
 
     def __init__(self, list_of_cars: list):
         self.list_of_cars = list_of_cars
@@ -418,7 +433,7 @@ class OLXUpdater(ParsDataOLX):
     def set_driver(self):
         self.chrome_options = webdriver.ChromeOptions()
         self.chrome_options.headless = True
-        self.chrome_options.add_argument(f'--proxy={self.proxy["address5"]}')
+        self.chrome_options.add_argument(f'--proxy={self.proxy["address1"]}')
         self.chrome_options.add_argument(f'--proxy-auth={self.proxy["username"]}:{self.proxy["password"]}')
         ua = UserAgent()
         self.chrome_options.add_argument(f'user-agent={ua.random}')
