@@ -248,8 +248,8 @@ class OLXInner(ParsDataOLX):
         self.chrome_options.add_argument(f'user-agent={ua.random}')
 
         self.driver = webdriver.Chrome(executable_path='./chromedriver', chrome_options=self.chrome_options)
-        # chrome_options.binary_location = "/usr/bin/chromium-browser"                                       # for serv
-        # self.driver = webdriver.Chrome(executable_path='./chromium_driver', chrome_options=chrome_options) # for serv
+        # self.chrome_options.binary_location = "/usr/bin/chromium-browser"                                       # for serv
+        # self.driver = webdriver.Chrome(executable_path='./chromium_driver', chrome_options=self.chrome_options) # for serv
 
     def run(self):
         self.driver.get(self.base_way.format(1))
@@ -422,9 +422,9 @@ class OLXUpdater(ParsDataOLX):
         self.chrome_options.add_argument(f'--proxy-auth={self.proxy["username"]}:{self.proxy["password"]}')
         ua = UserAgent()
         self.chrome_options.add_argument(f'user-agent={ua.random}')
-        self.driver = webdriver.Chrome(executable_path='./chromedriver', chrome_options=self.chrome_options)
-        # chrome_options.binary_location = "/usr/bin/chromium-browser"                                       # for serv
-        # self.driver = webdriver.Chrome(executable_path='./chromium_driver', chrome_options=chrome_options) # for serv
+        self.driver = webdriver.Chrome(executable_path='./chromedriver', chrome_options=self.chrome_options)  # for test
+        # self.chrome_options.binary_location = "/usr/bin/chromium-browser"                                   # for prod
+        # self.driver = webdriver.Chrome(executable_path='./chromium_driver', chrome_options=self.chrome_options)  # for prod
 
     def run(self):
         for car in self.list_of_cars:
