@@ -32,22 +32,6 @@ class LoginView(View):
             return redirect('login')
 
 
-class ProfileView(View):
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return super(ProfileView, self).dispatch(request, *args, **kwargs)
-        return redirect('login')
-
-    def get(self, request):
-        context = dict()
-        context['profile'] = Profile.objects.filter(user=request.user).first()
-        if context['profile'].is_payed:
-            context['date_expired'] = max(Order.objects.filter(user=request.user, date_start__lte=timezone.now()),
-                                          key=lambda item: item.date_expired).date_expired
-        return render(request, 'profile_page.html', context)
-
-
 def cleared_filter_qs(data):
     accept_key = ['model', 'mark', 'gearbox', 'location', 'fuel', 'body']
     bool_keys = ['dtp', 'cleared', 'blocked', 'dealer']

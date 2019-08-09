@@ -44,19 +44,9 @@ def run(request):
     import time
     start = time.time()
     print('time', start)
-
     thr_1 = Thread(target=process, args=(list_pages[0:20],))
-    # thr_2 = Thread(target=process, args=(list_pages[21:45], ))
-    # thr_3 = Thread(target=process, args=(list_pages[351:500], ))
     thr_1.start()
-    # thr_2.start()
-    # thr_3.start()
-
     thr_1.join()
-
     end = time.time()
-
-    # thr_2.join()
-    # thr_3.join()
     print('end', end - start)
     return JsonResponse(dict(status='success'))

@@ -1,17 +1,19 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.generic import ListView, DetailView
-from django.views.generic.base import View
+from django.views.generic.base import View, TemplateView
 from django.views.decorators.http import require_GET
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from liqpay import LiqPay
 
-from main.utils import serialize_cars
+from cars import settings
+from main.utils import serialize_cars, set_order
 from main.models import (
     Car,
     SellerPhone,
     Model,
-    Mark
-)
+    Mark,
+    Profile, Order)
 from seed_db.fk_tables import seed_location, seed_body, seed_color, seed_fuel, seed_gearbox, seed_mark, seed_model
 
 
@@ -136,6 +138,58 @@ class SellerView(DetailView):
         context['next_url'] = next_url
         context['seller_page'] = True
         return context
+
+
+class ProfileView(TemplateView):
+
+    template_name = 'profile_page.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ProfileView, self).get_context_data(**kwargs)
+        context['profile'] = Profile.objects.filter(user=self.request.user).first()
+
+        return context
+
+
+class Billing(View):
+    template_name = 'liqpay.html'
+
+    def get(self, request, plan_id):
+        print(plan_id)
+        context = dict()
+        order = set_order(self.request.user, plan_id)
+        liq_pay = LiqPay(settings.LIQPAY_PRIVATE_KEY, settings.LIQPAY_PUBLIC_KEY)
+        params = {
+            'action': 'pay',
+            'amount': order.plan.money_count,
+            'currency': 'UAH',
+            'description': 'Payment for clothes',
+            'order_id': str(order.id),
+            'version': '3',
+            'sandbox': 0,  # sandbox mode, set to 1 to enable it
+            'server_url': 'https://localhost:8000/billing/pay-callback/',  # url to callback view
+        }
+        context['signature'] = liq_pay.cnb_signature(params)
+        context['data'] = liq_pay.cnb_signature(params)
+        return render(request, self.template_name, context=context)
+
+    # def get_context_data(self, **kwargs):
+    #     context = super(Billing, self).get_context_data(**kwargs)
+    #     liq_pay = LiqPay(settings.LIQPAY_PRIVATE_KEY, settings.LIQPAY_PUBLIC_KEY)
+    #     order = Order(user=self.request.user, plan=)
+    #     params = {
+    #         'action': 'pay',
+    #         'amount': '125',
+    #         'currency': 'UAH',
+    #         'description': 'Payment for clothes',
+    #         'order_id': '1',
+    #         'version': '3',
+    #         'sandbox': 0,  # sandbox mode, set to 1 to enable it
+    #         'server_url': 'https://localhost:8000/billing/pay-callback/',  # url to callback view
+    #     }
+    #     context['signature'] = liq_pay.cnb_signature(params)
+    #     context['data'] = liq_pay.cnb_signature(params)
+    #     return context
 
 
 class PaginatorCars(View):
