@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from main.models import UserFilter, Order, Plan
+from users.models import UserFilter, Order, Plan, Profile
 
 
 @admin.register(UserFilter)
@@ -14,3 +14,6 @@ class Order(admin.ModelAdmin):
 @admin.register(Plan)
 class Plan(admin.ModelAdmin):
     list_display = ['name', 'period_days']
+
+
+admin.site.register(Profile)

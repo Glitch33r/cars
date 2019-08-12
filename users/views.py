@@ -5,7 +5,8 @@ from django.utils import timezone
 from django.views.generic.base import View, TemplateView
 from django.contrib.auth import forms, authenticate, login
 
-from main.models import Order, Mark, Profile, Gearbox, Location, Model, Car, UserFilter
+from main.models import Mark, Gearbox, Location, Model, Car
+from users.models import Profile, Order, UserFilter
 from main.views import get_filtered_car_qs, filter_qs
 
 

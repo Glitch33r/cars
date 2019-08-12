@@ -7,6 +7,7 @@ from .olx.parser import OLXInner, OLXUpdater
 from .utils import CheckIsActiveUsers
 
 from parsers.auto_ria.parser import AutoRiaUpdateParse, AutoRiaInnerParse
+from parsers.ab.utils import ab_parse, ab_update
 
 
 @shared_task
@@ -33,15 +34,15 @@ def xsum(numbers):
 
 
 @shared_task
-def inner_ab():
-    upd_ab_utils()
-    return None
+def task_ab_parse():
+    ab_parse()
+    return print('AB parsing completed successfully!')
 
 
 @shared_task
-def inner_ab():
-    init_ab_utils()
-    return None
+def task_ab_update():
+    ab_update()
+    return print('AB updating completed successfully!')
 
 
 @shared_task

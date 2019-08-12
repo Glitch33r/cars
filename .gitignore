@@ -111,6 +111,10 @@ ipython_config.py
 
 # celery beat schedule file
 celerybeat-schedule
+*.bak
+*.dat
+*.dir
+*.pid
 
 # SageMath parsed files
 *.sage.py

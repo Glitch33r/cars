@@ -6,11 +6,11 @@ from main.models import Car, Fuel
 
 
 class AnaliticView(TemplateView):
-    template_name = 'admin/analitic.html'
+    template_name = 'analitic/index.html'
 
 
 class AnaliticMileageView(TemplateView):
-    template_name = 'admin/mileage.html'
+    template_name = 'analitic/mileage.html'
 
     def post(self, request, *args, **kwargs):
         model = request.POST.get('model')
@@ -42,4 +42,4 @@ class AnaliticMileageView(TemplateView):
 
 
 class AnaliticSelltimeView(TemplateView):
-    template_name = 'admin/selltime.html'
+    template_name = 'analitic/selltime.html'

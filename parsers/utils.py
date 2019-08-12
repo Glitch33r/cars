@@ -2,7 +2,8 @@ import re
 
 import telebot
 
-from main.models import UserFilter, Profile, Car, Order, Mark, Model, Telegram
+from main.models import Car, Mark, Model
+from users.models import Profile, Telegram, Order, UserFilter
 
 
 def get_chat(profile):

@@ -134,7 +134,7 @@ class Ab:
                     data['model_id'] = None
 
                 # get location
-                location = json_data['location']['title'].lower() if json_data['location'] else None
+                location = json_data['location']['title'].lower() if json_data['location']['title'] else None
                 data['location_id'] = LOCATION_ALL.get(location)
 
                 # get gearbox id
@@ -195,7 +195,6 @@ class Ab:
                             print(f' ###########################################')
                             car.ab_link = data['ab_link']
                             car.ab_car_id = car_id
-                            car.updatedAt = TZ.localize(datetime.now())
                             car.save()
                         else:
                             car = Car.objects.create(
@@ -214,7 +213,6 @@ class Ab:
                                 dtp=data['dtp'],
                                 cleared=data['cleared'],
                                 last_site_updatedAt=data['last_site_updatedAt'],
-                                updatedAt=TZ.localize(datetime.now()),
                                 ab_link=data['ab_link'],
                                 ab_car_id=car_id
                             )
@@ -230,5 +228,4 @@ class Ab:
             self.set_price(car, data['price'])
             if car.last_site_updatedAt != data['last_site_updatedAt']:
                 car.last_site_updatedAt = data['last_site_updatedAt']
-            car.updatedAt = TZ.localize(datetime.now())
             car.save()

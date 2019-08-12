@@ -1,54 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
 from django.urls import reverse
-from django.utils import timezone
-
-
-class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    phone = models.CharField(max_length=13, blank=False)
-    descriptions = models.TextField(null=True)
-    is_active = models.BooleanField(default=False)
-    expiredAt = models.DateTimeField(blank=True)
-
-    def __str__(self):
-        return self.user.email
-
-    @property
-    def is_payed(self):
-        return bool(
-            Order.objects.filter(user=self.user, date_start__lte=timezone.now(), date_expired__gte=timezone.now(),
-                                 confirmed=True).first())
-
-    class Meta:
-        verbose_name_plural = 'Profiles'
-
-
-class Plan(models.Model):
-    name = models.CharField(max_length=128)
-    price = models.CharField(max_length=128)
-    period_days = models.IntegerField()
-    money_count = models.IntegerField()
-
-    def __str__(self):
-        return f'Plan id={self.id}, plan={self.name}, price={self.price}'
-
-
-class Order(models.Model):
-    user = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
-    plan = models.ForeignKey(Plan, null=True, on_delete=models.SET_NULL)
-    date_transaction = models.DateTimeField(auto_now_add=True)
-    comment = models.TextField(blank=True)
-    confirmed = models.BooleanField(default=False)
-    date_start = models.DateTimeField()
-    date_expired = models.DateTimeField()
-
-    @property
-    def get_plan_days(self):
-        return int(self.plan.period_days)
-
-    def __str__(self):
-        return f'Order id={self.id}, plan={self.plan.name}, user={self.user.username}'
 
 
 class Mark(models.Model):
@@ -158,8 +109,8 @@ class Car(models.Model):
     body = models.ForeignKey(Body, null=True, on_delete=models.SET_NULL)
     image = models.CharField(max_length=256, null=True)
     dtp = models.BooleanField(default=False)
-    createdAt = models.DateTimeField(auto_now=True)
-    updatedAt = models.DateTimeField(blank=True, null=True)
+    createdAt = models.DateTimeField(auto_now_add=True)
+    updatedAt = models.DateTimeField(auto_now=True)
     last_site_updatedAt = models.DateTimeField(blank=True, null=True)
     sold = models.BooleanField(default=False)
     cleared = models.BooleanField(default=True)
@@ -209,49 +160,3 @@ class PriceHistory(models.Model):
             self.car.price = self.price
             self.car.save()
         super().save(*args, **kwargs)
-
-
-class Telegram(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    chat_id = models.CharField(max_length=24)
-    last_send_time = models.DateTimeField(null=True)
-
-    class Meta:
-        verbose_name_plural = 'telegram'
-
-    def __str__(self):
-        return f'<Telegram: user={self.user.username}, last_send_time={self.last_send_time}>'
-
-
-class UserFilter(models.Model):
-    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
-    model_id = models.IntegerField(null=True)
-    mark_id = models.IntegerField(null=True)
-    gearbox_id = models.IntegerField(null=True)
-    location_id = models.IntegerField(null=True)
-    fuel_id = models.IntegerField(null=True)
-    # color_id = models.IntegerField()
-    year_start = models.IntegerField(null=True)
-    year_finish = models.IntegerField(null=True)
-    # mileage = models.IntegerField()
-    # engine_id = models.IntegerField()
-    body_id = models.IntegerField(null=True)
-    dtp = models.BooleanField(default=False)
-    cleared = models.BooleanField(default=False)
-    blocked = models.BooleanField(default=False)
-    dealer = models.BooleanField(default=False)
-    # query_filter = models.CharField(max_length=256)
-    car_ids = models.TextField(null=True)
-
-    class Meta:
-        verbose_name_plural = 'user_filter'
-
-    def is_active(self):
-        return self.user.is_payed
-
-    @staticmethod
-    def get_active():
-        return UserFilter.objects.filter(user__is_active=True)
-
-    def __str__(self):
-        return f'<UserFilter: user={self.user.user.username}, dealer={self.dealer}>'

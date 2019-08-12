@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'main',
     'parsers',
     'users',
-
+    'analitic',
 ]
 
 MIDDLEWARE = [
