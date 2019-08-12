@@ -67,6 +67,10 @@ app.conf.beat_schedule = {
     'inner_olx_every_30_minutes': {
         'task': 'parsers.tasks.inner_olx',
         'schedule': crontab(minute='*/20'),
+    },
+    'updater_olx_every_30_minutes': {
+        'task': 'parsers.tasks.updater_olx',
+        'schedule': crontab(hour='*/2'),
     }
 }
 

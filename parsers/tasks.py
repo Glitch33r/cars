@@ -3,7 +3,7 @@ from __future__ import absolute_import, unicode_literals
 from celery import shared_task
 
 from main.utils import init_ab_utils, upd_ab_utils
-from .olx.parser import OLXInner, OLXUpdater
+from .olx.parser import OLXInner, OLXUpdater, update_olx_util
 from .utils import CheckIsActiveUsers
 
 from parsers.auto_ria.parser import AutoRiaUpdateParse, AutoRiaInnerParse
@@ -53,6 +53,6 @@ def inner_olx():
 
 @shared_task
 def updater_olx():
-    OLXUpdater()
+    update_olx_util()
     return None
 

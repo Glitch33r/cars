@@ -1,6 +1,7 @@
+import random
 import time
 from datetime import datetime
-
+from threading import Thread
 from django.utils import timezone
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
@@ -57,16 +58,6 @@ class ParsDataOLX:
     def format_phone(self, phone: str) -> str:
         return f'38{self.cleaned_numbers(phone)[-10:]}'
 
-    def find_seller(self):
-        phone = self.parse_phone()
-        if phone is None:
-            return None
-        seller = SellerPhone.objects.filter(phone__contains=phone).first()
-        if seller is None:
-            seller = self.create_seller(phone)
-        # print(seller)
-        return seller
-
     def parse_phone(self):
         phone = self.xpath('//*[@id="contact_methods"]/li[2]/div/span')
         if phone:
@@ -80,7 +71,7 @@ class ParsDataOLX:
                     break
                 elif count > 30:
                     print('phone not find')
-                    return None
+                    return False
             return phone
         return None
 
@@ -222,15 +213,22 @@ class OLXInner(ParsDataOLX):
     car_dict = None
     chrome_options = None
     links_of_post = []
-    proxy_counter = {'local': 0, 'base': 1}
+    proxy_counter = {'local': 0, 'base': random.randint(1, 10)}
     proxy = {
-        # 'address3': '45.67.120.4:30032',
-        'address3': '45.67.120.6:30032',
-        'address4': '45.67.123.107:30032',
-        'address1': '45.67.123.13:30032',
-        'address2': '45.67.120.171:30032',
+        'address1': '45.67.122.230:30032',
+        'address2': '45.67.123.184:30032',
+        'address3': '45.67.121.171:30032',
+        'address4': '45.67.123.20:30032',
+        'address5': '45.67.120.226:30032',
+        'address6': '45.67.122.181:30032',
+        'address7': '45.67.121.50:30032',
+        'address8': '45.67.123.232:30032',
+        'address9': '45.67.122.236:30032',
+        'address10': '45.67.121.74:30032',
         'username': 'jorjclub0420_gmail_c',
-        'password': '2c752798d6'}
+        'password': '2c752798d6'
+    }
+
     base_way = 'https://www.olx.ua/transport/legkovye-avtomobili/?page={}'
 
     def __init__(self):
@@ -248,48 +246,34 @@ class OLXInner(ParsDataOLX):
         self.chrome_options.add_argument(f'user-agent={ua.random}')
 
         self.driver = webdriver.Chrome(executable_path='./chromedriver', chrome_options=self.chrome_options)
-        # chrome_options.binary_location = "/usr/bin/chromium-browser"                                       # for serv
-        # self.driver = webdriver.Chrome(executable_path='./chromium_driver', chrome_options=chrome_options) # for serv
+        # self.chrome_options.binary_location = "/usr/bin/chromium-browser"                                       # for serv
+        # self.driver = webdriver.Chrome(executable_path='./chromium_driver', chrome_options=self.chrome_options) # for serv
 
     def run(self):
         self.driver.get(self.base_way.format(1))
         self.write_start_time()
-        if not self.stack_links():
-            print('stay in if in run()')
-            self.parse_posts()
-        else:
-            print('going to else in run()')
-            self.parse_posts()
-            for page in range(2, 201):
-                print('##########################################')
-                print(f'################ page  {page} ##################')
-                print('###########################################')
-                self.driver.get(self.base_way.format(page))
-                if self.stack_links():
-                    print(len(self.links_of_post), self.links_of_post[1])
-                    self.parse_posts()
-                else:
-                    self.parse_posts()
-                    break
+        self.stack_links()
+        self.parse_posts()
 
-    def change_proxy(self):
-        current_url = self.driver.current_url
-        self.driver.close()
-        print(f'PROXY IS CHANGED to No "{self.proxy_counter["base"] + 1 if self.proxy_counter["base"] < 4 else 1}"')
-        self.proxy_counter['local'] = 0
-        self.proxy_counter['base'] = self.proxy_counter["base"] + 1 if self.proxy_counter["base"] < 4 else 1
-        self.set_driver()
-        self.driver.get(current_url)
-
-    def check_proxy_counter(self):
-        if self.proxy_counter['local'] >= 25:
-            self.change_proxy()
-        self.proxy_counter['local'] += 1
+    def stack_links(self):
+        local_links = []
+        for page in range(1, 200):
+            self.driver.get(self.base_way.format(page))
+            for row in range(2, 40):
+                line = self.xpath(f'//*[@id="offers_table"]/tbody/tr[{row}]/td/div/table/tbody/tr[1]/td[2]/div/h3/a')
+                if line:
+                    if self.check_time_valid(row) is False:
+                        self.links_of_post = tuple(local_links)
+                        del local_links
+                        return
+                    local_links.append(line.get_attribute('href'))
+        self.links_of_post = tuple(local_links)
+        del local_links
 
     def parse_posts(self):
         for link in self.links_of_post:
             if self.check_car_is_present(link):
-                print('car present')
+                print('car is present')
                 pass
             else:
                 self.driver.get(link)
@@ -303,10 +287,23 @@ class OLXInner(ParsDataOLX):
                     self.car.save()
                     set_price(self.parse_price(), self.car)
 
+    def change_proxy(self):
+        current_url = self.driver.current_url
+        self.driver.close()
+        print(f'PROXY IS CHANGED to No "{self.proxy_counter["base"] + 1 if self.proxy_counter["base"] < 10 else 1}"')
+        self.proxy_counter['local'] = 0
+        self.proxy_counter['base'] = self.proxy_counter["base"] + 1 if self.proxy_counter["base"] < 10 else 1
+        self.set_driver()
+        self.driver.get(current_url)
+
+    def check_proxy_counter(self):
+        if self.proxy_counter['local'] >= 25:
+            self.change_proxy()
+        self.proxy_counter['local'] += 1
+
     def data_valid(self):
-        list_required_keys = ['model_id', 'gearbox_id', 'location_id',
-                              'fuel_id', 'year', 'mileage',
-                              'engine', 'seller', 'body_id']
+        list_required_keys = ['model_id', 'gearbox_id', 'location_id', 'fuel_id',
+                              'year', 'mileage', 'engine', 'seller', 'body_id']
         for key in list_required_keys:
             if self.car_dict.get(key, None) is None:
                 print(f'#################### invalid key ####{key}##########')
@@ -319,22 +316,22 @@ class OLXInner(ParsDataOLX):
         self.car_dict = {
             'model_id': self.parse_model(),
             'seller': self.find_seller(),
-            'sold': False,
-            'dtp': self.parse_dtp(),
             'year': self.parse_year(),
-            'last_site_updatedAt': None,
-            'updatedAt': timezone.now(),
-            'image': self.parse_image(),
-            'body_id': self.parse_body(),
-            'fuel_id': self.parse_fuel(),
-            'olx_link': self.parse_link(),
-            'engine': self.parse_engine(),
-            'mileage': self.parse_mileage(),
-            'cleared': self.parse_cleared(),
             'gearbox_id': self.parse_gearbox(),
             'location_id': self.parse_location(),
-            'createdAt': self.parse_date_create(),
+            'fuel_id': self.parse_fuel(),
+            'engine': self.parse_engine(),
             'description': self.parse_description(),
+            'mileage': self.parse_mileage(),
+            'body_id': self.parse_body(),
+            'image': self.parse_image(),
+            'dtp': self.parse_dtp(),
+            'sold': False,
+            'cleared': self.parse_cleared(),
+            'olx_link': self.parse_link(),
+            'createdAt': self.parse_date_create(),
+            'updatedAt': timezone.now(),
+            'last_site_updatedAt': None
         }
 
     def check_time_valid(self, row):
@@ -348,22 +345,22 @@ class OLXInner(ParsDataOLX):
             return False
         return True
 
-    def stack_links(self):
-        self.links_of_post = []
-        for row in range(2, 40):
-            print(f'row {row}')
-            try:
-                if self.check_time_valid(row):
-                    self.links_of_post.append(
-                        self.driver.find_element_by_xpath(
-                            f'//*[@id="offers_table"]/tbody/tr[{row}]/td/div/table/tbody/tr[1]/td[2]/div/h3/a').get_attribute(
-                            'href'))
-                else:
-                    return False
-            except NoSuchElementException:
-                pass
-        print('good, stack_links successfully complete')
-        return True
+    def find_seller(self):
+        phone = self.parse_phone()
+        if phone is False:
+            self.change_proxy()
+            return None
+        elif phone is None:
+            print('phone is not found')
+            return None
+        seller = SellerPhone.objects.filter(phone__contains=phone).first()
+        if seller is None:
+            seller = self.create_seller(phone)
+        return seller
+
+    # def set_price(self):
+    #     price = self.parse_price()
+    #     PriceHistory(car=self.car, price=price, date_set=timezone.now(), site='OLX').save()
 
     def find_same_car(self):
         car_same = find_same_car(self.car_dict, self.car_dict['model_id'], site='olx')
@@ -396,50 +393,77 @@ class OLXInner(ParsDataOLX):
         with open('shed_olx.txt', 'w+') as file:
             file.write(time)
 
+    def __del__(self):
+        self.driver.close()
+
 
 class OLXUpdater(ParsDataOLX):
-    driver = None
+
+
+    request_settings = {}
     chrome_options = None
     proxy = {
-        'address5': '45.67.120.4:30032',
-        'address3': '45.67.120.6:30032',
-        'address4': '45.67.123.107:30032',
-        'address1': '45.67.123.13:30032',
-        'address2': '45.67.120.171:30032',
+        'address1': {'http': '45.67.122.230:30032'},
+        'address2': {'http': '45.67.123.184:30032'},
+        'address3': {'http': '45.67.121.171:30032'},
+        'address4': {'http': '45.67.123.20:30032'},
+        'address5': {'http': '45.67.120.226:30032'},
+        'address6': {'http': '45.67.122.181:30032'},
+        'address7': {'http': '45.67.121.50:30032'},
+        'address8': {'http': '45.67.123.232:30032'},
+        'address9': {'http': '45.67.122.236:30032'},
+        'address10': {'http': '45.67.121.74:30032'},
         'username': 'jorjclub0420_gmail_c',
-        'password': '2c752798d6'}
+        'password': '2c752798d6'
+    }
 
     def __init__(self, list_of_cars: list):
         self.list_of_cars = list_of_cars
-        self.set_driver()
+        self.set_request_settings()
         self.run()
-        pass
 
-    def set_driver(self):
-        self.chrome_options = webdriver.ChromeOptions()
-        self.chrome_options.headless = True
-        self.chrome_options.add_argument(f'--proxy={self.proxy["address5"]}')
-        self.chrome_options.add_argument(f'--proxy-auth={self.proxy["username"]}:{self.proxy["password"]}')
-        ua = UserAgent()
-        self.chrome_options.add_argument(f'user-agent={ua.random}')
-        self.driver = webdriver.Chrome(executable_path='./chromedriver', chrome_options=self.chrome_options)
-        # chrome_options.binary_location = "/usr/bin/chromium-browser"                                       # for serv
-        # self.driver = webdriver.Chrome(executable_path='./chromium_driver', chrome_options=chrome_options) # for serv
+    def set_request_settings(self):
+        from requests.auth import HTTPProxyAuth
+        agnt = UserAgent()
+        self.request_settings['headers'] = {'User-Agent': agnt.random}
+        self.request_settings['auth'] = HTTPProxyAuth("jorjclub0420_gmail_c", "2c752798d6")
+        self.request_settings['proxies'] = self.proxy[f'address{random.randint(1,10)}']
 
     def run(self):
+        import requests
+        from bs4 import BeautifulSoup
+        counter = 0
         for car in self.list_of_cars:
-            self.driver.get(car.olx_link)
-            new_price = self.parse_price()
-            if new_price:
-                if car.price != new_price:
-                    print('price is new')
-                    set_price(new_price, car)
+            print(car.olx_link)
+            if counter % 20 == 0:
+                self.set_request_settings()
+            soup = BeautifulSoup(requests.get(car.olx_link, **self.request_settings).text, 'html.parser')
+            line = soup.find_all('div', {'class': 'price-label'})
+            if line:
+
+                line = line[0].find('strong').text
+                price = int(line[:line.rfind(' ')].replace(' ', ''))
+                if price != car.price:
+                    print('price is update')
+                    set_price(price, car)
+            else:
+                car.sold = True
+                print('car is sold')
+            counter += 1
 
 
 def update_olx_util():
     cars = Car.objects.filter(sold=False).exclude(olx_link='')
-    pages = Paginator(cars, 100)
+    print(cars.count() // 4)
+    pages = Paginator(cars, cars.count() // 4)
+    jobs = []
     start_time = timezone.now()
-    print(f'start {start_time}')
-    OLXUpdater(pages.page(1))
+    for page in pages.page_range:
+        job = Thread(target=OLXUpdater, args=(pages.page(page),))
+        job.start()
+        jobs.append(job)
+        if pages.page(page).has_next() is False:
+            break
+    for job in jobs:
+        job.join()
     print(f'сompleted in {timezone.now() - start_time} minutes')

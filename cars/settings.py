@@ -136,6 +136,12 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
 
+
+# LIQPAY
+
+LIQPAY_PUBLIC_KEY = '*********'
+LIQPAY_PRIVATE_KEY = '***********************************'
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 

@@ -1,9 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from threading import Thread
 
 from django.core.paginator import Paginator
 
 from main.models import Car
+from users.models import Plan, Order
 from parsers.ab.parser import Ab
 
 
@@ -60,6 +61,17 @@ def upd_ab_utils():
             thread_5.join()
         except:
             break
+
+
+def set_order(user, plan_id):
+    plan = Plan.objects.filter(id=plan_id).first()
+    print(plan)
+    last_order = Order.objects.filter(user=user).order_by('-date_expired').first()
+    date_start = last_order.date_expired + timedelta(days=1)
+    new_order = Order(user=user, plan=plan, date_start=date_start,
+                      date_expired=date_start + timedelta(days=plan.period_days))
+    new_order.save()
+    return new_order
 
 
 def init_ab_utils():

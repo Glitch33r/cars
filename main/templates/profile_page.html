@@ -49,7 +49,7 @@
                 </div>
 
                 <!--Body-->
-                <div class="modal-body">
+                <div class="modal-body" id="my_form">
                     <div class="text-center">
                         <i class="far fa-file-alt fa-4x mb-3 animated rotateIn"></i>
                         <p>
@@ -67,19 +67,19 @@
                         <strong>Ваш выбор</strong>
                     </p>
                     <div class="form-check mb-4">
-                        <input class="form-check-input" name="group1" type="radio" id="radio-179" value="option1"
+                        <input class="form-check-input" name="group1" type="radio" id="radio-179" value="1"
                                checked>
-                        <label class="form-check-label" for="radio-179">3 дня 100 грн</label>
+                        <label class="form-check-label" for="radio-179">1 неделя 125 грн</label>
                     </div>
 
                     <div class="form-check mb-4">
-                        <input class="form-check-input" name="group1" type="radio" id="radio-279" value="option2">
-                        <label class="form-check-label" for="radio-279">7 дней 200 грн</label>
+                        <input class="form-check-input" name="group1" type="radio" id="radio-279" value="2">
+                        <label class="form-check-label" for="radio-279">1 месяц 375 грн</label>
                     </div>
 
                     <div class="form-check mb-4">
-                        <input class="form-check-input" name="group1" type="radio" id="radio-379" value="option3">
-                        <label class="form-check-label" for="radio-379">10 дней 250 грн</label>
+                        <input class="form-check-input" name="group1" type="radio" id="radio-379" value="3">
+                        <label class="form-check-label" for="radio-379">3 месяца 875 грн</label>
                     </div>
 {#                    <div class="form-check mb-4">#}
 {#                        <input class="form-check-input" name="group1" type="radio" id="radio-479" value="option4">#}
@@ -117,7 +117,7 @@
 {% block scripts %}
     <script type="text/javascript">
     $('#confirm_payment').click(function () {
-
+        location.href = ('/billing/' + $("#my_form input[type='radio']:checked").val())
     })
     
     </script>
