@@ -1,36 +1,97 @@
+from django.utils import timezone
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
-from django.utils import timezone
+from django.urls import reverse_lazy
 
-from django.views.generic.base import View, TemplateView
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
+from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.debug import sensitive_post_parameters
+from django.contrib.auth.decorators import login_required
+
+
+from django.views.generic import View, TemplateView, FormView, RedirectView
 from django.contrib.auth import forms, authenticate, login
 
 from main.models import Mark, Gearbox, Location, Model, Car
 from users.models import Profile, Order, UserFilter
 from main.views import get_filtered_car_qs, filter_qs
 
+from django.contrib import auth
+from django.contrib.auth.forms import AuthenticationForm
+from users.forms import RegistrationForm
 
-class LoginView(View):
-    http_method_names = ['get', 'post']
 
-    def get(self, request):
-        form = forms.AuthenticationForm()
-        return render(request, 'registration/login.html', {'form': form})
+class LoginView(FormView):
+    form_class = AuthenticationForm
+    http_method_names = ['post']
+    success_url = reverse_lazy('home')
 
-    def post(self, request, **kwargs):
-        data = request.POST.dict()
-        # куча проверки проплочен ли аккаунт
-        user = authenticate(username=data['username'], password=data['password'])
-        if user is not None:
-            order = Order.objects.filter(user=user).first()
-            if timezone.now() < order.date_expired:
-                login(request, user)
-                return redirect('home')
-            else:
-                login(request, user)
-                return redirect('home')
-        else:
-            return redirect('login')
+    def form_valid(self, form):
+        auth.login(self.request, form.get_user())
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        return JsonResponse(form.errors)
+
+
+class LogoutView(RedirectView):
+    url = reverse_lazy('home')
+
+    @method_decorator(sensitive_post_parameters('password'))
+    @method_decorator(csrf_protect)
+    @method_decorator(never_cache)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        auth.logout(request)
+        return super().get(request, *args, **kwargs)
+
+
+class RegistrationView(FormView):
+    form_class = RegistrationForm
+    http_method_names = ['post']
+    success_url = reverse_lazy('home')
+
+    @method_decorator(sensitive_post_parameters('password'))
+    @method_decorator(csrf_protect)
+    @method_decorator(never_cache)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.save()
+        user = Profile.objects.filter(email=form.cleaned_data['email']).first()
+        if user:
+            auth.login(self.request, user)
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        return JsonResponse(form.errors)
+
+
+# class LoginView(View):
+#     http_method_names = ['get', 'post']
+
+#     def get(self, request):
+#         form = forms.AuthenticationForm()
+#         return render(request, 'registration/login.html', {'form': form})
+
+#     def post(self, request, **kwargs):
+#         data = request.POST.dict()
+#         # куча проверки проплочен ли аккаунт
+#         user = authenticate(username=data['username'], password=data['password'])
+#         if user is not None:
+#             order = Order.objects.filter(user=user).first()
+#             if timezone.now() < order.date_expired:
+#                 login(request, user)
+#                 return redirect('home')
+#             else:
+#                 login(request, user)
+#                 return redirect('home')
+#         else:
+#             return redirect('login')
 
 
 def cleared_filter_qs(data):
@@ -79,6 +140,16 @@ class FilterSave(View):
         return redirect('filter')
 
 
-def get_mark(request):
-    marks = [{'id': mark.id, 'name': mark.name} for mark in Mark.objects.all()]
-    return JsonResponse({'marks': marks})
+class ProfileView(TemplateView):
+
+    template_name = 'profile_page.html'
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(ProfileView, self).get_context_data(**kwargs)
+        context['profile'] = self.request.user
+
+        return context

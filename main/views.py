@@ -9,7 +9,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from cars import settings
 from main.utils import serialize_cars, set_order
 from main.models import Car, SellerPhone, Model, Mark
-from users.models import Profile, Order
+from users.models import Order
 from seed_db.fk_tables import seed_location, seed_body, seed_color, seed_fuel, seed_gearbox, seed_mark, seed_model
 
 
@@ -54,20 +54,7 @@ def filter_qs(params):
 
 
 def get_filtered_car_qs(params, qs):
-
     filter_data = filter_qs(params)
-    # filter_data = dict()
-    # for key, value in params.items():
-    #     if value != '':
-    #         if key == 'page':
-    #             pass
-    #         elif key == 'cleared':
-    #             filter_data[key] = bool(value != '0')
-    #         elif key == 'dtp':
-    #             filter_data[key] = bool(value != '0')
-    #         else:
-    #             filter_data[key] = value
-
     try:
         car_qs = qs.filter(**filter_data)
     except:
@@ -133,17 +120,6 @@ class SellerView(DetailView):
         context['prev_url'] = prev_url
         context['next_url'] = next_url
         context['seller_page'] = True
-        return context
-
-
-class ProfileView(TemplateView):
-
-    template_name = 'profile_page.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(ProfileView, self).get_context_data(**kwargs)
-        context['profile'] = Profile.objects.filter(user=self.request.user).first()
-
         return context
 
 

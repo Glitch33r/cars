@@ -34,6 +34,10 @@
     <footer>
         {% include 'main/components/footer.html' %}
     </footer>
+    {% if not request.user.is_authenticated %}
+        {% include "users/login.html" %}
+        {% include "users/registration.html" %}
+    {% endif %}
     {% block modal %}{% endblock modal %}
     {% block scripts %}{% endblock scripts %}
 </body>

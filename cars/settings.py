@@ -113,8 +113,10 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # AUTH
 
-LOGIN_URL = '/auth/login'
-LOGOUT_URL = 'auth/logout'
+AUTH_USER_MODEL = 'users.Profile'
+
+LOGIN_URL = '/auth/login/'
+LOGOUT_URL = '/auth/logout/'
 LOGIN_REDIRECT_URL = ''
 
 # Internationalization
